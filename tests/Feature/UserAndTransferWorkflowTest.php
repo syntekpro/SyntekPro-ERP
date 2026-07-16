@@ -136,4 +136,48 @@ class UserAndTransferWorkflowTest extends TestCase
         $this->assertSame('20.000', $warehouseStock->quantity);
         $this->assertSame('5.000', $shopStock->quantity);
     }
+
+    public function test_transfer_creation_warns_when_concurrent_reservations_reduce_available_stock(): void
+    {
+        $admin = User::factory()->create(['role' => UserRole::SuperAdmin]);
+        $shop = Shop::query()->create(['name' => 'Dammam', 'slug' => 'dammam', 'is_active' => true]);
+        $warehouse = Warehouse::query()->create(['name' => 'Central', 'code' => 'WH-C', 'is_active' => true]);
+        $product = Product::query()->create([
+            'name' => 'Scanner',
+            'sku' => 'SKU-T2',
+            'price' => 100,
+            'cost_price' => 60,
+            'vat_rate' => 15,
+            'is_active' => true,
+        ]);
+
+        WarehouseStock::query()->create([
+            'warehouse_id' => $warehouse->id,
+            'product_id' => $product->id,
+            'quantity' => 5,
+        ]);
+
+        $existing = StockTransfer::query()->create([
+            'source_warehouse_id' => $warehouse->id,
+            'destination_shop_id' => $shop->id,
+            'status' => StockTransferStatus::Pending,
+            'initiated_by' => $admin->id,
+            'notes' => 'Existing pending reservation',
+        ]);
+
+        $existing->items()->create([
+            'product_id' => $product->id,
+            'quantity' => '4.000',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(StockTransferFormPage::class)
+            ->set('source_warehouse_id', $warehouse->id)
+            ->set('destination_shop_id', $shop->id)
+            ->set('items.0.product_id', $product->id)
+            ->set('items.0.quantity', '3.000')
+            ->call('save')
+            ->assertRedirect(route('stock-transfers.index'))
+            ->assertSessionHas('warning');
+    }
 }

@@ -53,6 +53,7 @@ class PosSaleSyncTest extends TestCase
             'sku' => 'RICE-5KG',
             'barcode' => '6291234567890',
             'price' => 50,
+            'cost_price' => 32,
             'vat_rate' => 7.5,
             'is_active' => true,
         ]);
@@ -98,6 +99,23 @@ class PosSaleSyncTest extends TestCase
             'status' => SaleStatus::Synced->value,
         ]);
 
+        $sale = \App\Models\Sale::query()->where('idempotency_key', 'sale-001')->firstOrFail();
+
+        $this->assertNotNull($sale->zatca_qr_payload);
+        $this->assertNotNull($sale->invoice_uuid);
+        $this->assertNotNull($sale->invoice_hash);
+
+        $decodedQr = base64_decode((string) $sale->zatca_qr_payload, true);
+
+        $this->assertNotFalse($decodedQr);
+        $this->assertStringContainsString('Central Shop', (string) $decodedQr);
+
+        $this->assertDatabaseHas('sale_items', [
+            'sale_id' => $sale->id,
+            'product_id' => $product->id,
+            'unit_cost' => '32.00',
+        ]);
+
         $this->assertDatabaseHas('shop_stock', [
             'shop_id' => $shop->id,
             'product_id' => $product->id,
@@ -128,6 +146,7 @@ class PosSaleSyncTest extends TestCase
             'sku' => 'RICE-5KG',
             'barcode' => '6291234567890',
             'price' => 50,
+            'cost_price' => 32,
             'vat_rate' => 7.5,
             'is_active' => true,
         ]);

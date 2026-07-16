@@ -6,9 +6,26 @@ SyntekPro ERP is a Laravel-based multi-tenant ERP and POS platform for the Saudi
 
 This repository currently includes:
 
-- Phase 0 foundation: tenancy primitives, Sanctum auth, Docker-first configuration, roles, and Phase 0 tests.
-- Phase 1 hub UI: dashboard metrics plus CRUD surfaces for shops, warehouses, and products using Blade and Livewire.
-- Early Phase 2 schema: `warehouse_stock`, `shop_stock`, and `stock_transfers` tables with transfer status lifecycle.
+- Phase 0 foundation: tenancy primitives, Sanctum auth, Docker-first configuration, roles, and baseline feature tests.
+- Phase 1 hub UI: dashboard metrics plus CRUD surfaces for shops, warehouses, products, and users (with active/inactive lifecycle controls).
+- Phase 2 stock operations: transfer creation, dispatch, receive workflow, central and local stock movement tracking, plus transfer-time reservation warnings.
+- Phase 3 POS runtime: shop cashier POS shell and idempotent sale sync API with local stock decrement behavior.
+- Phase 4 reporting and compliance groundwork: VAT/margin/fast-moving reports and persisted ZATCA TLV Base64 QR payload, invoice UUID, and invoice hash fields.
+- Phase 5 hardening (in progress): demo-mode reset command and nightly scheduler hook, demo safety guard, demo banner, and production compose profile for reverse-proxy networking.
+
+### Demo Environment Notes
+
+- `APP_DEMO_MODE=true` enables demo safeguards and nightly reset scheduling.
+- Demo reset command: `php artisan demo:reset`
+- Scheduler trigger (demo mode only): daily at `DEMO_RESET_TIME` (default `03:00`).
+- Safety guard: demo mode refuses to boot/reset unless the active database name contains `demo`.
+- Use dedicated demo infrastructure and credentials only; do not share production database, redis instance, or session cookie domain.
+
+### Production Compose Hardening
+
+- Use `docker-compose.prod.yml` for production-style topology.
+- Database and Redis are no longer published to host ports in that profile.
+- The web service joins external `syntekpro-net`, so the existing reverse proxy can route traffic to this stack without exposing host ports.
 
 ## Stack
 

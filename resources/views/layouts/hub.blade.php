@@ -10,6 +10,12 @@
         @livewireStyles
     </head>
     <body class="min-h-screen bg-stone-950 text-stone-100">
+        @if (config('app.demo_mode'))
+            <div class="border-b border-amber-400/40 bg-amber-500/20 px-4 py-2 text-center text-sm font-semibold uppercase tracking-[0.2em] text-amber-100">
+                Demo Mode - Fictional data resets nightly
+            </div>
+        @endif
+
         <div class="min-h-screen lg:grid lg:grid-cols-[18rem_1fr]">
             <aside class="border-b border-white/10 bg-black/30 backdrop-blur lg:border-b-0 lg:border-r">
                 <div class="flex h-full flex-col px-5 py-6">

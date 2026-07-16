@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Console\Commands\ResetDemoEnvironment;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,6 +18,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (config('app.demo_mode')) {
+            app(ResetDemoEnvironment::class)->handle();
+
+            return;
+        }
+
         User::query()->updateOrCreate([
             'email' => env('SEED_SUPER_ADMIN_EMAIL', 'development@syntekpro.com'),
         ], [

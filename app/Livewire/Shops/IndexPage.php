@@ -24,16 +24,21 @@ class IndexPage extends Component
         $this->resetPage();
     }
 
-    public function delete(int $shopId): void
+    public function setActive(int $shopId, bool $isActive): void
     {
         $shop = Shop::query()->findOrFail($shopId);
 
-        $this->authorize('delete', $shop);
+        $this->authorize('update', $shop);
 
-        $shop->delete();
+        $shop->update(['is_active' => $isActive]);
 
-        session()->flash('status', 'Shop deleted.');
+        session()->flash('status', $isActive ? 'Shop activated.' : 'Shop deactivated.');
         $this->resetPage();
+    }
+
+    public function delete(int $shopId): void
+    {
+        $this->setActive($shopId, false);
     }
 
     public function render()

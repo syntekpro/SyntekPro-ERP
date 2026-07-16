@@ -29,7 +29,9 @@ class AuthTokenController extends Controller
 
         $user = $request->user();
 
-        if ($user === null) {
+        if ($user === null || ! $user->is_active) {
+            Auth::logout();
+
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);

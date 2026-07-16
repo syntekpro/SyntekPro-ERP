@@ -22,6 +22,8 @@ class FormPage extends Component
 
     public string $price = '0.00';
 
+    public string $cost_price = '0.00';
+
     public string $vat_rate = '15.00';
 
     public bool $is_active = true;
@@ -39,6 +41,7 @@ class FormPage extends Component
             $this->sku = $this->product->sku;
             $this->barcode = (string) ($this->product->barcode ?? '');
             $this->price = number_format((float) $this->product->price, 2, '.', '');
+            $this->cost_price = number_format((float) $this->product->cost_price, 2, '.', '');
             $this->vat_rate = number_format((float) $this->product->vat_rate, 2, '.', '');
             $this->is_active = $this->product->is_active;
             $this->skuWasManuallyEdited = true;
@@ -78,6 +81,7 @@ class FormPage extends Component
                 Rule::unique('products', 'barcode')->ignore($this->product?->id),
             ],
             'price' => ['required', 'numeric', 'min:0'],
+            'cost_price' => ['required', 'numeric', 'min:0'],
             'vat_rate' => ['required', 'numeric', 'min:0'],
             'is_active' => ['required', 'boolean'],
         ]);

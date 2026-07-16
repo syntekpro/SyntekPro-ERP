@@ -60,6 +60,13 @@
                             </a>
                         @endcan
 
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isShopManager())
+                            <a href="{{ route('reports.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Reports</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">VAT</span>
+                            </a>
+                        @endif
+
                         @if (auth()->user()?->shop_id !== null)
                             <a href="{{ route('pos.sales') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('pos.sales') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>POS</span>
@@ -86,6 +93,12 @@
                 @if (session('status'))
                     <div class="mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
                         {{ session('status') }}
+                    </div>
+                @endif
+
+                @if (session('warning'))
+                    <div class="mb-6 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                        {{ session('warning') }}
                     </div>
                 @endif
 

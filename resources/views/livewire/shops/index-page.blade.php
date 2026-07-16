@@ -44,8 +44,8 @@
                                     @can('update', $shop)
                                         <a href="{{ route('shops.edit', $shop) }}" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10">Edit</a>
                                     @endcan
-                                    @can('delete', $shop)
-                                        <button wire:click="delete({{ $shop->id }})" wire:confirm="Delete this shop?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">Delete</button>
+                                    @can('update', $shop)
+                                        <button wire:click="setActive({{ $shop->id }}, {{ $shop->is_active ? 'false' : 'true' }})" wire:confirm="{{ $shop->is_active ? 'Deactivate' : 'Activate' }} this shop?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">{{ $shop->is_active ? 'Deactivate' : 'Activate' }}</button>
                                     @endcan
                                 </div>
                             </td>

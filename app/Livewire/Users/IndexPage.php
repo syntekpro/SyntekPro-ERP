@@ -24,16 +24,21 @@ class IndexPage extends Component
         $this->resetPage();
     }
 
-    public function delete(int $userId): void
+    public function setActive(int $userId, bool $isActive): void
     {
         $user = User::query()->findOrFail($userId);
 
-        $this->authorize('delete', $user);
+        $this->authorize('update', $user);
 
-        $user->delete();
+        $user->update(['is_active' => $isActive]);
 
-        session()->flash('status', 'User deleted.');
+        session()->flash('status', $isActive ? 'User activated.' : 'User deactivated.');
         $this->resetPage();
+    }
+
+    public function delete(int $userId): void
+    {
+        $this->setActive($userId, false);
     }
 
     public function render()

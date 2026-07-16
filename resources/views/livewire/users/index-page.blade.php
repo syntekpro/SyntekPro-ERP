@@ -27,6 +27,7 @@
                         <th class="px-4 py-3 font-medium">Email</th>
                         <th class="px-4 py-3 font-medium">Role</th>
                         <th class="px-4 py-3 font-medium">Shop</th>
+                        <th class="px-4 py-3 font-medium">Status</th>
                         <th class="px-4 py-3 font-medium text-right">Actions</th>
                     </tr>
                 </thead>
@@ -37,18 +38,21 @@
                             <td class="px-4 py-4">{{ $managedUser->email }}</td>
                             <td class="px-4 py-4">{{ str($managedUser->role->value)->replace('_', ' ')->title() }}</td>
                             <td class="px-4 py-4">{{ $managedUser->shop?->name ?? 'Hub' }}</td>
+                            <td class="px-4 py-4">
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $managedUser->is_active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200' }}">{{ $managedUser->is_active ? 'Active' : 'Inactive' }}</span>
+                            </td>
                             <td class="px-4 py-4 text-right">
                                 <div class="flex justify-end gap-2">
                                     <a href="{{ route('users.edit', $managedUser) }}" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10">Edit</a>
                                     @if (auth()->id() !== $managedUser->id)
-                                        <button wire:click="delete({{ $managedUser->id }})" wire:confirm="Delete this user?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">Delete</button>
+                                        <button wire:click="setActive({{ $managedUser->id }}, {{ $managedUser->is_active ? 'false' : 'true' }})" wire:confirm="{{ $managedUser->is_active ? 'Deactivate' : 'Activate' }} this user?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">{{ $managedUser->is_active ? 'Deactivate' : 'Activate' }}</button>
                                     @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-10 text-center text-stone-400">No users match the current filter.</td>
+                            <td colspan="6" class="px-4 py-10 text-center text-stone-400">No users match the current filter.</td>
                         </tr>
                     @endforelse
                 </tbody>

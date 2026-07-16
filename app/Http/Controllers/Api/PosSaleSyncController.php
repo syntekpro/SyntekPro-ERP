@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\SaleStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\Shop;
 use App\Models\ShopStock;
+use App\Support\ZatcaQrEncoder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class PosSaleSyncController extends Controller
@@ -101,9 +105,14 @@ class PosSaleSyncController extends Controller
                     'vat_total' => $salePayload['vat_total'],
                     'total' => $salePayload['total'],
                     'payload_hash' => $payloadHash,
+                    'invoice_uuid' => (string) Str::uuid(),
                 ]);
 
+                $sellerData = $this->resolveSellerData($shopId);
+
                 foreach ($salePayload['items'] as $item) {
+                    $product = Product::query()->find($item['product_id']);
+
                     $stock = ShopStock::query()
                         ->where('shop_id', $shopId)
                         ->where('product_id', $item['product_id'])
@@ -130,14 +139,31 @@ class PosSaleSyncController extends Controller
                         'barcode' => $item['barcode'] ?? null,
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
+                        'unit_cost' => $product?->cost_price ?? 0,
                         'vat_rate' => $item['vat_rate'],
                         'vat_amount' => $item['vat_amount'],
                         'line_total' => $item['line_total'],
                     ]);
                 }
 
+                $qrPayload = ZatcaQrEncoder::encode([
+                    1 => $sellerData['seller_name'],
+                    2 => $sellerData['vat_number'],
+                    3 => $sale->sold_at?->toIso8601String() ?? now()->toIso8601String(),
+                    4 => number_format((float) $sale->total, 2, '.', ''),
+                    5 => number_format((float) $sale->vat_total, 2, '.', ''),
+                ]);
+
                 $sale->update([
                     'status' => SaleStatus::Synced,
+                    'zatca_qr_payload' => $qrPayload,
+                    'invoice_hash' => hash('sha256', implode('|', [
+                        $sale->id,
+                        $sale->invoice_uuid,
+                        $sale->total,
+                        $sale->vat_total,
+                        $sale->sold_at,
+                    ])),
                     'synced_at' => now(),
                 ]);
 
@@ -183,6 +209,24 @@ class PosSaleSyncController extends Controller
             'vat_total' => (string) $salePayload['vat_total'],
             'total' => (string) $salePayload['total'],
             'items' => $normalisedItems,
+        ];
+    }
+
+    protected function resolveSellerData(int $shopId): array
+    {
+        $shop = Shop::query()->find($shopId);
+
+        $sellerName = $shop?->legal_name
+            ?: config('zatca.seller_legal_name')
+            ?: $shop?->name
+            ?: 'SyntekPro';
+        $vatNumber = $shop?->vat_registration_number
+            ?: config('zatca.seller_vat_registration_number')
+            ?: '000000000000000';
+
+        return [
+            'seller_name' => $sellerName,
+            'vat_number' => $vatNumber,
         ];
     }
 }

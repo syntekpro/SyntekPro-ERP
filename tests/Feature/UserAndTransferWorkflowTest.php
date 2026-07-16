@@ -69,7 +69,10 @@ class UserAndTransferWorkflowTest extends TestCase
             ->test(UserIndexPage::class)
             ->call('delete', $managedUser->id);
 
-        $this->assertDatabaseMissing('users', ['id' => $managedUser->id]);
+        $this->assertDatabaseHas('users', [
+            'id' => $managedUser->id,
+            'is_active' => false,
+        ]);
     }
 
     public function test_transfer_workflow_creates_dispatches_and_receives_stock(): void

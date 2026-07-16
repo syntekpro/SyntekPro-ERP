@@ -47,6 +47,11 @@
             </div>
         </div>
 
+        <label class="mt-5 flex items-center gap-3 text-sm text-stone-300">
+            <input wire:model="is_active" type="checkbox" class="h-4 w-4 rounded border-white/10 bg-stone-900 text-amber-400" />
+            <span>User account is active</span>
+        </label>
+
         <div class="mt-8 flex gap-3">
             <button type="submit" class="rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Save user</button>
             <a href="{{ route('users.index') }}" class="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/10">Cancel</a>

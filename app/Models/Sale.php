@@ -22,6 +22,9 @@ class Sale extends Model
         'vat_total',
         'total',
         'payload_hash',
+        'zatca_qr_payload',
+        'invoice_uuid',
+        'invoice_hash',
         'sync_error',
         'synced_at',
     ];

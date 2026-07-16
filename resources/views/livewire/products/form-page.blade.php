@@ -32,6 +32,12 @@
             </div>
 
             <div>
+                <label class="mb-2 block text-sm font-medium text-stone-200">Cost price (SAR)</label>
+                <input wire:model.live="cost_price" type="number" step="0.01" min="0" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
+                @error('cost_price') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
                 <label class="mb-2 block text-sm font-medium text-stone-200">VAT rate (%)</label>
                 <input wire:model.live="vat_rate" type="number" step="0.01" min="0" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                 @error('vat_rate') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror

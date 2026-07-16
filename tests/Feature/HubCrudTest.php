@@ -93,7 +93,10 @@ class HubCrudTest extends TestCase
             ->test(ShopIndexPage::class)
             ->call('delete', $shop->id);
 
-        $this->assertDatabaseMissing('shops', ['id' => $shop->id]);
+        $this->assertDatabaseHas('shops', [
+            'id' => $shop->id,
+            'is_active' => false,
+        ]);
     }
 
     public function test_livewire_warehouse_crud_works(): void
@@ -146,6 +149,9 @@ class HubCrudTest extends TestCase
             ->test(ProductIndexPage::class)
             ->call('delete', $product->id);
 
-        $this->assertDatabaseMissing('products', ['id' => $product->id]);
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'is_active' => false,
+        ]);
     }
 }

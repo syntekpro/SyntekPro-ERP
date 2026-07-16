@@ -28,6 +28,8 @@ class FormPage extends Component
 
     public string $password_confirmation = '';
 
+    public bool $is_active = true;
+
     public function mount(?User $user = null): void
     {
         $this->user = $user?->exists ? $user : null;
@@ -39,6 +41,7 @@ class FormPage extends Component
             $this->email = $this->user->email;
             $this->role = $this->user->role->value;
             $this->shop_id = $this->user->shop_id;
+            $this->is_active = $this->user->is_active;
 
             return;
         }
@@ -58,6 +61,7 @@ class FormPage extends Component
                 'integer',
                 Rule::exists('shops', 'id'),
             ],
+            'is_active' => ['required', 'boolean'],
         ];
 
         if ($this->user) {
@@ -77,6 +81,7 @@ class FormPage extends Component
             'email' => $validated['email'],
             'role' => $validated['role'],
             'shop_id' => $validated['shop_id'],
+            'is_active' => $validated['is_active'],
         ];
 
         if ($validated['password'] !== '') {
@@ -103,7 +108,7 @@ class FormPage extends Component
 
     public function getShopOptionsProperty()
     {
-        return Shop::query()->orderBy('name')->get();
+        return Shop::query()->where('is_active', true)->orderBy('name')->get();
     }
 
     public function render()

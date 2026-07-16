@@ -29,6 +29,16 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
+        $user = $request->user();
+
+        if ($user === null || ! $user->is_active) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard', absolute: false));

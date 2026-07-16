@@ -28,6 +28,7 @@
                         <th class="px-4 py-3 font-medium">Name</th>
                         <th class="px-4 py-3 font-medium">SKU</th>
                         <th class="px-4 py-3 font-medium">Price</th>
+                        <th class="px-4 py-3 font-medium">Cost</th>
                         <th class="px-4 py-3 font-medium">VAT</th>
                         <th class="px-4 py-3 font-medium">Status</th>
                         <th class="px-4 py-3 font-medium text-right">Actions</th>
@@ -39,6 +40,7 @@
                             <td class="px-4 py-4 font-medium text-white">{{ $product->name }}</td>
                             <td class="px-4 py-4">{{ $product->sku }}</td>
                             <td class="px-4 py-4">SAR {{ number_format((float) $product->price, 2) }}</td>
+                            <td class="px-4 py-4">SAR {{ number_format((float) $product->cost_price, 2) }}</td>
                             <td class="px-4 py-4">{{ number_format((float) $product->vat_rate, 2) }}%</td>
                             <td class="px-4 py-4">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $product->is_active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200' }}">{{ $product->is_active ? 'Active' : 'Inactive' }}</span>
@@ -48,15 +50,15 @@
                                     @can('update', $product)
                                         <a href="{{ route('products.edit', $product) }}" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10">Edit</a>
                                     @endcan
-                                    @can('delete', $product)
-                                        <button wire:click="delete({{ $product->id }})" wire:confirm="Delete this product?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">Delete</button>
+                                    @can('update', $product)
+                                        <button wire:click="setActive({{ $product->id }}, {{ $product->is_active ? 'false' : 'true' }})" wire:confirm="{{ $product->is_active ? 'Deactivate' : 'Activate' }} this product?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">{{ $product->is_active ? 'Deactivate' : 'Activate' }}</button>
                                     @endcan
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-10 text-center text-stone-400">No products match the current filter.</td>
+                            <td colspan="7" class="px-4 py-10 text-center text-stone-400">No products match the current filter.</td>
                         </tr>
                     @endforelse
                 </tbody>

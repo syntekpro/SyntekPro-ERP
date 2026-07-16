@@ -44,8 +44,8 @@
                                     @can('update', $warehouse)
                                         <a href="{{ route('warehouses.edit', $warehouse) }}" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10">Edit</a>
                                     @endcan
-                                    @can('delete', $warehouse)
-                                        <button wire:click="delete({{ $warehouse->id }})" wire:confirm="Delete this warehouse?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">Delete</button>
+                                    @can('update', $warehouse)
+                                        <button wire:click="setActive({{ $warehouse->id }}, {{ $warehouse->is_active ? 'false' : 'true' }})" wire:confirm="{{ $warehouse->is_active ? 'Deactivate' : 'Activate' }} this warehouse?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">{{ $warehouse->is_active ? 'Deactivate' : 'Activate' }}</button>
                                     @endcan
                                 </div>
                             </td>

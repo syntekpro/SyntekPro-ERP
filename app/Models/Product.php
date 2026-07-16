@@ -15,6 +15,7 @@ class Product extends Model
         'sku',
         'barcode',
         'price',
+        'cost_price',
         'vat_rate',
         'is_active',
     ];
@@ -23,6 +24,7 @@ class Product extends Model
     {
         return [
             'price' => 'decimal:2',
+            'cost_price' => 'decimal:2',
             'vat_rate' => 'decimal:2',
             'is_active' => 'boolean',
         ];

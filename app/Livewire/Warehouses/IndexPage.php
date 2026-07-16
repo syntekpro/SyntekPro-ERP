@@ -24,16 +24,21 @@ class IndexPage extends Component
         $this->resetPage();
     }
 
-    public function delete(int $warehouseId): void
+    public function setActive(int $warehouseId, bool $isActive): void
     {
         $warehouse = Warehouse::query()->findOrFail($warehouseId);
 
-        $this->authorize('delete', $warehouse);
+        $this->authorize('update', $warehouse);
 
-        $warehouse->delete();
+        $warehouse->update(['is_active' => $isActive]);
 
-        session()->flash('status', 'Warehouse deleted.');
+        session()->flash('status', $isActive ? 'Warehouse activated.' : 'Warehouse deactivated.');
         $this->resetPage();
+    }
+
+    public function delete(int $warehouseId): void
+    {
+        $this->setActive($warehouseId, false);
     }
 
     public function render()

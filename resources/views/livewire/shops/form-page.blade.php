@@ -14,6 +14,18 @@
             </div>
 
             <div>
+                <label class="mb-2 block text-sm font-medium text-stone-200">Legal name (for ZATCA)</label>
+                <input wire:model.live="legal_name" type="text" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
+                @error('legal_name') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-medium text-stone-200">VAT registration number</label>
+                <input wire:model.live="vat_registration_number" type="text" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
+                @error('vat_registration_number') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
                 <label class="mb-2 block text-sm font-medium text-stone-200">Route slug</label>
                 <input wire:model.live="slug" type="text" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                 @error('slug') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror

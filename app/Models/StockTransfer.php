@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StockTransferStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -55,5 +56,14 @@ class StockTransfer extends Model
     public function items(): HasMany
     {
         return $this->hasMany(StockTransferItem::class);
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        return $query->where('destination_shop_id', $user->shop_id);
     }
 }

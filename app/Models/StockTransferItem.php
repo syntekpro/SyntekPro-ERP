@@ -32,4 +32,9 @@ class StockTransferItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function stockTransfer(): BelongsTo
+    {
+        return $this->belongsTo(StockTransfer::class, 'stock_transfer_id');
+    }
 }

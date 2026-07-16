@@ -27,4 +27,9 @@ class Shop extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function stockTransfers(): HasMany
+    {
+        return $this->hasMany(StockTransfer::class, 'destination_shop_id');
+    }
 }

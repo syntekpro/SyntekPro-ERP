@@ -44,3 +44,4 @@ Version: 1.0.0
 - `BelongsToShop` is ready for all shop-owned models added in subsequent phases.
 - Early Phase 2 schema uses separate `warehouse_stock` and `shop_stock` tables plus `stock_transfers` with a status lifecycle.
 - Reverse proxy assumptions are reflected through env-first config and trusted proxy setup.
+- Phase 3 POS contract, offline shell, and sync conflict policy are documented in `docs/phase-3-pos-pwa.md`.

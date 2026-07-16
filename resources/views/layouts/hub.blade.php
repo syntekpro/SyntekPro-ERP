@@ -59,6 +59,13 @@
                                 <span class="text-xs uppercase tracking-[0.28em]">Flow</span>
                             </a>
                         @endcan
+
+                        @if (auth()->user()?->shop_id !== null)
+                            <a href="{{ route('pos.sales') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('pos.sales') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>POS</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">Offline</span>
+                            </a>
+                        @endif
                     </nav>
 
                     <div class="mt-6 rounded-3xl border border-white/10 bg-stone-900/70 p-5 text-sm text-stone-300">

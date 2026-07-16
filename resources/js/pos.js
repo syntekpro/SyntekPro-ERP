@@ -1,0 +1,523 @@
+const dbName = 'syntekpro-pos';
+const dbVersion = 1;
+
+const state = {
+    bootstrap: readBootstrap(),
+    products: [],
+    queue: [],
+    cart: new Map(),
+    db: null,
+};
+
+const elements = {
+    productList: document.getElementById('product-list'),
+    cartList: document.getElementById('cart-list'),
+    search: document.getElementById('product-search'),
+    subtotal: document.getElementById('subtotal-value'),
+    vat: document.getElementById('vat-value'),
+    total: document.getElementById('total-value'),
+    queueStatus: document.getElementById('queue-status'),
+    syncButton: document.getElementById('sync-sales'),
+    completeButton: document.getElementById('complete-sale'),
+};
+
+function readBootstrap() {
+    const script = document.getElementById('pos-bootstrap');
+
+    if (!script) {
+        return {
+            sale_contract_version: 'unknown',
+            shop: null,
+            cashier: null,
+            products: [],
+            shop_stock: {},
+        };
+    }
+
+    return JSON.parse(script.textContent || '{}');
+}
+
+function money(value) {
+    return new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+}
+
+function quantity(value) {
+    return Number.parseFloat(Number(value || 0).toFixed(3));
+}
+
+function toNumber(value) {
+    return Number.parseFloat(Number(value || 0).toFixed(3));
+}
+
+function openDatabase() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, dbVersion);
+
+        request.onupgradeneeded = () => {
+            const database = request.result;
+
+            if (!database.objectStoreNames.contains('products')) {
+                database.createObjectStore('products', { keyPath: 'id' });
+            }
+
+            if (!database.objectStoreNames.contains('queue')) {
+                database.createObjectStore('queue', { keyPath: 'idempotency_key' });
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+function txRead(storeName, mode = 'readonly') {
+    const transaction = state.db.transaction(storeName, mode);
+    return transaction.objectStore(storeName);
+}
+
+function idbRequest(request) {
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function readAll(storeName) {
+    return idbRequest(txRead(storeName).getAll());
+}
+
+async function putMany(storeName, items) {
+    const transaction = state.db.transaction(storeName, 'readwrite');
+
+    for (const item of items) {
+        transaction.objectStore(storeName).put(item);
+    }
+
+    return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+    });
+}
+
+async function putOne(storeName, item) {
+    return idbRequest(state.db.transaction(storeName, 'readwrite').objectStore(storeName).put(item));
+}
+
+async function deleteOne(storeName, key) {
+    return idbRequest(state.db.transaction(storeName, 'readwrite').objectStore(storeName).delete(key));
+}
+
+function buildProductIndex(products) {
+    return new Map(products.map((product) => [Number(product.id), product]));
+}
+
+function currentCartQuantity(productId) {
+    return Number(state.cart.get(Number(productId)) || 0);
+}
+
+function availableStock(product) {
+    return Math.max(0, quantity(product.local_stock) - currentCartQuantity(product.id));
+}
+
+function filteredProducts() {
+    const search = (elements.search?.value || '').trim().toLowerCase();
+
+    if (!search) {
+        return state.products;
+    }
+
+    return state.products.filter((product) => {
+        return [product.name, product.sku, product.barcode]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(search));
+    });
+}
+
+function renderProducts() {
+    if (!elements.productList) {
+        return;
+    }
+
+    const products = filteredProducts();
+
+    if (products.length === 0) {
+        elements.productList.innerHTML = '<div class="p-6 text-sm text-slate-400">No products match this search.</div>';
+        return;
+    }
+
+    elements.productList.innerHTML = products.map((product) => {
+        const stockLeft = availableStock(product);
+        const disabled = stockLeft <= 0 ? 'disabled' : '';
+
+        return `
+            <article class="grid gap-3 bg-slate-950/70 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="font-semibold text-white">${escapeHtml(product.name)}</h3>
+                        <span class="rounded-full bg-white/5 px-2 py-0.5 text-[11px] uppercase tracking-[0.24em] text-slate-400">${escapeHtml(product.sku || 'No SKU')}</span>
+                    </div>
+                    <p class="mt-1 text-sm text-slate-400">Barcode ${escapeHtml(product.barcode || 'n/a')} · VAT ${escapeHtml(product.vat_rate)}%</p>
+                    <p class="mt-1 text-xs text-slate-500">Local stock ${stockLeft}</p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-lg font-semibold text-amber-300">${money(product.price)}</p>
+                        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Per unit</p>
+                    </div>
+                    <button type="button" data-add-product="${product.id}" ${disabled} class="rounded-2xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition enabled:hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500">Add</button>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderCart() {
+    if (!elements.cartList) {
+        return;
+    }
+
+    const cartEntries = Array.from(state.cart.entries());
+
+    if (cartEntries.length === 0) {
+        elements.cartList.innerHTML = '<div class="rounded-3xl border border-dashed border-white/10 px-4 py-8 text-sm text-slate-400">Cart is empty. Add products from the catalog.</div>';
+        renderTotals(0, 0, 0);
+        return;
+    }
+
+    const index = buildProductIndex(state.products);
+
+    let subtotal = 0;
+    let vatTotal = 0;
+
+    elements.cartList.innerHTML = cartEntries.map(([productId, cartItem]) => {
+        const product = index.get(Number(productId));
+        const lineSubtotal = cartItem.quantity * Number(cartItem.unit_price);
+        const lineVat = lineSubtotal * (Number(cartItem.vat_rate) / 100);
+        const lineTotal = lineSubtotal + lineVat;
+
+        subtotal += lineSubtotal;
+        vatTotal += lineVat;
+
+        return `
+            <article class="rounded-3xl border border-white/10 bg-white/5 p-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="font-semibold text-white">${escapeHtml(product?.name || cartItem.product_name)}</h3>
+                        <p class="mt-1 text-sm text-slate-400">${cartItem.quantity.toFixed(3)} × ${money(cartItem.unit_price)} · VAT ${cartItem.vat_rate}%</p>
+                    </div>
+                    <button type="button" data-remove-product="${productId}" class="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-white/10">Remove</button>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-sm text-slate-300">
+                    <span>Line total</span>
+                    <span>${money(lineTotal)}</span>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    renderTotals(subtotal, vatTotal, subtotal + vatTotal);
+}
+
+function renderTotals(subtotal, vatTotal, total) {
+    if (elements.subtotal) elements.subtotal.textContent = money(subtotal);
+    if (elements.vat) elements.vat.textContent = money(vatTotal);
+    if (elements.total) elements.total.textContent = money(total);
+}
+
+function renderQueueStatus() {
+    const queued = state.queue.filter((sale) => sale.status === 'queued').length;
+    const failed = state.queue.filter((sale) => sale.status === 'failed').length;
+    const onlineLabel = navigator.onLine ? 'Online' : 'Offline';
+
+    if (elements.queueStatus) {
+        elements.queueStatus.textContent = `${onlineLabel} · ${queued} queued${failed > 0 ? ` · ${failed} failed` : ''}`;
+    }
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+function setCartQuantity(productId, quantityValue) {
+    const product = buildProductIndex(state.products).get(Number(productId));
+
+    if (!product) {
+        return;
+    }
+
+    const safeQuantity = Math.max(0, quantityValue);
+    const existingQuantity = currentCartQuantity(productId);
+    const stockLimit = quantity(product.local_stock);
+
+    if (safeQuantity > stockLimit && safeQuantity > existingQuantity) {
+        window.alert('Local stock is not enough for that quantity.');
+        return;
+    }
+
+    if (safeQuantity <= 0) {
+        state.cart.delete(Number(productId));
+    } else {
+        state.cart.set(Number(productId), {
+            product_id: product.id,
+            product_name: product.name,
+            sku: product.sku,
+            barcode: product.barcode,
+            quantity: quantity(safeQuantity),
+            unit_price: Number(product.price),
+            vat_rate: Number(product.vat_rate),
+        });
+    }
+
+    renderProducts();
+    renderCart();
+}
+
+function addToCart(productId) {
+    const product = buildProductIndex(state.products).get(Number(productId));
+
+    if (!product) {
+        return;
+    }
+
+    const nextQuantity = currentCartQuantity(productId) + 1;
+
+    if (nextQuantity > quantity(product.local_stock)) {
+        window.alert('Local stock is not enough for that quantity.');
+        return;
+    }
+
+    setCartQuantity(productId, nextQuantity);
+}
+
+function removeFromCart(productId) {
+    setCartQuantity(productId, currentCartQuantity(productId) - 1);
+}
+
+async function seedProducts() {
+    const products = state.bootstrap.products.map((product) => ({
+        ...product,
+        price: Number(product.price),
+        vat_rate: Number(product.vat_rate),
+        local_stock: Number(product.local_stock || 0),
+    }));
+
+    await putMany('products', products);
+}
+
+async function loadProducts() {
+    const products = await readAll('products');
+
+    if (products.length === 0) {
+        await seedProducts();
+        return readAll('products');
+    }
+
+    return products;
+}
+
+async function loadQueue() {
+    return readAll('queue');
+}
+
+function buildSalePayload(cartEntries) {
+    const soldAt = new Date().toISOString();
+    const idempotencyKey = crypto.randomUUID();
+    const items = cartEntries.map(([productId, item]) => {
+        const lineSubtotal = Number(item.quantity) * Number(item.unit_price);
+        const vatAmount = lineSubtotal * (Number(item.vat_rate) / 100);
+
+        return {
+            product_id: Number(productId),
+            product_name: item.product_name,
+            sku: item.sku || null,
+            barcode: item.barcode || null,
+            quantity: Number(item.quantity).toFixed(3),
+            unit_price: Number(item.unit_price).toFixed(2),
+            vat_rate: Number(item.vat_rate).toFixed(2),
+            vat_amount: vatAmount.toFixed(2),
+            line_total: (lineSubtotal + vatAmount).toFixed(2),
+        };
+    });
+
+    const subtotal = items.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+    const vatTotal = items.reduce((sum, item) => sum + Number(item.vat_amount), 0);
+
+    return {
+        idempotency_key: idempotencyKey,
+        shop_id: Number(state.bootstrap.shop.id),
+        cashier_id: Number(state.bootstrap.cashier.id),
+        sold_at: soldAt,
+        subtotal: subtotal.toFixed(2),
+        vat_total: vatTotal.toFixed(2),
+        total: (subtotal + vatTotal).toFixed(2),
+        items,
+    };
+}
+
+async function queueCurrentSale() {
+    if (state.cart.size === 0) {
+        window.alert('Add at least one item before queuing a sale.');
+        return;
+    }
+
+    const sale = buildSalePayload(Array.from(state.cart.entries()));
+
+    await putOne('queue', {
+        ...sale,
+        status: 'queued',
+        last_error: null,
+        queued_at: new Date().toISOString(),
+    });
+
+    for (const [productId, cartItem] of state.cart.entries()) {
+        const product = state.products.find((entry) => Number(entry.id) === Number(productId));
+
+        if (!product) {
+            continue;
+        }
+
+        product.local_stock = quantity(Number(product.local_stock) - Number(cartItem.quantity));
+        await putOne('products', product);
+    }
+
+    state.cart.clear();
+    state.products = await loadProducts();
+    state.queue = await loadQueue();
+    renderProducts();
+    renderCart();
+    renderQueueStatus();
+}
+
+async function syncQueuedSales() {
+    const queuedSales = state.queue.filter((sale) => sale.status === 'queued');
+
+    if (queuedSales.length === 0) {
+        window.alert('No queued sales to sync.');
+        return;
+    }
+
+    if (!navigator.onLine) {
+        window.alert('You are offline. Sync will resume when the browser reconnects.');
+        return;
+    }
+
+    const response = await fetch('/api/pos/sync', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({
+            sales: queuedSales.map((sale) => ({
+                idempotency_key: sale.idempotency_key,
+                shop_id: sale.shop_id,
+                cashier_id: sale.cashier_id,
+                sold_at: sale.sold_at,
+                subtotal: sale.subtotal,
+                vat_total: sale.vat_total,
+                total: sale.total,
+                items: sale.items,
+            })),
+        }),
+    });
+
+    const payload = await response.json();
+    const results = payload.results || [];
+
+    for (const result of results) {
+        if (result.status === 'synced' || result.status === 'duplicate') {
+            await deleteOne('queue', result.idempotency_key);
+            continue;
+        }
+
+        const sale = state.queue.find((entry) => entry.idempotency_key === result.idempotency_key);
+
+        if (sale) {
+            await putOne('queue', {
+                ...sale,
+                status: 'failed',
+                last_error: result.message || 'Sync rejected by server.',
+            });
+        }
+    }
+
+    state.queue = await loadQueue();
+    renderQueueStatus();
+    window.alert('Sync complete. Review any failed sales in the queue.');
+}
+
+function wireEvents() {
+    elements.search?.addEventListener('input', () => {
+        renderProducts();
+    });
+
+    elements.productList?.addEventListener('click', (event) => {
+        const addButton = event.target.closest('[data-add-product]');
+        const removeButton = event.target.closest('[data-remove-product]');
+
+        if (addButton) {
+            addToCart(addButton.dataset.addProduct);
+        }
+
+        if (removeButton) {
+            removeFromCart(removeButton.dataset.removeProduct);
+        }
+    });
+
+    elements.completeButton?.addEventListener('click', () => {
+        queueCurrentSale().catch((error) => {
+            console.error(error);
+            window.alert('Could not queue the sale.');
+        });
+    });
+
+    elements.syncButton?.addEventListener('click', () => {
+        syncQueuedSales().catch((error) => {
+            console.error(error);
+            window.alert('Could not sync queued sales.');
+        });
+    });
+
+    window.addEventListener('online', renderQueueStatus);
+    window.addEventListener('offline', renderQueueStatus);
+}
+
+async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) {
+        return;
+    }
+
+    try {
+        await navigator.serviceWorker.register('/sw.js');
+    } catch (error) {
+        console.error('Service worker registration failed', error);
+    }
+}
+
+async function bootstrap() {
+    state.db = await openDatabase();
+    state.products = await loadProducts();
+    state.queue = await loadQueue();
+
+    wireEvents();
+    renderProducts();
+    renderCart();
+    renderQueueStatus();
+    await registerServiceWorker();
+}
+
+bootstrap().catch((error) => {
+    console.error(error);
+    window.alert('The POS shell failed to start. Refresh the page and try again.');
+});

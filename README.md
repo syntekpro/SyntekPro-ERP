@@ -25,7 +25,13 @@ This repository currently includes:
 
 - Use `docker-compose.prod.yml` for production-style topology.
 - Database and Redis are no longer published to host ports in that profile.
-- The web service joins external `syntekpro-net`, so the existing reverse proxy can route traffic to this stack without exposing host ports.
+- The web service is published only on loopback for reverse-proxy handoff:
+  `127.0.0.1:${WEB_HTTP_PORT}:80` (never `0.0.0.0`)
+- `WEB_HTTP_PORT` must be unique per stack on the same host.
+  Example production: `WEB_HTTP_PORT=8082`; example demo: `WEB_HTTP_PORT=8083`.
+- Set a unique `COMPOSE_PROJECT_NAME` per stack to prevent cross-stack resource name collisions.
+  Example production: `COMPOSE_PROJECT_NAME=syntekpro-prod`; example demo: `COMPOSE_PROJECT_NAME=syntekpro-demo`.
+- The web service also joins external `syntekpro-net` for existing Docker-network-based integrations.
 
 ## Stack
 

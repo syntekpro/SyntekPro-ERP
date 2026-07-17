@@ -39,6 +39,9 @@ RUN apk add --no-cache \
         libzip-dev \
         oniguruma-dev \
         unzip \
+    && apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
+        linux-headers \
     && docker-php-ext-install \
         bcmath \
         intl \
@@ -47,6 +50,7 @@ RUN apk add --no-cache \
         zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
+    && apk del .build-deps \
     && rm -rf /tmp/pear
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

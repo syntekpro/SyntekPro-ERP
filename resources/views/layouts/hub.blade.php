@@ -75,6 +75,27 @@
                             </a>
                         @endcan
 
+                        @can('viewAny', \App\Models\Supplier::class)
+                            <a href="{{ route('suppliers.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('suppliers.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Suppliers</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">AP</span>
+                            </a>
+                        @endcan
+
+                        @can('viewAny', \App\Models\PurchaseOrder::class)
+                            <a href="{{ route('purchase-orders.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('purchase-orders.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Purchase Orders</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">PO</span>
+                            </a>
+                        @endcan
+
+                        @can('viewAny', \App\Models\SupplierBill::class)
+                            <a href="{{ route('supplier-bills.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('supplier-bills.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Supplier Bills</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">Bills</span>
+                            </a>
+                        @endcan
+
                         @can('viewAny', \App\Models\StockTransfer::class)
                             <a href="{{ route('stock-transfers.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('stock-transfers.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>Transfers</span>
@@ -93,6 +114,13 @@
                             <a href="{{ route('reports.trial-balance') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.trial-balance') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>Trial Balance</span>
                                 <span class="text-xs uppercase tracking-[0.28em]">GL</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isAccountant())
+                            <a href="{{ route('reports.ap-aging') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.ap-aging') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>AP Aging</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">AP</span>
                             </a>
                         @endif
 

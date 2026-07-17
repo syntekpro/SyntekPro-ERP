@@ -73,5 +73,44 @@
                 </ul>
             </section>
         </div>
+
+        <section class="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <h2 class="text-lg font-semibold text-white">SyntekPro capabilities</h2>
+            <p class="mt-1 text-sm text-stone-400">Core ERP modules represented by the official branding icon set.</p>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-accounting.png') }}" alt="Accounting" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">Accounting</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-analytics.png') }}" alt="Analytics" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">Analytics</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-cloud-ready.png') }}" alt="Cloud ready" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">Cloud Ready</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-secure.png') }}" alt="Secure" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">Secure</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-hrm.png') }}" alt="HRM" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">HRM</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-sales.png') }}" alt="Sales" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">Sales</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-anytime-anywhere.png') }}" alt="Anytime anywhere" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">Anytime Anywhere</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-stone-900/70 p-4 text-center">
+                    <img src="{{ asset('images/icon-inventory.png') }}" alt="Inventory" class="mx-auto h-12 w-12" />
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">Inventory</p>
+                </article>
+            </div>
+        </section>
     </section>
 @endsection

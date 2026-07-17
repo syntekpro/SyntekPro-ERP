@@ -3,8 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#111827">
+        <meta name="theme-color" content="#1daeff">
         <title>POS | {{ config('app.name', 'SyntekPro ERP') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/icon-main.png') }}">
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/icon-main-192.png') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif

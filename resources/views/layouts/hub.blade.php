@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title') | {{ config('app.name', 'SyntekPro ERP') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/icon-main.png') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
@@ -20,8 +21,9 @@
             <aside class="border-b border-white/10 bg-black/30 backdrop-blur lg:border-b-0 lg:border-r">
                 <div class="flex h-full flex-col px-5 py-6">
                     <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
-                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-amber-300">SyntekPro ERP</p>
-                        <h1 class="mt-3 text-2xl font-semibold text-white">Hub console</h1>
+                        <img src="{{ asset('images/logo-full.png') }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[15rem]" />
+                        <p class="mt-3 text-xs font-semibold uppercase tracking-[0.35em] text-amber-300">SyntekPro ERP</p>
+                        <h1 class="mt-2 text-2xl font-semibold text-white">Hub console</h1>
                         <p class="mt-2 text-sm text-stone-300">Central command for shops, warehouses, products, and chain operations.</p>
                     </div>
 

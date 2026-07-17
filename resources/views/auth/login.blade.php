@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sign In | {{ config('app.name', 'SyntekPro ERP') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/icon-main.png') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
@@ -11,7 +12,8 @@
     <body class="min-h-screen bg-slate-950 text-slate-100">
         <main class="mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-12">
             <section class="w-full rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur">
-                <p class="text-sm uppercase tracking-[0.3em] text-amber-300">SyntekPro ERP</p>
+                <img src="{{ asset('images/logo-full.png') }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[16rem]" />
+                <p class="mt-3 text-sm uppercase tracking-[0.3em] text-amber-300">SyntekPro ERP</p>
                 <h1 class="mt-4 text-3xl font-semibold">Hub sign in</h1>
                 <p class="mt-2 text-sm text-slate-300">Use the seeded super-admin account or your assigned shop credentials.</p>
 

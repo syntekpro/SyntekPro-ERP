@@ -33,5 +33,7 @@ class DatabaseSeeder extends Seeder
             'shop_id' => null,
             'email_verified_at' => now(),
         ]);
+
+        $this->call(ChartOfAccountsSeeder::class);
     }
 }

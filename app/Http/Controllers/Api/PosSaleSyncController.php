@@ -9,6 +9,7 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Shop;
 use App\Models\ShopStock;
+use App\Services\Accounting\PostsSaleToLedger;
 use App\Support\ZatcaQrEncoder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -145,6 +146,8 @@ class PosSaleSyncController extends Controller
                         'line_total' => $item['line_total'],
                     ]);
                 }
+
+                app(PostsSaleToLedger::class)->handle($sale, $cashierId);
 
                 $qrPayload = ZatcaQrEncoder::encode([
                     1 => $sellerData['seller_name'],

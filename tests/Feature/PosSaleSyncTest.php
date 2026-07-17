@@ -4,10 +4,13 @@ namespace Tests\Feature;
 
 use App\Enums\SaleStatus;
 use App\Enums\UserRole;
+use App\Models\Account;
+use App\Models\JournalEntry;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\ShopStock;
 use App\Models\User;
+use Database\Seeders\ChartOfAccountsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -37,6 +40,8 @@ class PosSaleSyncTest extends TestCase
 
     public function test_syncs_queued_sales_and_decrements_shop_stock_once(): void
     {
+        $this->seed(ChartOfAccountsSeeder::class);
+
         $shop = Shop::query()->create([
             'name' => 'Central Shop',
             'slug' => 'central-shop',
@@ -120,6 +125,43 @@ class PosSaleSyncTest extends TestCase
             'shop_id' => $shop->id,
             'product_id' => $product->id,
             'quantity' => 1,
+        ]);
+
+        $journalEntry = JournalEntry::query()
+            ->forAllShops()
+            ->where('sale_id', $sale->id)
+            ->firstOrFail();
+
+        $this->assertDatabaseHas('journal_entries', [
+            'id' => $journalEntry->id,
+            'shop_id' => $shop->id,
+            'sale_id' => $sale->id,
+            'source' => 'pos_sale',
+        ]);
+
+        $cashAccountId = (int) Account::query()->where('code', '1010')->value('id');
+        $salesRevenueAccountId = (int) Account::query()->where('code', '4100')->value('id');
+        $vatPayableAccountId = (int) Account::query()->where('code', '2200')->value('id');
+
+        $this->assertDatabaseHas('journal_entry_lines', [
+            'journal_entry_id' => $journalEntry->id,
+            'account_id' => $cashAccountId,
+            'debit' => '107.50',
+            'credit' => '0.00',
+        ]);
+
+        $this->assertDatabaseHas('journal_entry_lines', [
+            'journal_entry_id' => $journalEntry->id,
+            'account_id' => $salesRevenueAccountId,
+            'debit' => '0.00',
+            'credit' => '100.00',
+        ]);
+
+        $this->assertDatabaseHas('journal_entry_lines', [
+            'journal_entry_id' => $journalEntry->id,
+            'account_id' => $vatPayableAccountId,
+            'debit' => '0.00',
+            'credit' => '7.50',
         ]);
 
         $this->actingAs($cashier)

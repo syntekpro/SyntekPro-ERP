@@ -56,7 +56,7 @@ class FormPage extends Component
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->user?->id)],
             'role' => ['required', Rule::in(array_map(fn (UserRole $role) => $role->value, UserRole::cases()))],
             'shop_id' => [
-                Rule::requiredIf(fn (): bool => $this->role !== UserRole::SuperAdmin->value),
+                Rule::requiredIf(fn (): bool => in_array($this->role, [UserRole::ShopManager->value, UserRole::Cashier->value], true)),
                 'nullable',
                 'integer',
                 Rule::exists('shops', 'id'),
@@ -72,7 +72,7 @@ class FormPage extends Component
 
         $validated = $this->validate($rules);
 
-        if ($validated['role'] === UserRole::SuperAdmin->value) {
+        if (in_array($validated['role'], [UserRole::SuperAdmin->value, 'accountant'], true)) {
             $validated['shop_id'] = null;
         }
 

@@ -70,6 +70,11 @@ class User extends Authenticatable
         return $this->role === UserRole::ShopManager;
     }
 
+    public function isAccountant(): bool
+    {
+        return $this->role?->value === 'accountant';
+    }
+
     public function isCashier(): bool
     {
         return $this->role === UserRole::Cashier;

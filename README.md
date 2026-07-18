@@ -4,8 +4,8 @@ SyntekPro ERP is a Laravel-based multi-tenant ERP and POS platform for the Saudi
 
 ## Product Documentation
 
-- Full Feature List (Phase 0-9): [syntekpro-erp-feature-list.md](syntekpro-erp-feature-list.md)
-- End-User Operating Guide: [syntekpro-erp-user-guide.md](syntekpro-erp-user-guide.md)
+- Full Feature List (Phase 0-9): [docs/syntekpro-erp-feature-list.md](docs/syntekpro-erp-feature-list.md)
+- End-User Operating Guide: [docs/syntekpro-erp-user-guide.md](docs/syntekpro-erp-user-guide.md)
 
 These two documents provide the business-facing product description and operational usage details for the current `v1.0.0` milestone.
 

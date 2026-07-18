@@ -6,8 +6,10 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Warehouse;
+use App\Services\Numbering\DocumentNumberService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -65,7 +67,7 @@ class FormPage extends Component
         }
     }
 
-    public function save()
+    public function save(DocumentNumberService $documentNumberService)
     {
         $validated = $this->validate([
             'supplier_id' => ['required', 'integer', Rule::exists('suppliers', 'id')],
@@ -89,13 +91,15 @@ class FormPage extends Component
             $purchaseOrder = $this->purchaseOrder;
             session()->flash('status', 'Purchase order updated.');
         } else {
-            $purchaseOrder = PurchaseOrder::query()->create([
-                'po_number' => $this->nextPoNumber(),
-                'supplier_id' => $validated['supplier_id'],
-                'warehouse_id' => $validated['warehouse_id'],
-                'notes' => $validated['notes'] === '' ? null : $validated['notes'],
-                'created_by' => Auth::id(),
-            ]);
+            $purchaseOrder = DB::transaction(function () use ($validated, $documentNumberService): PurchaseOrder {
+                return PurchaseOrder::query()->create([
+                    'po_number' => $documentNumberService->next('purchase_orders', 'PO-'),
+                    'supplier_id' => $validated['supplier_id'],
+                    'warehouse_id' => $validated['warehouse_id'],
+                    'notes' => $validated['notes'] === '' ? null : $validated['notes'],
+                    'created_by' => Auth::id(),
+                ]);
+            });
 
             session()->flash('status', 'Purchase order created.');
         }
@@ -110,13 +114,6 @@ class FormPage extends Component
         }
 
         return redirect()->route('purchase-orders.index');
-    }
-
-    protected function nextPoNumber(): string
-    {
-        $nextId = (int) PurchaseOrder::query()->max('id') + 1;
-
-        return 'PO-'.str_pad((string) $nextId, 6, '0', STR_PAD_LEFT);
     }
 
     public function getSupplierOptionsProperty()

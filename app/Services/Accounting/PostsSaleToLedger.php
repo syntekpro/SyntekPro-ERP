@@ -2,6 +2,7 @@
 
 namespace App\Services\Accounting;
 
+use App\Enums\SalePaymentMethod;
 use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\Sale;
@@ -24,14 +25,19 @@ class PostsSaleToLedger
         }
 
         $cashAccount = $this->resolveRequiredAccount(config('accounting.pos.cash_account_code'));
+        $accountsReceivableAccount = $this->resolveRequiredAccount(config('accounting.receivables.accounts_receivable_account_code'));
         $salesRevenueAccount = $this->resolveRequiredAccount(config('accounting.pos.sales_revenue_account_code'));
         $vatPayableAccount = $this->resolveRequiredAccount(config('accounting.pos.vat_payable_account_code'));
 
+        $isCreditSale = $sale->payment_method === SalePaymentMethod::CreditAccount;
+        $debitAccount = $isCreditSale ? $accountsReceivableAccount : $cashAccount;
+        $debitDescription = $isCreditSale ? 'POS sale on customer credit account' : 'POS sale cash receipt';
+
         $lines = [[
-            'account_id' => $cashAccount->id,
+            'account_id' => $debitAccount->id,
             'debit' => $sale->total,
             'credit' => 0,
-            'description' => 'POS sale cash receipt',
+            'description' => $debitDescription,
         ], [
             'account_id' => $salesRevenueAccount->id,
             'debit' => 0,
@@ -46,6 +52,17 @@ class PostsSaleToLedger
                 'credit' => $sale->vat_total,
                 'description' => 'Output VAT',
             ];
+        }
+
+        if ($isCreditSale && (float) $sale->outstanding_balance <= 0) {
+            $dueDate = $sale->due_date !== null
+                ? (string) $sale->due_date
+                : now()->addDays((int) ($sale->customer?->payment_terms_days ?? 30))->toDateString();
+
+            $sale->update([
+                'due_date' => $dueDate,
+                'outstanding_balance' => $sale->total,
+            ]);
         }
 
         return $this->journalEntryService->create([

@@ -8,11 +8,15 @@ use App\Models\PurchaseOrder;
 use App\Models\SupplierBill;
 use App\Models\WarehouseStock;
 use App\Services\Accounting\PostsSupplierBillToLedger;
+use App\Services\Numbering\DocumentNumberService;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderReceivingService
 {
-    public function __construct(protected PostsSupplierBillToLedger $postsSupplierBillToLedger)
+    public function __construct(
+        protected PostsSupplierBillToLedger $postsSupplierBillToLedger,
+        protected DocumentNumberService $documentNumberService,
+    )
     {
     }
 
@@ -100,7 +104,7 @@ class PurchaseOrderReceivingService
             $dueDate = now()->addDays((int) $lockedPurchaseOrder->supplier->payment_terms_days)->toDateString();
 
             $bill = SupplierBill::query()->create([
-                'bill_number' => $this->nextBillNumber(),
+                'bill_number' => $this->documentNumberService->next('supplier_bills', 'BILL-'),
                 'supplier_id' => $lockedPurchaseOrder->supplier_id,
                 'purchase_order_id' => $lockedPurchaseOrder->id,
                 'warehouse_id' => $lockedPurchaseOrder->warehouse_id,
@@ -131,12 +135,5 @@ class PurchaseOrderReceivingService
 
             return $bill->fresh(['items', 'journalEntry']);
         });
-    }
-
-    protected function nextBillNumber(): string
-    {
-        $nextId = (int) SupplierBill::query()->max('id') + 1;
-
-        return 'BILL-'.str_pad((string) $nextId, 6, '0', STR_PAD_LEFT);
     }
 }

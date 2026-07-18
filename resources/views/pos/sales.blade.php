@@ -52,6 +52,23 @@
                 <div class="mt-6 space-y-3" id="cart-list"></div>
 
                 <div class="mt-6 rounded-3xl border border-white/10 bg-white/5 p-5">
+                    <div class="space-y-3">
+                        <div>
+                            <label for="payment-method" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Payment method</label>
+                            <select id="payment-method" class="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-slate-100 outline-none">
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="credit_account">Credit account</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="customer-select" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Customer (credit only)</label>
+                            <select id="customer-select" class="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-slate-100 outline-none">
+                                <option value="">Select customer</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="flex items-center justify-between text-sm text-slate-300">
                         <span>Subtotal</span>
                         <span id="subtotal-value">0.00</span>

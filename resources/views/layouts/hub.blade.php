@@ -82,6 +82,13 @@
                             </a>
                         @endcan
 
+                        @can('viewAny', \App\Models\Customer::class)
+                            <a href="{{ route('customers.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('customers.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Customers</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">AR</span>
+                            </a>
+                        @endcan
+
                         @can('viewAny', \App\Models\PurchaseOrder::class)
                             <a href="{{ route('purchase-orders.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('purchase-orders.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>Purchase Orders</span>
@@ -121,6 +128,20 @@
                             <a href="{{ route('reports.ap-aging') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.ap-aging') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>AP Aging</span>
                                 <span class="text-xs uppercase tracking-[0.28em]">AP</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isAccountant())
+                            <a href="{{ route('customer-receivables.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('customer-receivables.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Receivables</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">AR</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isAccountant())
+                            <a href="{{ route('reports.ar-aging') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.ar-aging') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>AR Aging</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">AR</span>
                             </a>
                         @endif
 

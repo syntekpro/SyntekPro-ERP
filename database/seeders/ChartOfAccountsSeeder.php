@@ -14,6 +14,7 @@ class ChartOfAccountsSeeder extends Seeder
             ['code' => '1000', 'name' => 'Assets', 'account_type' => AccountType::Asset, 'parent_code' => null],
             ['code' => '1010', 'name' => 'Cash on Hand', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1020', 'name' => 'Bank Account', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
+            ['code' => '1100', 'name' => 'Accounts Receivable Control', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1200', 'name' => 'Inventory', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1300', 'name' => 'VAT Receivable', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
 

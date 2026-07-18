@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ShopStock;
 use Illuminate\Http\Request;
@@ -49,6 +50,18 @@ class PosSaleController extends Controller
             ->get(['product_id', 'quantity'])
             ->mapWithKeys(fn (ShopStock $row) => [$row->product_id => (string) $row->quantity]);
 
+        $customers = Customer::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code', 'payment_terms_days'])
+            ->map(fn (Customer $customer) => [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'code' => $customer->code,
+                'payment_terms_days' => $customer->payment_terms_days,
+            ])
+            ->values();
+
         return view('pos.sales', [
             'shop' => $user->shop,
             'cashier' => $user,
@@ -66,6 +79,7 @@ class PosSaleController extends Controller
                 ],
                 'products' => $products,
                 'shop_stock' => $stock,
+                'customers' => $customers,
             ],
         ]);
     }

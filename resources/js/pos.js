@@ -7,6 +7,8 @@ const state = {
     queue: [],
     cart: new Map(),
     db: null,
+    selectedPaymentMethod: 'cash',
+    selectedCustomerId: null,
 };
 
 const elements = {
@@ -19,6 +21,8 @@ const elements = {
     queueStatus: document.getElementById('queue-status'),
     syncButton: document.getElementById('sync-sales'),
     completeButton: document.getElementById('complete-sale'),
+    paymentMethod: document.getElementById('payment-method'),
+    customerSelect: document.getElementById('customer-select'),
 };
 
 function readBootstrap() {
@@ -31,6 +35,7 @@ function readBootstrap() {
             cashier: null,
             products: [],
             shop_stock: {},
+            customers: [],
         };
     }
 
@@ -332,6 +337,13 @@ async function loadQueue() {
 function buildSalePayload(cartEntries) {
     const soldAt = new Date().toISOString();
     const idempotencyKey = crypto.randomUUID();
+    const paymentMethod = state.selectedPaymentMethod || 'cash';
+    const customerId = paymentMethod === 'credit_account' ? state.selectedCustomerId : null;
+
+    if (paymentMethod === 'credit_account' && !customerId) {
+        throw new Error('Select a customer for credit-account sales.');
+    }
+
     const items = cartEntries.map(([productId, item]) => {
         const lineSubtotal = Number(item.quantity) * Number(item.unit_price);
         const vatAmount = lineSubtotal * (Number(item.vat_rate) / 100);
@@ -360,8 +372,40 @@ function buildSalePayload(cartEntries) {
         subtotal: subtotal.toFixed(2),
         vat_total: vatTotal.toFixed(2),
         total: (subtotal + vatTotal).toFixed(2),
+        payment_method: paymentMethod,
+        customer_id: customerId,
         items,
     };
+}
+
+function renderCustomers() {
+    if (!elements.customerSelect) {
+        return;
+    }
+
+    const customers = state.bootstrap.customers || [];
+
+    const options = ['<option value="">Select customer</option>']
+        .concat(customers.map((customer) => {
+            return `<option value="${customer.id}">${escapeHtml(customer.name)} (${escapeHtml(customer.code)})</option>`;
+        }));
+
+    elements.customerSelect.innerHTML = options.join('');
+}
+
+function syncPaymentUiState() {
+    const isCredit = state.selectedPaymentMethod === 'credit_account';
+
+    if (elements.customerSelect) {
+        elements.customerSelect.disabled = !isCredit;
+    }
+
+    if (!isCredit) {
+        state.selectedCustomerId = null;
+        if (elements.customerSelect) {
+            elements.customerSelect.value = '';
+        }
+    }
 }
 
 async function queueCurrentSale() {
@@ -427,6 +471,8 @@ async function syncQueuedSales() {
                 subtotal: sale.subtotal,
                 vat_total: sale.vat_total,
                 total: sale.total,
+                payment_method: sale.payment_method || 'cash',
+                customer_id: sale.customer_id || null,
                 items: sale.items,
             })),
         }),
@@ -460,6 +506,16 @@ async function syncQueuedSales() {
 function wireEvents() {
     elements.search?.addEventListener('input', () => {
         renderProducts();
+    });
+
+    elements.paymentMethod?.addEventListener('change', () => {
+        state.selectedPaymentMethod = elements.paymentMethod.value || 'cash';
+        syncPaymentUiState();
+    });
+
+    elements.customerSelect?.addEventListener('change', () => {
+        const value = elements.customerSelect.value;
+        state.selectedCustomerId = value ? Number(value) : null;
     });
 
     elements.productList?.addEventListener('click', (event) => {
@@ -509,6 +565,9 @@ async function bootstrap() {
     state.db = await openDatabase();
     state.products = await loadProducts();
     state.queue = await loadQueue();
+
+    renderCustomers();
+    syncPaymentUiState();
 
     wireEvents();
     renderProducts();

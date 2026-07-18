@@ -78,6 +78,8 @@ class PosSaleSyncTest extends TestCase
                 'subtotal' => '100.00',
                 'vat_total' => '7.50',
                 'total' => '107.50',
+                'payment_method' => 'cash',
+                'customer_id' => null,
                 'items' => [[
                     'product_id' => $product->id,
                     'product_name' => $product->name,
@@ -208,6 +210,8 @@ class PosSaleSyncTest extends TestCase
                 'subtotal' => '100.00',
                 'vat_total' => '7.50',
                 'total' => '107.50',
+                'payment_method' => 'cash',
+                'customer_id' => null,
                 'items' => [[
                     'product_id' => $product->id,
                     'product_name' => $product->name,

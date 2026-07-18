@@ -20,4 +20,10 @@ return [
         'payment_cash_or_bank_account_code' => env('GL_PURCHASING_PAYMENT_CASH_ACCOUNT_CODE', '1020'),
         'posting_shop_id' => env('GL_PURCHASING_POSTING_SHOP_ID'),
     ],
+
+    'receivables' => [
+        'accounts_receivable_account_code' => env('GL_RECEIVABLES_AR_ACCOUNT_CODE', '1100'),
+        'payment_cash_or_bank_account_code' => env('GL_RECEIVABLES_PAYMENT_CASH_ACCOUNT_CODE', '1020'),
+        'posting_shop_id' => env('GL_RECEIVABLES_POSTING_SHOP_ID'),
+    ],
 ];

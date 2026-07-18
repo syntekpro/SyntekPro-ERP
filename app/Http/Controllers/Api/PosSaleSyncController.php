@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\SalePaymentMethod;
 use App\Enums\SaleStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Shop;
 use App\Models\ShopStock;
 use App\Services\Accounting\PostsSaleToLedger;
+use App\Services\Numbering\DocumentNumberService;
 use App\Support\ZatcaQrEncoder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -30,6 +34,8 @@ class PosSaleSyncController extends Controller
             'sales.*.subtotal' => ['required', 'numeric', 'min:0'],
             'sales.*.vat_total' => ['required', 'numeric', 'min:0'],
             'sales.*.total' => ['required', 'numeric', 'min:0'],
+            'sales.*.payment_method' => ['required', 'string', 'in:cash,card,credit_account'],
+            'sales.*.customer_id' => ['nullable', 'integer', 'exists:customers,id'],
             'sales.*.items' => ['required', 'array', 'min:1'],
             'sales.*.items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'sales.*.items.*.product_name' => ['required', 'string', 'max:255'],
@@ -63,6 +69,24 @@ class PosSaleSyncController extends Controller
 
     protected function syncSale(array $salePayload, int $cashierId, int $shopId): array
     {
+        $paymentMethod = SalePaymentMethod::from((string) $salePayload['payment_method']);
+
+        if ($paymentMethod === SalePaymentMethod::CreditAccount && empty($salePayload['customer_id'])) {
+            return [
+                'idempotency_key' => $salePayload['idempotency_key'],
+                'status' => SaleStatus::Rejected->value,
+                'message' => 'Customer is required for credit-account sales.',
+            ];
+        }
+
+        if ($paymentMethod !== SalePaymentMethod::CreditAccount && ! empty($salePayload['customer_id'])) {
+            return [
+                'idempotency_key' => $salePayload['idempotency_key'],
+                'status' => SaleStatus::Rejected->value,
+                'message' => 'Customer can only be set when payment method is credit_account.',
+            ];
+        }
+
         if ((int) $salePayload['shop_id'] !== $shopId || (int) $salePayload['cashier_id'] !== $cashierId) {
             return [
                 'idempotency_key' => $salePayload['idempotency_key'],
@@ -95,16 +119,55 @@ class PosSaleSyncController extends Controller
         }
 
         try {
-            $sale = DB::transaction(function () use ($salePayload, $cashierId, $shopId, $payloadHash): Sale {
+            $sale = DB::transaction(function () use ($salePayload, $cashierId, $shopId, $payloadHash, $paymentMethod): Sale {
+                $customer = null;
+                $dueDate = null;
+                $outstandingBalance = 0;
+
+                if ($paymentMethod === SalePaymentMethod::CreditAccount) {
+                    $customer = Customer::query()
+                        ->whereKey((int) $salePayload['customer_id'])
+                        ->lockForUpdate()
+                        ->firstOrFail();
+
+                    if (! $customer->is_active) {
+                        throw new \RuntimeException('Customer is inactive and cannot be used for credit sales.');
+                    }
+
+                    $existingOutstanding = (float) Sale::query()
+                        ->where('customer_id', $customer->id)
+                        ->where('payment_method', SalePaymentMethod::CreditAccount->value)
+                        ->where('outstanding_balance', '>', 0)
+                        ->lockForUpdate()
+                        ->sum('outstanding_balance');
+
+                    $newOutstanding = round($existingOutstanding + (float) $salePayload['total'], 2);
+
+                    if ($customer->credit_limit !== null && $newOutstanding > (float) $customer->credit_limit) {
+                        throw new \RuntimeException('Credit limit exceeded for this customer.');
+                    }
+
+                    $dueDate = Carbon::parse($salePayload['sold_at'])
+                        ->addDays((int) $customer->payment_terms_days)
+                        ->toDateString();
+
+                    $outstandingBalance = $salePayload['total'];
+                }
+
                 $sale = Sale::query()->create([
                     'shop_id' => $shopId,
                     'cashier_id' => $cashierId,
                     'idempotency_key' => $salePayload['idempotency_key'],
+                    'invoice_number' => app(DocumentNumberService::class)->next('sales', 'INV-'),
                     'status' => SaleStatus::Queued,
                     'sold_at' => $salePayload['sold_at'],
                     'subtotal' => $salePayload['subtotal'],
                     'vat_total' => $salePayload['vat_total'],
                     'total' => $salePayload['total'],
+                    'payment_method' => $paymentMethod,
+                    'customer_id' => $customer?->id,
+                    'due_date' => $dueDate,
+                    'outstanding_balance' => $outstandingBalance,
                     'payload_hash' => $payloadHash,
                     'invoice_uuid' => (string) Str::uuid(),
                 ]);
@@ -211,6 +274,8 @@ class PosSaleSyncController extends Controller
             'subtotal' => (string) $salePayload['subtotal'],
             'vat_total' => (string) $salePayload['vat_total'],
             'total' => (string) $salePayload['total'],
+            'payment_method' => (string) ($salePayload['payment_method'] ?? SalePaymentMethod::Cash->value),
+            'customer_id' => isset($salePayload['customer_id']) ? (int) $salePayload['customer_id'] : null,
             'items' => $normalisedItems,
         ];
     }

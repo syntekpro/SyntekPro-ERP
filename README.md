@@ -2,6 +2,13 @@
 
 SyntekPro ERP is a Laravel-based multi-tenant ERP and POS platform for the Saudi market. The application uses a shared database tenancy model where shop-owned data is isolated with `shop_id` scoping, while hub-owned resources such as shops, warehouses, and products remain unscoped and centrally managed.
 
+## Product Documentation
+
+- Full Feature List (Phase 0-9): [syntekpro-erp-feature-list.md](syntekpro-erp-feature-list.md)
+- End-User Operating Guide: [syntekpro-erp-user-guide.md](syntekpro-erp-user-guide.md)
+
+These two documents provide the business-facing product description and operational usage details for the current `v1.0.0` milestone.
+
 ## Current Phase
 
 This repository currently includes:
@@ -12,6 +19,10 @@ This repository currently includes:
 - Phase 3 POS runtime: shop cashier POS shell and idempotent sale sync API with local stock decrement behavior.
 - Phase 4 reporting and compliance groundwork: VAT/margin/fast-moving reports and persisted ZATCA TLV Base64 QR payload, invoice UUID, and invoice hash fields.
 - Phase 5 hardening (in progress): demo-mode reset command and nightly scheduler hook, demo safety guard, demo banner, and production compose profile for reverse-proxy networking.
+- Phase 6 accounting core: chart of accounts, manual journal entries, auto-balancing validations, and trial balance.
+- Phase 7 purchasing and AP: supplier management, purchase orders, receiving, supplier bills/payments, and AP aging.
+- Phase 8 receivables: customers, credit sales, customer payments, and AR aging.
+- Phase 9 financial statements and close: balance sheet, income statement, cash flow, and fiscal period close/reopen controls.
 
 ### Demo Environment Notes
 

@@ -125,6 +125,27 @@
                         @endif
 
                         @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isAccountant())
+                            <a href="{{ route('reports.balance-sheet') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.balance-sheet') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Balance Sheet</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">FS</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isShopManager() || auth()->user()?->isAccountant())
+                            <a href="{{ route('reports.income-statement') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.income-statement') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Income Statement (P&amp;L)</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">FS</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isAccountant())
+                            <a href="{{ route('reports.cash-flow') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.cash-flow') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Cash Flow Statement</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">FS</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isAccountant())
                             <a href="{{ route('reports.ap-aging') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.ap-aging') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>AP Aging</span>
                                 <span class="text-xs uppercase tracking-[0.28em]">AP</span>
@@ -142,6 +163,13 @@
                             <a href="{{ route('reports.ar-aging') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports.ar-aging') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>AR Aging</span>
                                 <span class="text-xs uppercase tracking-[0.28em]">AR</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()?->isSuperAdmin() || auth()->user()?->isAccountant())
+                            <a href="{{ route('fiscal-periods.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('fiscal-periods.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Fiscal Periods</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">Close</span>
                             </a>
                         @endif
 

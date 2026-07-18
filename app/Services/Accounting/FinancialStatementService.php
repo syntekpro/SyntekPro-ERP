@@ -4,7 +4,6 @@ namespace App\Services\Accounting;
 
 use App\Enums\AccountType;
 use App\Models\Account;
-use App\Models\JournalEntryLine;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -175,7 +174,7 @@ class FinancialStatementService
             ->map(fn ($row) => [
                 'code' => $row->code,
                 'name' => $row->name,
-                'account_type' => (string) $row->account_type,
+                'account_type' => $this->normalizeAccountType($row->account_type),
                 'debit' => (float) $row->debit_sum,
                 'credit' => (float) $row->credit_sum,
             ]);
@@ -188,10 +187,19 @@ class FinancialStatementService
             ->map(fn ($row) => [
                 'code' => $row->code,
                 'name' => $row->name,
-                'account_type' => (string) $row->account_type,
+                'account_type' => $this->normalizeAccountType($row->account_type),
                 'debit' => (float) $row->debit_sum,
                 'credit' => (float) $row->credit_sum,
             ]);
+    }
+
+    protected function normalizeAccountType(mixed $accountType): string
+    {
+        if ($accountType instanceof AccountType) {
+            return $accountType->value;
+        }
+
+        return (string) $accountType;
     }
 
     protected function buildAccountBalancesQuery(?string $startDate, string $endDate, ?int $shopId)

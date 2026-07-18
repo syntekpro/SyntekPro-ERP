@@ -2,29 +2,28 @@
 
 namespace App\Models;
 
-use App\Enums\SupplierBillStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class SupplierBill extends Model
+class DebitNote extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'bill_number',
-        'supplier_id',
+        'debit_note_number',
+        'supplier_bill_id',
         'purchase_order_id',
+        'supplier_id',
         'warehouse_id',
         'journal_entry_id',
-        'bill_date',
-        'due_date',
+        'note_date',
         'subtotal',
         'vat_total',
         'total',
-        'outstanding_balance',
-        'status',
+        'applied_to_bill_balance',
+        'excess_amount',
         'notes',
         'created_by',
     ];
@@ -32,24 +31,28 @@ class SupplierBill extends Model
     protected function casts(): array
     {
         return [
-            'bill_date' => 'date',
-            'due_date' => 'date',
+            'note_date' => 'date',
             'subtotal' => 'decimal:2',
             'vat_total' => 'decimal:2',
             'total' => 'decimal:2',
-            'outstanding_balance' => 'decimal:2',
-            'status' => SupplierBillStatus::class,
+            'applied_to_bill_balance' => 'decimal:2',
+            'excess_amount' => 'decimal:2',
         ];
     }
 
-    public function supplier(): BelongsTo
+    public function supplierBill(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(SupplierBill::class);
     }
 
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function warehouse(): BelongsTo
@@ -69,16 +72,6 @@ class SupplierBill extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(SupplierBillItem::class);
-    }
-
-    public function payments(): HasMany
-    {
-        return $this->hasMany(SupplierPayment::class);
-    }
-
-    public function debitNotes(): HasMany
-    {
-        return $this->hasMany(DebitNote::class);
+        return $this->hasMany(DebitNoteItem::class);
     }
 }

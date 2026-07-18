@@ -103,6 +103,20 @@
                             </a>
                         @endcan
 
+                        @can('viewAny', \App\Models\CreditNote::class)
+                            <a href="{{ route('credit-notes.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('credit-notes.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Credit Notes</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">Returns</span>
+                            </a>
+                        @endcan
+
+                        @can('viewAny', \App\Models\DebitNote::class)
+                            <a href="{{ route('debit-notes.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('debit-notes.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Debit Notes</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">Returns</span>
+                            </a>
+                        @endcan
+
                         @can('viewAny', \App\Models\StockTransfer::class)
                             <a href="{{ route('stock-transfers.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('stock-transfers.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>Transfers</span>

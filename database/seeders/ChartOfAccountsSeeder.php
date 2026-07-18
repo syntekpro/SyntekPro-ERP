@@ -34,6 +34,7 @@ class ChartOfAccountsSeeder extends Seeder
             ['code' => '5200', 'name' => 'Rent Expense', 'account_type' => AccountType::Expense, 'parent_code' => '5000'],
             ['code' => '5300', 'name' => 'Utilities Expense', 'account_type' => AccountType::Expense, 'parent_code' => '5000'],
             ['code' => '5400', 'name' => 'Salaries Expense', 'account_type' => AccountType::Expense, 'parent_code' => '5000'],
+            ['code' => '5500', 'name' => 'Inventory Write-off Expense', 'account_type' => AccountType::Expense, 'parent_code' => '5000'],
         ];
 
         foreach ($accounts as $seedAccount) {

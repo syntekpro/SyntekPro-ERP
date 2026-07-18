@@ -32,6 +32,7 @@
                             <td class="px-4 py-3">{{ str($bill->status->value)->replace('_', ' ')->title() }}</td>
                             <td class="px-4 py-3 text-right">
                                 <div class="flex justify-end gap-2">
+                                    <a href="{{ route('debit-notes.create', ['supplier_bill_id' => $bill->id]) }}" class="rounded-xl border border-sky-400/20 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:bg-sky-500/10">Create debit note</a>
                                     @can('recordPayment', $bill)
                                         <a href="{{ route('supplier-bills.payments.create', $bill) }}" class="rounded-xl border border-emerald-400/20 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/10">Record payment</a>
                                     @endcan

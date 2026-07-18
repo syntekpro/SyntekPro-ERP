@@ -74,4 +74,9 @@ class Sale extends Model
     {
         return $this->hasMany(CustomerPayment::class);
     }
+
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(CreditNote::class);
+    }
 }

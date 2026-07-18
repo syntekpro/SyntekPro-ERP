@@ -25,4 +25,8 @@ return [
         'accounts_receivable_account_code' => env('GL_RECEIVABLES_AR_ACCOUNT_CODE', '1100'),
         'payment_cash_or_bank_account_code' => env('GL_RECEIVABLES_PAYMENT_CASH_ACCOUNT_CODE', '1020'),
     ],
+
+    'returns' => [
+        'damaged_goods_account_code' => env('GL_RETURNS_DAMAGED_GOODS_ACCOUNT_CODE', '5500'),
+    ],
 ];

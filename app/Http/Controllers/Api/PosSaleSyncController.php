@@ -203,7 +203,7 @@ class PosSaleSyncController extends Controller
                         'barcode' => $item['barcode'] ?? null,
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
-                        'unit_cost' => $product?->cost_price ?? 0,
+                        'unit_cost' => $product?->average_cost ?? $product?->cost_price ?? 0,
                         'vat_rate' => $item['vat_rate'],
                         'vat_amount' => $item['vat_amount'],
                         'line_total' => $item['line_total'],

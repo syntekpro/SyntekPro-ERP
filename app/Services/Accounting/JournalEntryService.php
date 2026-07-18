@@ -4,6 +4,7 @@ namespace App\Services\Accounting;
 
 use App\Exceptions\UnbalancedJournalEntryException;
 use App\Models\Account;
+use App\Models\FiscalPeriod;
 use App\Models\JournalEntry;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -64,11 +65,26 @@ class JournalEntryService
             throw new UnbalancedJournalEntryException('Journal entry is not balanced.');
         }
 
-        return DB::transaction(function () use ($header, $normalizedLines): JournalEntry {
+        $entryDate = (string) Arr::get($header, 'entry_date', now()->toDateString());
+
+        $closedPeriod = FiscalPeriod::query()
+            ->whereDate('period_start', '<=', $entryDate)
+            ->whereDate('period_end', '>=', $entryDate)
+            ->where('is_closed', true)
+            ->exists();
+
+        if ($closedPeriod) {
+            throw new UnbalancedJournalEntryException('Cannot post journal entry into a closed fiscal period.');
+        }
+
+        $shopIdRaw = Arr::get($header, 'shop_id');
+        $shopId = ($shopIdRaw === null || $shopIdRaw === '') ? null : (int) $shopIdRaw;
+
+        return DB::transaction(function () use ($header, $normalizedLines, $shopId, $entryDate): JournalEntry {
             $entry = JournalEntry::query()->create([
-                'shop_id' => (int) Arr::get($header, 'shop_id'),
+                'shop_id' => $shopId,
                 'sale_id' => Arr::get($header, 'sale_id'),
-                'entry_date' => Arr::get($header, 'entry_date'),
+                'entry_date' => $entryDate,
                 'reference' => Arr::get($header, 'reference'),
                 'description' => Arr::get($header, 'description'),
                 'source' => Arr::get($header, 'source', 'manual'),

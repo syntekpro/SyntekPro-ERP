@@ -28,6 +28,8 @@ class PostsSaleToLedger
         $accountsReceivableAccount = $this->resolveRequiredAccount(config('accounting.receivables.accounts_receivable_account_code'));
         $salesRevenueAccount = $this->resolveRequiredAccount(config('accounting.pos.sales_revenue_account_code'));
         $vatPayableAccount = $this->resolveRequiredAccount(config('accounting.pos.vat_payable_account_code'));
+        $cogsAccount = $this->resolveRequiredAccount(config('accounting.pos.cogs_account_code'));
+        $inventoryAccount = $this->resolveRequiredAccount(config('accounting.purchasing.inventory_account_code'));
 
         $isCreditSale = $sale->payment_method === SalePaymentMethod::CreditAccount;
         $debitAccount = $isCreditSale ? $accountsReceivableAccount : $cashAccount;
@@ -51,6 +53,24 @@ class PostsSaleToLedger
                 'debit' => 0,
                 'credit' => $sale->vat_total,
                 'description' => 'Output VAT',
+            ];
+        }
+
+        $cogsTotal = round((float) $sale->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_cost')), 2);
+
+        if ($cogsTotal > 0) {
+            $lines[] = [
+                'account_id' => $cogsAccount->id,
+                'debit' => $cogsTotal,
+                'credit' => 0,
+                'description' => 'Cost of goods sold',
+            ];
+
+            $lines[] = [
+                'account_id' => $inventoryAccount->id,
+                'debit' => 0,
+                'credit' => $cogsTotal,
+                'description' => 'Inventory reduction for sold goods',
             ];
         }
 

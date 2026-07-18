@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\BalanceSheetReportController;
+use App\Http\Controllers\CashFlowReportController;
 use App\Http\Controllers\AccountsPayableReportController;
 use App\Http\Controllers\AccountsReceivableReportController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerReceivableController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FiscalPeriodController;
+use App\Http\Controllers\IncomeStatementReportController;
 use App\Http\Controllers\JournalEntryController;
 use App\Http\Controllers\PosSaleController;
 use App\Http\Controllers\ProductController;
@@ -34,6 +38,12 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/reports/trial-balance', [TrialBalanceReportController::class, 'index'])->name('reports.trial-balance');
     Route::get('/reports/ap-aging', [AccountsPayableReportController::class, 'index'])->name('reports.ap-aging');
     Route::get('/reports/ar-aging', [AccountsReceivableReportController::class, 'index'])->name('reports.ar-aging');
+    Route::get('/reports/balance-sheet', [BalanceSheetReportController::class, 'index'])->name('reports.balance-sheet');
+    Route::get('/reports/income-statement', [IncomeStatementReportController::class, 'index'])->name('reports.income-statement');
+    Route::get('/reports/cash-flow', [CashFlowReportController::class, 'index'])->name('reports.cash-flow');
+    Route::get('/fiscal-periods', [FiscalPeriodController::class, 'index'])->name('fiscal-periods.index');
+    Route::post('/fiscal-periods/{period}/close', [FiscalPeriodController::class, 'close'])->name('fiscal-periods.close');
+    Route::post('/fiscal-periods/{period}/reopen', [FiscalPeriodController::class, 'reopen'])->name('fiscal-periods.reopen');
     Route::get('/pos/sales', [PosSaleController::class, 'index'])->name('pos.sales');
     Route::resource('shops', ShopController::class)->only(['index', 'create', 'edit']);
     Route::resource('warehouses', WarehouseController::class)->only(['index', 'create', 'edit']);

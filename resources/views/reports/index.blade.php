@@ -8,6 +8,15 @@
             <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 4</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Reporting</h1>
             <p class="mt-3 max-w-2xl text-sm text-stone-300">Hub-level reporting for VAT, margin, and fast-moving SKUs with optional date and shop filters.</p>
+            <div class="mt-4 flex flex-wrap gap-2 text-xs">
+                <a href="{{ route('reports.trial-balance') }}" class="rounded-full border border-white/10 px-3 py-1 text-stone-200 hover:bg-white/10">Trial Balance</a>
+                <a href="{{ route('reports.balance-sheet') }}" class="rounded-full border border-white/10 px-3 py-1 text-stone-200 hover:bg-white/10">Balance Sheet</a>
+                <a href="{{ route('reports.income-statement') }}" class="rounded-full border border-white/10 px-3 py-1 text-stone-200 hover:bg-white/10">Income Statement</a>
+                <a href="{{ route('reports.cash-flow') }}" class="rounded-full border border-white/10 px-3 py-1 text-stone-200 hover:bg-white/10">Cash Flow</a>
+                <a href="{{ route('reports.ap-aging') }}" class="rounded-full border border-white/10 px-3 py-1 text-stone-200 hover:bg-white/10">AP Aging</a>
+                <a href="{{ route('reports.ar-aging') }}" class="rounded-full border border-white/10 px-3 py-1 text-stone-200 hover:bg-white/10">AR Aging</a>
+                <a href="{{ route('fiscal-periods.index') }}" class="rounded-full border border-white/10 px-3 py-1 text-stone-200 hover:bg-white/10">Fiscal Periods</a>
+            </div>
         </div>
 
         <form method="GET" action="{{ route('reports.index') }}" class="rounded-3xl border border-white/10 bg-white/5 p-6">

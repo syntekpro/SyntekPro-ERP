@@ -23,7 +23,7 @@ class PostsCustomerPaymentToLedger
         $entryDate = $payment->paid_at !== null ? (string) $payment->paid_at : now()->toDateString();
 
         $journalEntry = $this->journalEntryService->create([
-            'shop_id' => $this->resolvePostingShopId(),
+            'shop_id' => null,
             'entry_date' => $entryDate,
             'reference' => 'AR-PAY-'.$payment->id,
             'description' => 'Auto-posted customer payment',
@@ -63,22 +63,5 @@ class PostsCustomerPaymentToLedger
         }
 
         return $account;
-    }
-
-    protected function resolvePostingShopId(): int
-    {
-        $configuredShopId = config('accounting.receivables.posting_shop_id');
-
-        if ($configuredShopId !== null && $configuredShopId !== '') {
-            return (int) $configuredShopId;
-        }
-
-        $firstShopId = \App\Models\Shop::query()->orderBy('id')->value('id');
-
-        if ($firstShopId === null) {
-            throw new \RuntimeException('Receivables ledger posting requires at least one shop.');
-        }
-
-        return (int) $firstShopId;
     }
 }

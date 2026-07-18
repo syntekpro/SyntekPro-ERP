@@ -11,6 +11,7 @@ return [
         'cash_account_code' => env('GL_POS_CASH_ACCOUNT_CODE', '1010'),
         'sales_revenue_account_code' => env('GL_POS_SALES_REVENUE_ACCOUNT_CODE', '4100'),
         'vat_payable_account_code' => env('GL_POS_VAT_PAYABLE_ACCOUNT_CODE', '2200'),
+        'cogs_account_code' => env('GL_POS_COGS_ACCOUNT_CODE', '5100'),
     ],
 
     'purchasing' => [
@@ -18,12 +19,10 @@ return [
         'input_vat_receivable_account_code' => env('GL_PURCHASING_INPUT_VAT_ACCOUNT_CODE', '1300'),
         'accounts_payable_account_code' => env('GL_PURCHASING_AP_ACCOUNT_CODE', '2100'),
         'payment_cash_or_bank_account_code' => env('GL_PURCHASING_PAYMENT_CASH_ACCOUNT_CODE', '1020'),
-        'posting_shop_id' => env('GL_PURCHASING_POSTING_SHOP_ID'),
     ],
 
     'receivables' => [
         'accounts_receivable_account_code' => env('GL_RECEIVABLES_AR_ACCOUNT_CODE', '1100'),
         'payment_cash_or_bank_account_code' => env('GL_RECEIVABLES_PAYMENT_CASH_ACCOUNT_CODE', '1020'),
-        'posting_shop_id' => env('GL_RECEIVABLES_POSTING_SHOP_ID'),
     ],
 ];

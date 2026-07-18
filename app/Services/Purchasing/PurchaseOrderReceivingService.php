@@ -75,6 +75,8 @@ class PurchaseOrderReceivingService
                     'quantity_received' => round((float) $item->quantity_received + $requestedQty, 3),
                 ]);
 
+                $this->updateProductAverageCost((int) $item->product_id, $requestedQty, (float) $item->unit_cost);
+
                 $netAmount = round($requestedQty * (float) $item->unit_cost, 2);
                 $lineVat = round($netAmount * ((float) $item->vat_rate / 100), 2);
                 $grossAmount = round($netAmount + $lineVat, 2);
@@ -135,5 +137,36 @@ class PurchaseOrderReceivingService
 
             return $bill->fresh(['items', 'journalEntry']);
         });
+    }
+
+    protected function updateProductAverageCost(int $productId, float $receivedQuantity, float $receivedUnitCost): void
+    {
+        $product = \App\Models\Product::query()
+            ->whereKey($productId)
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        $totalOnHandAfter = (float) \App\Models\WarehouseStock::query()
+            ->where('product_id', $productId)
+            ->lockForUpdate()
+            ->sum('quantity');
+
+        $totalOnHandBefore = round($totalOnHandAfter - $receivedQuantity, 3);
+
+        $currentAverageCost = (float) ($product->average_cost ?? 0);
+        $existingValue = $currentAverageCost * max($totalOnHandBefore, 0);
+        $receivedValue = $receivedUnitCost * $receivedQuantity;
+        $newTotalQuantity = max($totalOnHandBefore, 0) + $receivedQuantity;
+
+        if ($newTotalQuantity <= 0) {
+            return;
+        }
+
+        $newAverage = round(($existingValue + $receivedValue) / $newTotalQuantity, 4);
+
+        $product->update([
+            'average_cost' => $newAverage,
+            'cost_price' => round($newAverage, 2),
+        ]);
     }
 }

@@ -137,7 +137,7 @@ class DebitNoteService
                 'description' => 'Auto-posted debit note for supplier bill '.$bill->bill_number,
                 'source' => 'debit_note',
                 'created_by' => $userId,
-            ], $this->buildJournalLines($subtotal, $vatTotal, $total, $excessAmount));
+            ], $this->buildJournalLines($subtotal, $vatTotal, $appliedToBillBalance, $excessAmount));
 
             $debitNote->update([
                 'journal_entry_id' => $journalEntry->id,
@@ -147,25 +147,37 @@ class DebitNoteService
         });
     }
 
-    protected function buildJournalLines(float $subtotal, float $vatTotal, float $total, float $excessAmount): array
+    protected function buildJournalLines(float $subtotal, float $vatTotal, float $appliedToBillBalance, float $excessAmount): array
     {
         $inventoryAccount = $this->resolveRequiredAccount(config('accounting.purchasing.inventory_account_code'));
         $vatReceivableAccount = $this->resolveRequiredAccount(config('accounting.purchasing.input_vat_receivable_account_code'));
         $accountsPayableAccount = $this->resolveRequiredAccount(config('accounting.purchasing.accounts_payable_account_code'));
+        $dueFromSupplierAccount = $this->resolveRequiredAccount(config('accounting.returns.due_from_supplier_account_code'));
 
         $lines = [[
-            'account_id' => $accountsPayableAccount->id,
-            'debit' => $total,
-            'credit' => 0,
-            'description' => $excessAmount > 0
-                ? 'Supplier return posted; excess above open bill balance requires manual handling'
-                : 'Reverse accounts payable for supplier return',
-        ], [
             'account_id' => $inventoryAccount->id,
             'debit' => 0,
             'credit' => $subtotal,
             'description' => 'Inventory returned to supplier',
         ]];
+
+        if ($appliedToBillBalance > 0) {
+            $lines[] = [
+                'account_id' => $accountsPayableAccount->id,
+                'debit' => $appliedToBillBalance,
+                'credit' => 0,
+                'description' => 'Reverse accounts payable for supplier return up to open bill balance',
+            ];
+        }
+
+        if ($excessAmount > 0) {
+            $lines[] = [
+                'account_id' => $dueFromSupplierAccount->id,
+                'debit' => $excessAmount,
+                'credit' => 0,
+                'description' => 'Supplier return excess awaiting manual recovery or settlement',
+            ];
+        }
 
         if ($vatTotal > 0) {
             $lines[] = [

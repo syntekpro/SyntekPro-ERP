@@ -28,5 +28,6 @@ return [
 
     'returns' => [
         'damaged_goods_account_code' => env('GL_RETURNS_DAMAGED_GOODS_ACCOUNT_CODE', '5500'),
+        'due_from_supplier_account_code' => env('GL_RETURNS_DUE_FROM_SUPPLIER_ACCOUNT_CODE', '1150'),
     ],
 ];

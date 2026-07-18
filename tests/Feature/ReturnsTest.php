@@ -370,6 +370,7 @@ class ReturnsTest extends TestCase
         );
 
         $apAccountId = (int) Account::query()->where('code', '2100')->value('id');
+        $dueFromSupplierAccountId = (int) Account::query()->where('code', '1150')->value('id');
 
         $this->assertSame('0.00', number_format((float) $bill->fresh()->outstanding_balance, 2, '.', ''));
         $this->assertSame(SupplierBillStatus::Paid, $bill->fresh()->status);
@@ -378,9 +379,80 @@ class ReturnsTest extends TestCase
         $this->assertDatabaseHas('journal_entry_lines', [
             'journal_entry_id' => $debitNote->journal_entry_id,
             'account_id' => $apAccountId,
-            'debit' => '46.00',
+            'debit' => '15.00',
             'credit' => '0.00',
         ]);
+        $this->assertDatabaseHas('journal_entry_lines', [
+            'journal_entry_id' => $debitNote->journal_entry_id,
+            'account_id' => $dueFromSupplierAccountId,
+            'debit' => '31.00',
+            'credit' => '0.00',
+        ]);
+    }
+
+    public function test_open_supplier_bill_total_reconciles_to_ap_ledger_balance_after_excess_debit_note(): void
+    {
+        $this->seed(ChartOfAccountsSeeder::class);
+
+        [$billA, $accountant] = $this->createSupplierBillContext('BILL-RET-RECON-A');
+        [$billB] = $this->createSupplierBillContext('BILL-RET-RECON-B');
+        [$billC] = $this->createSupplierBillContext('BILL-RET-RECON-C');
+
+        app(SupplierPaymentService::class)->record(
+            $billA->id,
+            40,
+            now()->toDateString(),
+            'SUPPAY-RECON-A',
+            null,
+            $accountant->id,
+        );
+
+        app(SupplierPaymentService::class)->record(
+            $billB->id,
+            100,
+            now()->toDateString(),
+            'SUPPAY-RECON-B',
+            null,
+            $accountant->id,
+        );
+
+        app(DebitNoteService::class)->record(
+            $billB->id,
+            now()->toDateString(),
+            [[
+                'supplier_bill_item_id' => $billB->items()->sole()->id,
+                'quantity' => 2,
+            ]],
+            'Excess supplier return',
+            $accountant->id,
+        );
+
+        app(DebitNoteService::class)->record(
+            $billC->id,
+            now()->toDateString(),
+            [[
+                'supplier_bill_item_id' => $billC->items()->sole()->id,
+                'quantity' => 1,
+            ]],
+            'Standard supplier return',
+            $accountant->id,
+        );
+
+        $openBillsTotal = round((float) SupplierBill::query()->sum('outstanding_balance'), 2);
+        $accountsPayableAccountId = (int) Account::query()->where('code', '2100')->value('id');
+
+        $apLedgerRow = JournalEntryLine::query()
+            ->where('account_id', $accountsPayableAccountId)
+            ->selectRaw('COALESCE(SUM(credit), 0) as credit_sum, COALESCE(SUM(debit), 0) as debit_sum')
+            ->first();
+
+        $apLedgerBalance = round((float) $apLedgerRow->credit_sum - (float) $apLedgerRow->debit_sum, 2);
+
+        $this->assertSame('167.00', number_format($openBillsTotal, 2, '.', ''));
+        $this->assertSame(
+            number_format($openBillsTotal, 2, '.', ''),
+            number_format($apLedgerBalance, 2, '.', '')
+        );
     }
 
     public function test_return_dated_inside_closed_fiscal_period_is_rejected_and_rolled_back(): void
@@ -566,7 +638,10 @@ class ReturnsTest extends TestCase
 
     protected function createSupplierBillContext(string $billNumberSeed): array
     {
-        Shop::query()->create(['name' => 'HQ Shop', 'slug' => 'hq-shop', 'is_active' => true]);
+        Shop::query()->firstOrCreate(
+            ['slug' => 'hq-shop'],
+            ['name' => 'HQ Shop', 'is_active' => true]
+        );
 
         $accountant = User::factory()->create(['role' => UserRole::Accountant]);
         $supplier = Supplier::query()->create([

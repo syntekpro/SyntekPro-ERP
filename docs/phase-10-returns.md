@@ -311,16 +311,17 @@ Result stored on the debit note:
 - Excess requiring manual handling: SAR 31.00
 - Bill outstanding after note: SAR 0.00
 
-Journal entry still reflects the full supplier return economics:
+Journal entry still reflects the full supplier return economics while keeping AP tied to the bill's real open balance:
 
-- Dr 2100 Accounts Payable: SAR 46.00
+- Dr 2100 Accounts Payable: SAR 15.00
+- Dr 1150 Due from Supplier - Returns: SAR 31.00
 - Cr 1200 Inventory: SAR 40.00
 - Cr 1300 VAT Receivable: SAR 6.00
 
 Known limitation:
 
 - The system does not yet implement a dedicated supplier credit-balance object or workflow.
-- The excess SAR 31.00 is therefore surfaced on the debit note and in the UI as manual handling required.
+- The excess SAR 31.00 is therefore surfaced on the debit note, posted to the due-from-supplier account, and shown in the UI as manual handling required.
 - AP aging stays correct because the bill's open balance is capped at zero instead of becoming negative.
 
 ## Closed Period Enforcement

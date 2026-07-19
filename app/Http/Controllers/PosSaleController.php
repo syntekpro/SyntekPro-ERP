@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ShopStock;
+use App\Services\Inventory\UnitConversionService;
 use App\Services\Settings\BusinessSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PosSaleController extends Controller
 {
-    public function index(Request $request, BusinessSettingsService $businessSettings): View
+    public function index(Request $request, BusinessSettingsService $businessSettings, UnitConversionService $unitConversionService): View
     {
         $user = $request->user();
 
@@ -20,6 +21,7 @@ class PosSaleController extends Controller
         $shopId = $user->shop_id;
 
         $products = Product::query()
+            ->with(['baseUnit', 'unitConversions.unit', 'prices'])
             ->leftJoin('shop_stock as stock', function ($join) use ($shopId): void {
                 $join->on('stock.product_id', '=', 'products.id')
                     ->where('stock.shop_id', '=', $shopId);
@@ -31,6 +33,7 @@ class PosSaleController extends Controller
                 'products.name',
                 'products.sku',
                 'products.barcode',
+                'products.base_unit_id',
                 'products.price',
                 'products.vat_rate',
                 'products.is_excise_applicable',
@@ -43,6 +46,19 @@ class PosSaleController extends Controller
                 'sku' => $product->sku,
                 'barcode' => $product->barcode,
                 'price' => (string) $product->price,
+                'base_unit_id' => $product->base_unit_id,
+                'units' => collect([[
+                    'id' => $unitConversionService->baseUnitId($product),
+                    'code' => $product->baseUnit?->code ?? 'PCS',
+                    'name' => $product->baseUnit?->name ?? 'Piece',
+                    'factor' => '1.000000',
+                ]])->merge($product->unitConversions->map(fn ($conversion) => [
+                    'id' => $conversion->unit_id,
+                    'code' => $conversion->unit?->code,
+                    'name' => $conversion->unit?->name,
+                    'factor' => (string) $conversion->conversion_factor,
+                ]))->values(),
+                'prices' => $product->prices->mapWithKeys(fn ($price) => [$price->price_category_id => (string) $price->price]),
                 'vat_rate' => number_format($businessSettings->vatRate(), 2, '.', ''),
                 'is_excise_applicable' => (bool) $product->is_excise_applicable,
                 'excise_rate' => $product->is_excise_applicable ? (string) ($product->excise_rate ?? '0.00') : '0.00',
@@ -58,12 +74,13 @@ class PosSaleController extends Controller
         $customers = Customer::query()
             ->where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'code', 'payment_terms_days'])
+            ->get(['id', 'name', 'code', 'payment_terms_days', 'default_price_category_id'])
             ->map(fn (Customer $customer) => [
                 'id' => $customer->id,
                 'name' => $customer->name,
                 'code' => $customer->code,
                 'payment_terms_days' => $customer->payment_terms_days,
+                'default_price_category_id' => $customer->default_price_category_id,
             ])
             ->values();
 
@@ -80,6 +97,7 @@ class PosSaleController extends Controller
                     'id' => $user->shop?->id,
                     'name' => $user->shop?->name,
                     'slug' => $user->shop?->slug,
+                    'default_price_category_id' => $user->shop?->default_price_category_id,
                 ],
                 'cashier' => [
                     'id' => $user->id,

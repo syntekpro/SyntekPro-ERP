@@ -12,7 +12,9 @@ use App\Models\SaleItem;
 use App\Models\Shop;
 use App\Models\ShopStock;
 use App\Services\Accounting\PostsSaleToLedger;
+use App\Services\Inventory\UnitConversionService;
 use App\Services\Numbering\DocumentNumberService;
+use App\Services\Pricing\PriceResolutionService;
 use App\Services\Settings\BusinessSettingsService;
 use App\Support\ZatcaQrEncoder;
 use Illuminate\Http\JsonResponse;
@@ -35,10 +37,11 @@ class PosSaleSyncController extends Controller
             'sales.*.subtotal' => ['required', 'numeric', 'min:0'],
             'sales.*.vat_total' => ['required', 'numeric', 'min:0'],
             'sales.*.total' => ['required', 'numeric', 'min:0'],
-            'sales.*.payment_method' => ['required', 'string', 'in:cash,card,credit_account'],
+            'sales.*.payment_method' => ['nullable', 'string', 'in:cash,card,credit_account'],
             'sales.*.customer_id' => ['nullable', 'integer', 'exists:customers,id'],
             'sales.*.items' => ['required', 'array', 'min:1'],
             'sales.*.items.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'sales.*.items.*.unit_id' => ['nullable', 'integer', 'exists:units,id'],
             'sales.*.items.*.product_name' => ['required', 'string', 'max:255'],
             'sales.*.items.*.sku' => ['nullable', 'string', 'max:255'],
             'sales.*.items.*.barcode' => ['nullable', 'string', 'max:255'],
@@ -70,6 +73,7 @@ class PosSaleSyncController extends Controller
 
     protected function syncSale(array $salePayload, int $cashierId, int $shopId): array
     {
+        $salePayload['payment_method'] = $salePayload['payment_method'] ?? SalePaymentMethod::Cash->value;
         $paymentMethod = SalePaymentMethod::from((string) $salePayload['payment_method']);
 
         if ($paymentMethod === SalePaymentMethod::CreditAccount && empty($salePayload['customer_id'])) {
@@ -156,6 +160,9 @@ class PosSaleSyncController extends Controller
                 }
 
                 $businessSettings = app(BusinessSettingsService::class);
+                $unitConversionService = app(UnitConversionService::class);
+                $priceResolutionService = app(PriceResolutionService::class);
+                $shop = Shop::query()->findOrFail($shopId);
                 $vatRate = $businessSettings->vatRate();
                 $calculatedSubtotal = 0.0;
                 $calculatedVatTotal = 0.0;
@@ -163,8 +170,14 @@ class PosSaleSyncController extends Controller
                 $calculatedItems = [];
 
                 foreach ($salePayload['items'] as $item) {
-                    $product = Product::query()->find($item['product_id']);
-                    $netAmount = round((float) $item['quantity'] * (float) $item['unit_price'], 2);
+                    $product = Product::query()->findOrFail($item['product_id']);
+                    $unitId = isset($item['unit_id']) && $item['unit_id'] !== null
+                        ? (int) $item['unit_id']
+                        : $unitConversionService->baseUnitId($product);
+                    $baseQuantity = $unitConversionService->toBaseQuantity($product, (float) $item['quantity'], $unitId);
+                    $unitFactor = $unitConversionService->factorFor($product, $unitId);
+                    $unitPrice = round($priceResolutionService->effectiveUnitPrice($product, $customer, $shop) * $unitFactor, 2);
+                    $netAmount = round((float) $item['quantity'] * $unitPrice, 2);
                     $exciseRate = $product?->is_excise_applicable ? (float) ($product->excise_rate ?? 0) : 0.0;
                     $exciseAmount = round($netAmount * ($exciseRate / 100), 2);
                     $vatAmount = round($netAmount * ($vatRate / 100), 2);
@@ -173,7 +186,7 @@ class PosSaleSyncController extends Controller
                     $calculatedSubtotal += $netAmount;
                     $calculatedVatTotal += $vatAmount;
                     $calculatedExciseTotal += $exciseAmount;
-                    $calculatedItems[] = compact('item', 'product', 'vatRate', 'vatAmount', 'exciseRate', 'exciseAmount', 'lineTotal');
+                    $calculatedItems[] = compact('item', 'product', 'unitId', 'baseQuantity', 'unitPrice', 'vatRate', 'vatAmount', 'exciseRate', 'exciseAmount', 'lineTotal');
                 }
 
                 $calculatedSubtotal = round($calculatedSubtotal, 2);
@@ -220,22 +233,26 @@ class PosSaleSyncController extends Controller
                         throw new \RuntimeException("No local stock row exists for product {$item['product_id']}.");
                     }
 
-                    if ((float) $stock->quantity < (float) $item['quantity']) {
+                    $baseQuantity = (float) $calculatedItem['baseQuantity'];
+
+                    if ((float) $stock->quantity < $baseQuantity) {
                         throw new \RuntimeException("Insufficient shop stock for product {$item['product_id']}.");
                     }
 
                     $stock->update([
-                        'quantity' => (float) $stock->quantity - (float) $item['quantity'],
+                        'quantity' => (float) $stock->quantity - $baseQuantity,
                     ]);
 
                     SaleItem::query()->create([
                         'sale_id' => $sale->id,
                         'product_id' => $item['product_id'],
+                        'unit_id' => $calculatedItem['unitId'],
                         'product_name' => $item['product_name'],
                         'sku' => $item['sku'] ?? null,
                         'barcode' => $item['barcode'] ?? null,
                         'quantity' => $item['quantity'],
-                        'unit_price' => $item['unit_price'],
+                        'base_quantity' => $baseQuantity,
+                        'unit_price' => $calculatedItem['unitPrice'],
                         'unit_cost' => $product?->average_cost ?? $product?->cost_price ?? 0,
                         'vat_rate' => $calculatedItem['vatRate'],
                         'vat_amount' => $calculatedItem['vatAmount'],
@@ -290,6 +307,7 @@ class PosSaleSyncController extends Controller
         $normalisedItems = array_map(static function (array $item): array {
             return [
                 'product_id' => (int) $item['product_id'],
+                'unit_id' => isset($item['unit_id']) ? (int) $item['unit_id'] : null,
                 'product_name' => (string) $item['product_name'],
                 'sku' => isset($item['sku']) ? (string) $item['sku'] : null,
                 'barcode' => isset($item['barcode']) ? (string) $item['barcode'] : null,

@@ -56,6 +56,17 @@
                             </a>
                         @endcan
 
+                        @if (auth()->user()?->hasPermission('settings.manage'))
+                            <a href="{{ route('units.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('units.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Units</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">UOM</span>
+                            </a>
+                            <a href="{{ route('price-categories.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('price-categories.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Price Categories</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">Price</span>
+                            </a>
+                        @endif
+
                         @can('viewAny', \App\Models\User::class)
                             <a href="{{ route('users.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('users.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
                                 <span>Users</span>

@@ -41,7 +41,7 @@
             </div>
 
             @foreach ($items as $index => $item)
-                <div class="grid gap-4 rounded-2xl border border-white/10 bg-stone-950/50 p-4 md:grid-cols-[2fr_1fr_1fr_1fr_auto]">
+                <div class="grid gap-4 rounded-2xl border border-white/10 bg-stone-950/50 p-4 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-stone-200">Product</label>
                         <select wire:model="items.{{ $index }}.product_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
@@ -56,6 +56,18 @@
                         <input wire:model="items.{{ $index }}.quantity_ordered" type="number" step="0.001" min="0.001" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                     </div>
                     <div>
+                        <label class="mb-2 block text-sm font-medium text-stone-200">Unit</label>
+                        <select wire:model="items.{{ $index }}.unit_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
+                            <option value="">Base unit</option>
+                            @foreach ($this->productOptions->firstWhere('id', (int) ($item['product_id'] ?? 0))?->unitConversions ?? [] as $conversion)
+                                <option value="{{ $conversion->unit_id }}">{{ $conversion->unit?->code }} - {{ $conversion->unit?->name }}</option>
+                            @endforeach
+                            @if ($selectedProduct = $this->productOptions->firstWhere('id', (int) ($item['product_id'] ?? 0)))
+                                <option value="{{ $selectedProduct->base_unit_id }}">{{ $selectedProduct->baseUnit?->code ?? 'PCS' }} - {{ $selectedProduct->baseUnit?->name ?? 'Piece' }}</option>
+                            @endif
+                        </select>
+                    </div>
+                    <div>
                         <label class="mb-2 block text-sm font-medium text-stone-200">Unit cost</label>
                         <input wire:model="items.{{ $index }}.unit_cost" type="number" step="0.01" min="0" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                     </div>
@@ -68,6 +80,7 @@
                     </div>
                 </div>
                 @error('items.'.$index.'.product_id') <p class="text-sm text-rose-300">{{ $message }}</p> @enderror
+                @error('items.'.$index.'.unit_id') <p class="text-sm text-rose-300">{{ $message }}</p> @enderror
                 @error('items.'.$index.'.quantity_ordered') <p class="text-sm text-rose-300">{{ $message }}</p> @enderror
                 @error('items.'.$index.'.unit_cost') <p class="text-sm text-rose-300">{{ $message }}</p> @enderror
                 @error('items.'.$index.'.vat_rate') <p class="text-sm text-rose-300">{{ $message }}</p> @enderror

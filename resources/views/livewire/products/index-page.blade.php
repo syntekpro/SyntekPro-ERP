@@ -27,6 +27,7 @@
                     <tr>
                         <th class="px-4 py-3 font-medium">Name</th>
                         <th class="px-4 py-3 font-medium">SKU</th>
+                        <th class="px-4 py-3 font-medium">Base unit</th>
                         <th class="px-4 py-3 font-medium">Price</th>
                         <th class="px-4 py-3 font-medium">Cost</th>
                         <th class="px-4 py-3 font-medium">VAT</th>
@@ -40,6 +41,7 @@
                         <tr>
                             <td class="px-4 py-4 font-medium text-white">{{ $product->name }}</td>
                             <td class="px-4 py-4">{{ $product->sku }}</td>
+                            <td class="px-4 py-4">{{ $product->baseUnit?->code ?? 'PCS' }}</td>
                             <td class="px-4 py-4">SAR {{ number_format((float) $product->price, 2) }}</td>
                             <td class="px-4 py-4">SAR {{ number_format((float) $product->cost_price, 2) }}</td>
                             <td class="px-4 py-4">{{ number_format((float) $product->vat_rate, 2) }}%</td>
@@ -60,7 +62,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-10 text-center text-stone-400">No products match the current filter.</td>
+                            <td colspan="9" class="px-4 py-10 text-center text-stone-400">No products match the current filter.</td>
                         </tr>
                     @endforelse
                 </tbody>

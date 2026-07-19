@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
@@ -16,6 +17,10 @@ class Product extends Model
             if ($product->average_cost === null) {
                 $product->average_cost = $product->cost_price ?? 0;
             }
+
+            if ($product->base_unit_id === null) {
+                $product->base_unit_id = Unit::query()->where('code', 'PCS')->value('id');
+            }
         });
     }
 
@@ -23,6 +28,7 @@ class Product extends Model
         'name',
         'sku',
         'barcode',
+        'base_unit_id',
         'price',
         'cost_price',
         'average_cost',
@@ -38,11 +44,27 @@ class Product extends Model
             'price' => 'decimal:2',
             'cost_price' => 'decimal:2',
             'average_cost' => 'decimal:4',
+            'base_unit_id' => 'integer',
             'vat_rate' => 'decimal:2',
             'is_excise_applicable' => 'boolean',
             'excise_rate' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function baseUnit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class, 'base_unit_id');
+    }
+
+    public function unitConversions(): HasMany
+    {
+        return $this->hasMany(ProductUnitConversion::class);
+    }
+
+    public function prices(): HasMany
+    {
+        return $this->hasMany(ProductPrice::class);
     }
 
     public function transferItems(): HasMany

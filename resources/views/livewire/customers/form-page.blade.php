@@ -43,6 +43,16 @@
                 <input wire:model.live="credit_limit" type="number" min="0" step="0.01" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                 @error('credit_limit') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
             </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-stone-200">Default price category</label>
+                <select wire:model="default_price_category_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
+                    <option value="">Use shop/product fallback</option>
+                    @foreach ($this->priceCategoryOptions as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+                @error('default_price_category_id') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
+            </div>
         </div>
 
         <label class="mt-5 flex items-center gap-3 text-sm text-stone-300">

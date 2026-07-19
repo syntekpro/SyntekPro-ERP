@@ -77,6 +77,39 @@ function lineTaxes(quantityValue, unitPrice, product) {
     };
 }
 
+function productUnits(product) {
+    return product?.units?.length ? product.units : [{ id: product?.base_unit_id, code: 'PCS', name: 'Piece', factor: 1 }];
+}
+
+function selectedUnit(product, unitId = null) {
+    const units = productUnits(product);
+    return units.find((unit) => Number(unit.id) === Number(unitId)) || units[0];
+}
+
+function unitFactor(product, unitId = null) {
+    return Number(selectedUnit(product, unitId).factor || 1);
+}
+
+function effectiveBasePrice(product) {
+    const customer = (state.bootstrap.customers || []).find((entry) => Number(entry.id) === Number(state.selectedCustomerId));
+    const customerCategoryId = customer?.default_price_category_id;
+    const shopCategoryId = state.bootstrap.shop?.default_price_category_id;
+
+    if (customerCategoryId && product.prices?.[customerCategoryId] !== undefined) {
+        return Number(product.prices[customerCategoryId]);
+    }
+
+    if (shopCategoryId && product.prices?.[shopCategoryId] !== undefined) {
+        return Number(product.prices[shopCategoryId]);
+    }
+
+    return Number(product.price);
+}
+
+function effectiveUnitPrice(product, unitId = null) {
+    return effectiveBasePrice(product) * unitFactor(product, unitId);
+}
+
 function openDatabase() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(dbName, dbVersion);
@@ -141,7 +174,7 @@ function buildProductIndex(products) {
 }
 
 function currentCartQuantity(productId) {
-    return Number(state.cart.get(Number(productId)) || 0);
+    return Number(state.cart.get(Number(productId))?.base_quantity || 0);
 }
 
 function availableStock(product) {
@@ -186,13 +219,13 @@ function renderProducts() {
                         <span class="rounded-full bg-white/5 px-2 py-0.5 text-[11px] uppercase tracking-[0.24em] text-slate-400">${escapeHtml(product.sku || 'No SKU')}</span>
                     </div>
                     <p class="mt-1 text-sm text-slate-400">Barcode ${escapeHtml(product.barcode || 'n/a')} · VAT ${escapeHtml(product.vat_rate)}%${product.is_excise_applicable ? ` · Excise ${escapeHtml(product.excise_rate)}%` : ''}</p>
-                    <p class="mt-1 text-xs text-slate-500">Local stock ${stockLeft}</p>
+                    <p class="mt-1 text-xs text-slate-500">Local stock ${stockLeft} ${escapeHtml(selectedUnit(product, product.base_unit_id).code || 'PCS')}</p>
                 </div>
 
                 <div class="flex items-center gap-3">
                     <div class="text-right">
-                        <p class="text-lg font-semibold text-amber-300">${money(product.price)}</p>
-                        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Per unit</p>
+                        <p class="text-lg font-semibold text-amber-300">${money(effectiveBasePrice(product))}</p>
+                        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Per ${escapeHtml(selectedUnit(product, product.base_unit_id).code || 'unit')}</p>
                     </div>
                     <button type="button" data-add-product="${product.id}" ${disabled} class="rounded-2xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition enabled:hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500">Add</button>
                 </div>
@@ -224,6 +257,11 @@ function renderCart() {
         const product = index.get(Number(productId));
         const taxes = lineTaxes(cartItem.quantity, cartItem.unit_price, product || cartItem);
         const lineTotal = taxes.lineSubtotal + taxes.vatAmount + taxes.exciseAmount;
+        const unitOptions = productUnits(product || cartItem).map((unit) => {
+            const selected = Number(unit.id) === Number(cartItem.unit_id) ? 'selected' : '';
+
+            return `<option value="${escapeHtml(unit.id)}" ${selected}>${escapeHtml(unit.code || unit.name)}</option>`;
+        }).join('');
 
         subtotal += taxes.lineSubtotal;
         vatTotal += taxes.vatAmount;
@@ -234,9 +272,13 @@ function renderCart() {
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h3 class="font-semibold text-white">${escapeHtml(product?.name || cartItem.product_name)}</h3>
-                        <p class="mt-1 text-sm text-slate-400">${cartItem.quantity.toFixed(3)} × ${money(cartItem.unit_price)} · VAT ${taxes.vatRate}%${taxes.exciseRate > 0 ? ` · Excise ${taxes.exciseRate}%` : ''}</p>
+                        <p class="mt-1 text-sm text-slate-400">${cartItem.quantity.toFixed(3)} ${escapeHtml(selectedUnit(product || cartItem, cartItem.unit_id).code || '')} × ${money(cartItem.unit_price)} · VAT ${taxes.vatRate}%${taxes.exciseRate > 0 ? ` · Excise ${taxes.exciseRate}%` : ''}</p>
                     </div>
                     <button type="button" data-remove-product="${productId}" class="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-white/10">Remove</button>
+                </div>
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                    <input data-cart-quantity="${productId}" type="number" min="0.001" step="0.001" value="${cartItem.quantity.toFixed(3)}" class="rounded-2xl border border-white/10 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none" />
+                    <select data-cart-unit="${productId}" class="rounded-2xl border border-white/10 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none">${unitOptions}</select>
                 </div>
                 <div class="mt-3 flex items-center justify-between text-sm text-slate-300">
                     <span>Line total</span>
@@ -275,7 +317,7 @@ function escapeHtml(value) {
         .replaceAll("'", '&#39;');
 }
 
-function setCartQuantity(productId, quantityValue) {
+function setCartQuantity(productId, quantityValue, unitId = null) {
     const product = buildProductIndex(state.products).get(Number(productId));
 
     if (!product) {
@@ -283,10 +325,12 @@ function setCartQuantity(productId, quantityValue) {
     }
 
     const safeQuantity = Math.max(0, quantityValue);
+    const selectedUnitId = unitId || state.cart.get(Number(productId))?.unit_id || product.base_unit_id;
+    const baseQuantity = quantity(safeQuantity * unitFactor(product, selectedUnitId));
     const existingQuantity = currentCartQuantity(productId);
     const stockLimit = quantity(product.local_stock);
 
-    if (safeQuantity > stockLimit && safeQuantity > existingQuantity) {
+    if (baseQuantity > stockLimit && baseQuantity > existingQuantity) {
         window.alert('Local stock is not enough for that quantity.');
         return;
     }
@@ -299,8 +343,12 @@ function setCartQuantity(productId, quantityValue) {
             product_name: product.name,
             sku: product.sku,
             barcode: product.barcode,
+            unit_id: Number(selectedUnitId),
+            unit_code: selectedUnit(product, selectedUnitId).code,
+            units: productUnits(product),
             quantity: quantity(safeQuantity),
-            unit_price: Number(product.price),
+            base_quantity: baseQuantity,
+            unit_price: Number(effectiveUnitPrice(product, selectedUnitId).toFixed(2)),
             vat_rate: Number(product.vat_rate),
             is_excise_applicable: Boolean(product.is_excise_applicable),
             excise_rate: Number(product.excise_rate || 0),
@@ -318,24 +366,30 @@ function addToCart(productId) {
         return;
     }
 
-    const nextQuantity = currentCartQuantity(productId) + 1;
+    const existing = state.cart.get(Number(productId));
+    const selectedUnitId = existing?.unit_id || product.base_unit_id;
+    const nextQuantity = Number(existing?.quantity || 0) + 1;
+    const nextBaseQuantity = quantity(nextQuantity * unitFactor(product, selectedUnitId));
 
-    if (nextQuantity > quantity(product.local_stock)) {
+    if (nextBaseQuantity > quantity(product.local_stock)) {
         window.alert('Local stock is not enough for that quantity.');
         return;
     }
 
-    setCartQuantity(productId, nextQuantity);
+    setCartQuantity(productId, nextQuantity, selectedUnitId);
 }
 
 function removeFromCart(productId) {
-    setCartQuantity(productId, currentCartQuantity(productId) - 1);
+    const existing = state.cart.get(Number(productId));
+    setCartQuantity(productId, Number(existing?.quantity || 0) - 1, existing?.unit_id);
 }
 
 async function seedProducts() {
     const products = state.bootstrap.products.map((product) => ({
         ...product,
         price: Number(product.price),
+        prices: product.prices || {},
+        units: (product.units || []).map((unit) => ({ ...unit, factor: Number(unit.factor || 1) })),
         vat_rate: Number(product.vat_rate),
         is_excise_applicable: Boolean(product.is_excise_applicable),
         excise_rate: Number(product.excise_rate || 0),
@@ -378,6 +432,7 @@ function buildSalePayload(cartEntries) {
             product_name: item.product_name,
             sku: item.sku || null,
             barcode: item.barcode || null,
+            unit_id: item.unit_id || null,
             quantity: Number(item.quantity).toFixed(3),
             unit_price: Number(item.unit_price).toFixed(2),
             vat_rate: taxes.vatRate.toFixed(2),
@@ -456,7 +511,7 @@ async function queueCurrentSale() {
             continue;
         }
 
-        product.local_stock = quantity(Number(product.local_stock) - Number(cartItem.quantity));
+        product.local_stock = quantity(Number(product.local_stock) - Number(cartItem.base_quantity));
         await putOne('products', product);
     }
 
@@ -542,18 +597,45 @@ function wireEvents() {
     elements.customerSelect?.addEventListener('change', () => {
         const value = elements.customerSelect.value;
         state.selectedCustomerId = value ? Number(value) : null;
+
+        for (const [productId, cartItem] of state.cart.entries()) {
+            setCartQuantity(productId, cartItem.quantity, cartItem.unit_id);
+        }
+
+        renderProducts();
+        renderCart();
     });
 
     elements.productList?.addEventListener('click', (event) => {
         const addButton = event.target.closest('[data-add-product]');
-        const removeButton = event.target.closest('[data-remove-product]');
 
         if (addButton) {
             addToCart(addButton.dataset.addProduct);
         }
+    });
+
+    elements.cartList?.addEventListener('click', (event) => {
+        const removeButton = event.target.closest('[data-remove-product]');
 
         if (removeButton) {
             removeFromCart(removeButton.dataset.removeProduct);
+        }
+    });
+
+    elements.cartList?.addEventListener('change', (event) => {
+        const quantityInput = event.target.closest('[data-cart-quantity]');
+        const unitSelect = event.target.closest('[data-cart-unit]');
+
+        if (quantityInput) {
+            const productId = quantityInput.dataset.cartQuantity;
+            const existing = state.cart.get(Number(productId));
+            setCartQuantity(productId, Number(quantityInput.value || 0), existing?.unit_id);
+        }
+
+        if (unitSelect) {
+            const productId = unitSelect.dataset.cartUnit;
+            const existing = state.cart.get(Number(productId));
+            setCartQuantity(productId, existing?.quantity || 1, Number(unitSelect.value));
         }
     });
 

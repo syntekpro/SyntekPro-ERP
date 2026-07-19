@@ -59,9 +59,9 @@
                                     @endphp
                                     <tr>
                                         <td class="px-4 py-3">{{ $item->product->name }}</td>
-                                        <td class="px-4 py-3">{{ number_format((float) $item->quantity_ordered, 3) }}</td>
-                                        <td class="px-4 py-3">{{ number_format((float) $item->quantity_received, 3) }}</td>
-                                        <td class="px-4 py-3">{{ number_format($remaining, 3) }}</td>
+                                        <td class="px-4 py-3">{{ number_format((float) $item->quantity_ordered, 3) }} {{ $item->unit?->code ?? $item->product->baseUnit?->code ?? 'PCS' }}</td>
+                                        <td class="px-4 py-3">{{ number_format((float) $item->quantity_received, 3) }} {{ $item->unit?->code ?? $item->product->baseUnit?->code ?? 'PCS' }}</td>
+                                        <td class="px-4 py-3">{{ number_format($remaining, 3) }} {{ $item->unit?->code ?? $item->product->baseUnit?->code ?? 'PCS' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

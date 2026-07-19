@@ -57,12 +57,14 @@ class IndexPage extends Component
                     ->lockForUpdate()
                     ->firstOrFail();
 
-                if ((float) $warehouseStock->quantity < (float) $item->quantity) {
+                $baseQuantity = (float) ($item->base_quantity ?: $item->quantity);
+
+                if ((float) $warehouseStock->quantity < $baseQuantity) {
                     throw new \RuntimeException('Insufficient warehouse stock to receive this transfer.');
                 }
 
                 $warehouseStock->update([
-                    'quantity' => (float) $warehouseStock->quantity - (float) $item->quantity,
+                    'quantity' => (float) $warehouseStock->quantity - $baseQuantity,
                 ]);
 
                 $shopStock = ShopStock::query()
@@ -74,13 +76,13 @@ class IndexPage extends Component
 
                 if ($shopStock) {
                     $shopStock->update([
-                        'quantity' => (float) $shopStock->quantity + (float) $item->quantity,
+                        'quantity' => (float) $shopStock->quantity + $baseQuantity,
                     ]);
                 } else {
                     ShopStock::query()->forAllShops()->create([
                         'shop_id' => $transfer->destination_shop_id,
                         'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
+                        'quantity' => $baseQuantity,
                     ]);
                 }
             }
@@ -100,7 +102,7 @@ class IndexPage extends Component
         $user = Auth::user();
 
         $transfers = StockTransfer::query()
-            ->with(['warehouse', 'destinationShop', 'items.product'])
+            ->with(['warehouse', 'destinationShop', 'items.unit', 'items.product.baseUnit'])
             ->visibleTo($user)
             ->when($this->search !== '', function ($query): void {
                 $query->where(function ($inner): void {

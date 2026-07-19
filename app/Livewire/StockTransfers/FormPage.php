@@ -8,6 +8,7 @@ use App\Models\Shop;
 use App\Models\StockTransfer;
 use App\Models\Warehouse;
 use App\Models\WarehouseStock;
+use App\Services\Inventory\UnitConversionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class FormPage extends Component
     public string $notes = '';
 
     public array $items = [
-        ['product_id' => null, 'quantity' => '1.000'],
+        ['product_id' => null, 'unit_id' => null, 'quantity' => '1.000'],
     ];
 
     public function mount(): void
@@ -35,7 +36,7 @@ class FormPage extends Component
 
     public function addItem(): void
     {
-        $this->items[] = ['product_id' => null, 'quantity' => '1.000'];
+        $this->items[] = ['product_id' => null, 'unit_id' => null, 'quantity' => '1.000'];
     }
 
     public function removeItem(int $index): void
@@ -48,7 +49,7 @@ class FormPage extends Component
         }
     }
 
-    public function save()
+    public function save(UnitConversionService $unitConversionService)
     {
         $validated = $this->validate([
             'source_warehouse_id' => ['required', 'integer', Rule::exists('warehouses', 'id')],
@@ -56,12 +57,14 @@ class FormPage extends Component
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer', Rule::exists('products', 'id')],
+            'items.*.unit_id' => ['nullable', 'integer', Rule::exists('units', 'id')],
             'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
         ]);
 
-        $warnings = $this->buildReservationWarnings($validated);
+        $preparedItems = $this->prepareItems($validated['items'], $unitConversionService);
+        $warnings = $this->buildReservationWarnings($validated, $preparedItems);
 
-        DB::transaction(function () use ($validated): void {
+        DB::transaction(function () use ($validated, $preparedItems): void {
             $transfer = StockTransfer::query()->create([
                 'source_warehouse_id' => $validated['source_warehouse_id'],
                 'destination_shop_id' => $validated['destination_shop_id'],
@@ -70,19 +73,21 @@ class FormPage extends Component
                 'notes' => $validated['notes'],
             ]);
 
-            foreach ($validated['items'] as $item) {
+            foreach ($preparedItems as $item) {
                 $warehouseStock = WarehouseStock::query()
                     ->where('warehouse_id', $validated['source_warehouse_id'])
                     ->where('product_id', $item['product_id'])
                     ->first();
 
-                if (! $warehouseStock || (float) $warehouseStock->quantity < (float) $item['quantity']) {
+                if (! $warehouseStock || (float) $warehouseStock->quantity < (float) $item['base_quantity']) {
                     throw new \RuntimeException('Selected warehouse does not have enough stock for one or more items.');
                 }
 
                 $transfer->items()->create([
                     'product_id' => $item['product_id'],
+                    'unit_id' => $item['unit_id'],
                     'quantity' => $item['quantity'],
+                    'base_quantity' => $item['base_quantity'],
                 ]);
             }
         });
@@ -108,16 +113,31 @@ class FormPage extends Component
 
     public function getProductOptionsProperty()
     {
-        return Product::query()->where('is_active', true)->orderBy('name')->get();
+        return Product::query()->with(['baseUnit', 'unitConversions.unit'])->where('is_active', true)->orderBy('name')->get();
     }
 
-    protected function buildReservationWarnings(array $validated): array
+    protected function prepareItems(array $items, UnitConversionService $unitConversionService): array
+    {
+        return collect($items)->map(function (array $item) use ($unitConversionService): array {
+            $product = Product::query()->findOrFail($item['product_id']);
+            $unitId = $item['unit_id'] !== null ? (int) $item['unit_id'] : $unitConversionService->baseUnitId($product);
+
+            return [
+                'product_id' => (int) $item['product_id'],
+                'unit_id' => $unitId,
+                'quantity' => round((float) $item['quantity'], 3),
+                'base_quantity' => $unitConversionService->toBaseQuantity($product, (float) $item['quantity'], $unitId),
+            ];
+        })->all();
+    }
+
+    protected function buildReservationWarnings(array $validated, array $preparedItems): array
     {
         $requested = [];
 
-        foreach ($validated['items'] as $item) {
+        foreach ($preparedItems as $item) {
             $productId = (int) $item['product_id'];
-            $requested[$productId] = ($requested[$productId] ?? 0) + (float) $item['quantity'];
+            $requested[$productId] = ($requested[$productId] ?? 0) + (float) $item['base_quantity'];
         }
 
         $reservedByProduct = DB::table('stock_transfer_items')
@@ -127,7 +147,7 @@ class FormPage extends Component
                 StockTransferStatus::Pending->value,
                 StockTransferStatus::InTransit->value,
             ])
-            ->selectRaw('stock_transfer_items.product_id as product_id, SUM(stock_transfer_items.quantity) as reserved_quantity')
+            ->selectRaw('stock_transfer_items.product_id as product_id, SUM(stock_transfer_items.base_quantity) as reserved_quantity')
             ->groupBy('stock_transfer_items.product_id')
             ->pluck('reserved_quantity', 'product_id');
 

@@ -9,6 +9,7 @@ use App\Models\CreditNoteItem;
 use App\Models\Sale;
 use App\Models\ShopStock;
 use App\Services\Accounting\JournalEntryService;
+use App\Services\Inventory\UnitConversionService;
 use App\Services\Numbering\DocumentNumberService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class CreditNoteService
     public function __construct(
         protected JournalEntryService $journalEntryService,
         protected DocumentNumberService $documentNumberService,
+        protected UnitConversionService $unitConversionService,
     ) {
     }
 
@@ -41,6 +43,8 @@ class CreditNoteService
 
             foreach ($sale->items as $saleItem) {
                 $requestedQty = round((float) Arr::get($linesBySaleItemId->get($saleItem->id, []), 'quantity', 0), 3);
+                $unitId = Arr::get($linesBySaleItemId->get($saleItem->id, []), 'unit_id');
+                $unitId = $unitId !== null ? (int) $unitId : (int) $saleItem->unit_id;
 
                 if ($requestedQty <= 0) {
                     continue;
@@ -54,22 +58,27 @@ class CreditNoteService
 
                 $alreadyReturnedQty = round((float) CreditNoteItem::query()
                     ->where('sale_item_id', $saleItem->id)
-                    ->sum('quantity'), 3);
+                    ->sum('base_quantity'), 3);
 
-                $remainingQty = round((float) $saleItem->quantity - $alreadyReturnedQty, 3);
+                $requestedBaseQty = $this->unitConversionService->toBaseQuantity($saleItem->product, $requestedQty, $unitId);
+                $remainingQty = round((float) $saleItem->base_quantity - $alreadyReturnedQty, 3);
 
-                if ($requestedQty > $remainingQty) {
+                if ($requestedBaseQty > $remainingQty) {
                     throw new \RuntimeException('Return quantity cannot exceed the sold quantity remaining for that sale item.');
                 }
 
-                $perUnitVat = (float) $saleItem->quantity > 0
-                    ? round((float) $saleItem->vat_amount / (float) $saleItem->quantity, 6)
+                $perBaseUnitVat = (float) $saleItem->base_quantity > 0
+                    ? round((float) $saleItem->vat_amount / (float) $saleItem->base_quantity, 6)
                     : 0.0;
+                $baseUnitPrice = (float) $saleItem->base_quantity > 0
+                    ? round(((float) $saleItem->unit_price * (float) $saleItem->quantity) / (float) $saleItem->base_quantity, 6)
+                    : (float) $saleItem->unit_price;
+                $unitPrice = round($baseUnitPrice * $this->unitConversionService->factorFor($saleItem->product, $unitId), 2);
 
-                $netAmount = round($requestedQty * (float) $saleItem->unit_price, 2);
-                $lineVatAmount = round($requestedQty * $perUnitVat, 2);
+                $netAmount = round($requestedBaseQty * $baseUnitPrice, 2);
+                $lineVatAmount = round($requestedBaseQty * $perBaseUnitVat, 2);
                 $grossAmount = round($netAmount + $lineVatAmount, 2);
-                $lineCostAmount = round($requestedQty * (float) $saleItem->unit_cost, 2);
+                $lineCostAmount = round($requestedBaseQty * (float) $saleItem->unit_cost, 2);
 
                 if ($condition === 'sellable') {
                     $shopStock = ShopStock::query()
@@ -80,13 +89,13 @@ class CreditNoteService
 
                     if ($shopStock !== null) {
                         $shopStock->update([
-                            'quantity' => round((float) $shopStock->quantity + $requestedQty, 3),
+                            'quantity' => round((float) $shopStock->quantity + $requestedBaseQty, 3),
                         ]);
                     } else {
                         ShopStock::query()->create([
                             'shop_id' => $sale->shop_id,
                             'product_id' => $saleItem->product_id,
-                            'quantity' => $requestedQty,
+                            'quantity' => $requestedBaseQty,
                         ]);
                     }
 
@@ -101,10 +110,12 @@ class CreditNoteService
                 $creditNoteItems[] = [
                     'sale_item_id' => $saleItem->id,
                     'product_id' => $saleItem->product_id,
+                    'unit_id' => $unitId,
                     'product_name' => $saleItem->product_name,
                     'quantity' => $requestedQty,
+                    'base_quantity' => $requestedBaseQty,
                     'condition' => $condition,
-                    'unit_price' => $saleItem->unit_price,
+                    'unit_price' => $unitPrice,
                     'unit_cost' => $saleItem->unit_cost,
                     'vat_rate' => $saleItem->vat_rate,
                     'net_amount' => $netAmount,

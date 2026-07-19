@@ -66,7 +66,7 @@ class PostsSaleToLedger
             ];
         }
 
-        $cogsTotal = round((float) $sale->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_cost')), 2);
+        $cogsTotal = round((float) $sale->items()->sum(\Illuminate\Support\Facades\DB::raw('base_quantity * unit_cost')), 2);
 
         if ($cogsTotal > 0) {
             $lines[] = [

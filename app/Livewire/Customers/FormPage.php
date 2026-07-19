@@ -3,6 +3,7 @@
 namespace App\Livewire\Customers;
 
 use App\Models\Customer;
+use App\Models\PriceCategory;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -29,6 +30,8 @@ class FormPage extends Component
 
     public string $credit_limit = '';
 
+    public ?int $default_price_category_id = null;
+
     public bool $is_active = true;
 
     public function mount(?Customer $customer = null): void
@@ -46,6 +49,7 @@ class FormPage extends Component
             $this->vat_registration_number = (string) ($this->customer->vat_registration_number ?? '');
             $this->payment_terms_days = (int) $this->customer->payment_terms_days;
             $this->credit_limit = $this->customer->credit_limit !== null ? number_format((float) $this->customer->credit_limit, 2, '.', '') : '';
+            $this->default_price_category_id = $this->customer->default_price_category_id;
             $this->is_active = $this->customer->is_active;
 
             return;
@@ -65,6 +69,7 @@ class FormPage extends Component
             'vat_registration_number' => ['nullable', 'string', 'max:32'],
             'payment_terms_days' => ['required', 'integer', 'min:0', 'max:365'],
             'credit_limit' => ['nullable', 'numeric', 'min:0'],
+            'default_price_category_id' => ['nullable', 'integer', Rule::exists('price_categories', 'id')],
             'is_active' => ['required', 'boolean'],
         ]);
 
@@ -75,6 +80,7 @@ class FormPage extends Component
         }
 
         $validated['credit_limit'] = ($validated['credit_limit'] ?? '') === '' ? null : $validated['credit_limit'];
+        $validated['default_price_category_id'] = $validated['default_price_category_id'] ?: null;
 
         if ($this->customer) {
             $this->customer->update($validated);
@@ -90,5 +96,10 @@ class FormPage extends Component
     public function render()
     {
         return view('livewire.customers.form-page');
+    }
+
+    public function getPriceCategoryOptionsProperty()
+    {
+        return PriceCategory::query()->where('is_active', true)->orderBy('name')->get();
     }
 }

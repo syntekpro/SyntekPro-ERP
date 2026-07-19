@@ -26,6 +26,17 @@
             </div>
 
             <div>
+                <label class="mb-2 block text-sm font-medium text-stone-200">Default price category</label>
+                <select wire:model="default_price_category_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
+                    <option value="">Use product base price</option>
+                    @foreach ($this->priceCategoryOptions as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+                @error('default_price_category_id') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
                 <label class="mb-2 block text-sm font-medium text-stone-200">Route slug</label>
                 <input wire:model.live="slug" type="text" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                 @error('slug') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror

@@ -55,7 +55,7 @@
                                 @foreach ($transfer->items as $item)
                                     <tr>
                                         <td class="px-4 py-3">{{ $item->product->name }}</td>
-                                        <td class="px-4 py-3">{{ number_format((float) $item->quantity, 3) }}</td>
+                                        <td class="px-4 py-3">{{ number_format((float) $item->quantity, 3) }} {{ $item->unit?->code ?? $item->product->baseUnit?->code ?? 'PCS' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

@@ -86,7 +86,7 @@ class IndexPage extends Component
     public function render()
     {
         $purchaseOrders = PurchaseOrder::query()
-            ->with(['supplier', 'warehouse', 'items.product'])
+            ->with(['supplier', 'warehouse', 'items.unit', 'items.product.baseUnit'])
             ->when($this->search !== '', function ($query): void {
                 $query->where(function ($inner): void {
                     $inner

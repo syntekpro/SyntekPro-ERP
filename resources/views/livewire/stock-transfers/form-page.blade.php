@@ -42,7 +42,7 @@
             </div>
 
             @foreach ($items as $index => $item)
-                <div class="grid gap-4 rounded-2xl border border-white/10 bg-stone-950/50 p-4 md:grid-cols-[1fr_12rem_auto]">
+                <div class="grid gap-4 rounded-2xl border border-white/10 bg-stone-950/50 p-4 md:grid-cols-[1fr_12rem_12rem_auto]">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-stone-200">Product</label>
                         <select wire:model="items.{{ $index }}.product_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
@@ -57,6 +57,19 @@
                         <label class="mb-2 block text-sm font-medium text-stone-200">Quantity</label>
                         <input wire:model="items.{{ $index }}.quantity" type="number" step="0.001" min="0.001" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                         @error('items.'.$index.'.quantity') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-stone-200">Unit</label>
+                        <select wire:model="items.{{ $index }}.unit_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
+                            <option value="">Base unit</option>
+                            @foreach ($this->productOptions->firstWhere('id', (int) ($item['product_id'] ?? 0))?->unitConversions ?? [] as $conversion)
+                                <option value="{{ $conversion->unit_id }}">{{ $conversion->unit?->code }} - {{ $conversion->unit?->name }}</option>
+                            @endforeach
+                            @if ($selectedProduct = $this->productOptions->firstWhere('id', (int) ($item['product_id'] ?? 0)))
+                                <option value="{{ $selectedProduct->base_unit_id }}">{{ $selectedProduct->baseUnit?->code ?? 'PCS' }} - {{ $selectedProduct->baseUnit?->name ?? 'Piece' }}</option>
+                            @endif
+                        </select>
+                        @error('items.'.$index.'.unit_id') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
                     </div>
                     <div class="flex items-end">
                         <button type="button" wire:click="removeItem({{ $index }})" class="w-full rounded-2xl border border-rose-400/20 px-4 py-3 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/10">Remove</button>

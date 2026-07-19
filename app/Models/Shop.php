@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Shop extends Model
@@ -14,6 +15,7 @@ class Shop extends Model
         'name',
         'legal_name',
         'vat_registration_number',
+        'default_price_category_id',
         'slug',
         'is_active',
     ];
@@ -21,8 +23,14 @@ class Shop extends Model
     protected function casts(): array
     {
         return [
+            'default_price_category_id' => 'integer',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function defaultPriceCategory(): BelongsTo
+    {
+        return $this->belongsTo(PriceCategory::class, 'default_price_category_id');
     }
 
     public function users(): HasMany

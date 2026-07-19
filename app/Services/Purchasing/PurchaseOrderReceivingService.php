@@ -8,6 +8,7 @@ use App\Models\PurchaseOrder;
 use App\Models\SupplierBill;
 use App\Models\WarehouseStock;
 use App\Services\Accounting\PostsSupplierBillToLedger;
+use App\Services\Inventory\UnitConversionService;
 use App\Services\Numbering\DocumentNumberService;
 use App\Services\Settings\BusinessSettingsService;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class PurchaseOrderReceivingService
         protected PostsSupplierBillToLedger $postsSupplierBillToLedger,
         protected DocumentNumberService $documentNumberService,
         protected BusinessSettingsService $businessSettingsService,
+        protected UnitConversionService $unitConversionService,
     )
     {
     }
@@ -44,14 +46,18 @@ class PurchaseOrderReceivingService
 
             foreach ($lockedPurchaseOrder->items as $item) {
                 $requestedQty = round((float) ($linesByItemId[$item->id]['quantity_received'] ?? 0), 3);
+                $receiptUnitId = isset($linesByItemId[$item->id]['unit_id']) && $linesByItemId[$item->id]['unit_id'] !== null
+                    ? (int) $linesByItemId[$item->id]['unit_id']
+                    : (int) ($item->unit_id ?: $this->unitConversionService->baseUnitId($item->product));
 
                 if ($requestedQty <= 0) {
                     continue;
                 }
 
-                $remaining = round((float) $item->quantity_ordered - (float) $item->quantity_received, 3);
+                $requestedBaseQty = $this->unitConversionService->toBaseQuantity($item->product, $requestedQty, $receiptUnitId);
+                $remainingBaseQty = round((float) $item->base_quantity_ordered - (float) $item->base_quantity_received, 3);
 
-                if ($requestedQty > $remaining) {
+                if ($requestedBaseQty > $remainingBaseQty) {
                     throw new \RuntimeException('Received quantity cannot exceed the remaining ordered quantity.');
                 }
 
@@ -63,21 +69,27 @@ class PurchaseOrderReceivingService
 
                 if ($warehouseStock) {
                     $warehouseStock->update([
-                        'quantity' => round((float) $warehouseStock->quantity + $requestedQty, 3),
+                        'quantity' => round((float) $warehouseStock->quantity + $requestedBaseQty, 3),
                     ]);
                 } else {
                     WarehouseStock::query()->create([
                         'warehouse_id' => $lockedPurchaseOrder->warehouse_id,
                         'product_id' => $item->product_id,
-                        'quantity' => $requestedQty,
+                        'quantity' => $requestedBaseQty,
                     ]);
                 }
 
+                $receivedInOrderUnit = $this->unitConversionService->fromBaseQuantity($item->product, $requestedBaseQty, (int) $item->unit_id);
+
                 $item->update([
-                    'quantity_received' => round((float) $item->quantity_received + $requestedQty, 3),
+                    'quantity_received' => round((float) $item->quantity_received + $receivedInOrderUnit, 3),
+                    'base_quantity_received' => round((float) $item->base_quantity_received + $requestedBaseQty, 3),
                 ]);
 
-                $this->updateProductAverageCost((int) $item->product_id, $requestedQty, (float) $item->unit_cost);
+                $unitFactor = $this->unitConversionService->factorFor($item->product, $receiptUnitId);
+                $baseUnitCost = $unitFactor > 0 ? round((float) $item->unit_cost / $unitFactor, 6) : (float) $item->unit_cost;
+
+                $this->updateProductAverageCost((int) $item->product_id, $requestedBaseQty, $baseUnitCost);
 
                 $netAmount = round($requestedQty * (float) $item->unit_cost, 2);
                 $vatRate = $this->businessSettingsService->vatRate();
@@ -89,8 +101,10 @@ class PurchaseOrderReceivingService
 
                 $billLines[] = [
                     'product_id' => $item->product_id,
+                    'unit_id' => $receiptUnitId,
                     'description' => $item->product->name,
                     'quantity' => $requestedQty,
+                    'base_quantity' => $requestedBaseQty,
                     'unit_cost' => $item->unit_cost,
                     'vat_rate' => $vatRate,
                     'net_amount' => $netAmount,
@@ -131,7 +145,7 @@ class PurchaseOrderReceivingService
             $this->postsSupplierBillToLedger->handle($bill, $userId);
 
             $hasRemaining = $lockedPurchaseOrder->items()
-                ->whereRaw('quantity_received < quantity_ordered')
+                ->whereRaw('base_quantity_received < base_quantity_ordered')
                 ->exists();
 
             $lockedPurchaseOrder->update([

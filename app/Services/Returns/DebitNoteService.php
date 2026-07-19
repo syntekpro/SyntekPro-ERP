@@ -9,6 +9,7 @@ use App\Models\DebitNoteItem;
 use App\Models\SupplierBill;
 use App\Models\WarehouseStock;
 use App\Services\Accounting\JournalEntryService;
+use App\Services\Inventory\UnitConversionService;
 use App\Services\Numbering\DocumentNumberService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class DebitNoteService
     public function __construct(
         protected JournalEntryService $journalEntryService,
         protected DocumentNumberService $documentNumberService,
+        protected UnitConversionService $unitConversionService,
     ) {
     }
 
@@ -39,6 +41,8 @@ class DebitNoteService
 
             foreach ($bill->items as $billItem) {
                 $requestedQty = round((float) Arr::get($linesByBillItemId->get($billItem->id, []), 'quantity', 0), 3);
+                $unitId = Arr::get($linesByBillItemId->get($billItem->id, []), 'unit_id');
+                $unitId = $unitId !== null ? (int) $unitId : (int) $billItem->unit_id;
 
                 if ($requestedQty <= 0) {
                     continue;
@@ -46,11 +50,12 @@ class DebitNoteService
 
                 $alreadyReturnedQty = round((float) DebitNoteItem::query()
                     ->where('supplier_bill_item_id', $billItem->id)
-                    ->sum('quantity'), 3);
+                    ->sum('base_quantity'), 3);
 
-                $remainingQty = round((float) $billItem->quantity - $alreadyReturnedQty, 3);
+                $requestedBaseQty = $this->unitConversionService->toBaseQuantity($billItem->product, $requestedQty, $unitId);
+                $remainingQty = round((float) $billItem->base_quantity - $alreadyReturnedQty, 3);
 
-                if ($requestedQty > $remainingQty) {
+                if ($requestedBaseQty > $remainingQty) {
                     throw new \RuntimeException('Return quantity cannot exceed the received quantity remaining for that supplier bill item.');
                 }
 
@@ -60,20 +65,24 @@ class DebitNoteService
                     ->lockForUpdate()
                     ->first();
 
-                if ($warehouseStock === null || round((float) $warehouseStock->quantity, 3) < $requestedQty) {
+                if ($warehouseStock === null || round((float) $warehouseStock->quantity, 3) < $requestedBaseQty) {
                     throw new \RuntimeException('Warehouse stock on hand cannot cover the requested supplier return quantity.');
                 }
 
                 $warehouseStock->update([
-                    'quantity' => round((float) $warehouseStock->quantity - $requestedQty, 3),
+                    'quantity' => round((float) $warehouseStock->quantity - $requestedBaseQty, 3),
                 ]);
 
-                $perUnitVat = (float) $billItem->quantity > 0
-                    ? round((float) $billItem->vat_amount / (float) $billItem->quantity, 6)
+                $perBaseUnitVat = (float) $billItem->base_quantity > 0
+                    ? round((float) $billItem->vat_amount / (float) $billItem->base_quantity, 6)
                     : 0.0;
+                $baseUnitCost = (float) $billItem->base_quantity > 0
+                    ? round(((float) $billItem->unit_cost * (float) $billItem->quantity) / (float) $billItem->base_quantity, 6)
+                    : (float) $billItem->unit_cost;
+                $unitCost = round($baseUnitCost * $this->unitConversionService->factorFor($billItem->product, $unitId), 2);
 
-                $netAmount = round($requestedQty * (float) $billItem->unit_cost, 2);
-                $lineVatAmount = round($requestedQty * $perUnitVat, 2);
+                $netAmount = round($requestedBaseQty * $baseUnitCost, 2);
+                $lineVatAmount = round($requestedBaseQty * $perBaseUnitVat, 2);
                 $grossAmount = round($netAmount + $lineVatAmount, 2);
 
                 $subtotal += $netAmount;
@@ -82,9 +91,11 @@ class DebitNoteService
                 $debitNoteItems[] = [
                     'supplier_bill_item_id' => $billItem->id,
                     'product_id' => $billItem->product_id,
+                    'unit_id' => $unitId,
                     'description' => $billItem->description,
                     'quantity' => $requestedQty,
-                    'unit_cost' => $billItem->unit_cost,
+                    'base_quantity' => $requestedBaseQty,
+                    'unit_cost' => $unitCost,
                     'vat_rate' => $billItem->vat_rate,
                     'net_amount' => $netAmount,
                     'vat_amount' => $lineVatAmount,

@@ -44,6 +44,7 @@ class IndexPage extends Component
     public function render()
     {
         $products = Product::query()
+            ->with('baseUnit')
             ->when($this->search !== '', function ($query): void {
                 $query->where(function ($inner): void {
                     $inner

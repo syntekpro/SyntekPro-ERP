@@ -142,6 +142,21 @@ class Phase11SettingsAndPermissionsTest extends TestCase
             ->assertSee('Powered by SyntekPro ERP');
     }
 
+    public function test_dynamic_theme_css_overrides_compiled_tailwind_theme_variables(): void
+    {
+        BusinessSetting::query()->firstOrCreate(['singleton_key' => 1])->update([
+            'theme' => 'red-sea',
+        ]);
+
+        $css = $this->get('/theme.css')->assertOk()->getContent();
+
+        $this->assertStringContainsString('--brand-primary:#06b6d4', $css);
+        $this->assertStringContainsString('--color-amber-400:#06b6d4', $css);
+        $this->assertStringContainsString('--color-cyan-400:#f97316', $css);
+        $this->assertStringContainsString('--color-stone-950:#082f49', $css);
+        $this->assertStringContainsString('--color-slate-950:#082f49', $css);
+    }
+
     public function test_settings_screen_updates_legal_name_and_vat_number(): void
     {
         $admin = User::factory()->create(['role' => UserRole::SuperAdmin]);

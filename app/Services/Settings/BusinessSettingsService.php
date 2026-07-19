@@ -28,13 +28,17 @@ class BusinessSettingsService
     public function themeCss(): string
     {
         $theme = $this->themePreset($this->current()->theme);
+        $primary = $theme['primary'];
+        $accent = $theme['accent'];
+        $background = $theme['background'];
+        $surface = $theme['surface'];
 
         return sprintf(
-            ':root{--brand-primary:%s;--brand-accent:%s;--brand-background:%s;--brand-surface:%s;}',
-            $theme['primary'],
-            $theme['accent'],
-            $theme['background'],
-            $theme['surface'],
+            ':root{--brand-primary:%1$s;--brand-accent:%2$s;--brand-background:%3$s;--brand-surface:%4$s;--color-amber-100:color-mix(in srgb,%1$s 25%%,white);--color-amber-200:color-mix(in srgb,%1$s 45%%,white);--color-amber-300:color-mix(in srgb,%1$s 75%%,white);--color-amber-400:%1$s;--color-amber-500:color-mix(in srgb,%1$s 85%%,black);--color-cyan-100:color-mix(in srgb,%2$s 25%%,white);--color-cyan-200:color-mix(in srgb,%2$s 45%%,white);--color-cyan-300:color-mix(in srgb,%2$s 75%%,white);--color-cyan-400:%2$s;--color-cyan-500:color-mix(in srgb,%2$s 85%%,black);--color-stone-900:%4$s;--color-stone-950:%3$s;--color-slate-900:%4$s;--color-slate-950:%3$s;}',
+            $primary,
+            $accent,
+            $background,
+            $surface,
         );
     }
 

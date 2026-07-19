@@ -6,10 +6,10 @@
         <title>Sign In | {{ config('app.name', 'SyntekPro ERP') }}</title>
         <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
         <link rel="manifest" href="{{ route('manifest') }}">
-        <link rel="stylesheet" href="{{ route('theme.css') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
+        <link rel="stylesheet" href="{{ route('theme.css') }}">
     </head>
     <body class="min-h-screen bg-slate-950 text-slate-100">
         <main class="mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-12">

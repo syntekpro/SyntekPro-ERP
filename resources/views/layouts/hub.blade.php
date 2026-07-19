@@ -6,11 +6,11 @@
         <title>@yield('title') | {{ config('app.name', 'SyntekPro ERP') }}</title>
         <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
         <link rel="manifest" href="{{ route('manifest') }}">
-        <link rel="stylesheet" href="{{ route('theme.css') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
         @livewireStyles
+        <link rel="stylesheet" href="{{ route('theme.css') }}">
     </head>
     <body class="min-h-screen bg-stone-950 text-stone-100">
         @if (config('app.demo_mode'))

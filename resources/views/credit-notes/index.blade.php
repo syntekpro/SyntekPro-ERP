@@ -6,7 +6,7 @@
     <section class="space-y-6">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 10</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Sales Returns</p>
                 <h1 class="mt-3 text-4xl font-semibold text-white">Credit Notes</h1>
                 <p class="mt-3 max-w-2xl text-sm text-stone-300">Sales returns create new reversal entries, never edits to the original sale posting.</p>
             </div>

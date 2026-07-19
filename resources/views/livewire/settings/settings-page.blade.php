@@ -1,6 +1,6 @@
 <section class="space-y-6">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 11</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Business Configuration</p>
         <h1 class="mt-3 text-4xl font-semibold text-white">Business settings</h1>
         <p class="mt-3 max-w-2xl text-sm text-stone-300">Manage business identity, tax behavior, numbering, access, and deployment branding.</p>
     </div>

@@ -1,6 +1,6 @@
 <section class="space-y-6">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 8</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Customer Management</p>
         <h1 class="mt-3 text-4xl font-semibold text-white">{{ $customer ? 'Edit customer' : 'Create customer' }}</h1>
         <p class="mt-3 max-w-2xl text-sm text-stone-300">Customers are hub-owned and shared across all shops for consistent AR tracking.</p>
     </div>

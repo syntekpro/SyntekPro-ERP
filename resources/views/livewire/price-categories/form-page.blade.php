@@ -1,6 +1,6 @@
 <section class="space-y-6">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 12</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Pricing</p>
         <h1 class="mt-3 text-4xl font-semibold text-white">{{ $priceCategory ? 'Edit price category' : 'Create price category' }}</h1>
     </div>
 

@@ -1,6 +1,6 @@
 <section class="space-y-6">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 6</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">General Ledger</p>
         <h1 class="mt-2 text-4xl font-semibold text-white">Post journal adjustment</h1>
         <p class="mt-2 text-sm text-stone-300">Manual accounting adjustments must remain balanced before posting.</p>
     </div>

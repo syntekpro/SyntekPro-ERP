@@ -6,7 +6,7 @@
     <section class="space-y-6">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 10</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Purchase Returns</p>
                 <h1 class="mt-3 text-4xl font-semibold text-white">Debit Notes</h1>
                 <p class="mt-3 max-w-2xl text-sm text-stone-300">Purchase returns decrease warehouse stock and create fresh reversal entries against the original supplier bill economics.</p>
             </div>

@@ -1,6 +1,6 @@
 <section class="space-y-6 max-w-2xl">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 7</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Supplier Billing</p>
         <h1 class="mt-3 text-4xl font-semibold text-white">Record supplier payment</h1>
         <p class="mt-3 max-w-2xl text-sm text-stone-300">Bill {{ $supplierBill->bill_number }} | Outstanding SAR {{ number_format((float) $supplierBill->outstanding_balance, 2) }}</p>
     </div>

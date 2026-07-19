@@ -5,7 +5,7 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 9</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Financial Statements</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Balance Sheet</h1>
             <p class="mt-3 max-w-2xl text-sm text-stone-300">Company-wide statement of financial position as of a selected date.</p>
         </div>

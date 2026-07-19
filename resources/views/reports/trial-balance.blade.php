@@ -5,7 +5,7 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 6</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">General Ledger</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Trial Balance</h1>
             <p class="mt-3 max-w-2xl text-sm text-stone-300">Calendar-year ledger sanity check by shop and date range.</p>
         </div>

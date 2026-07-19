@@ -1,6 +1,6 @@
 <section class="max-w-3xl">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 6</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Chart of Accounts</p>
         <h1 class="mt-2 text-4xl font-semibold text-white">{{ $account ? 'Edit account' : 'Create account' }}</h1>
         <p class="mt-2 text-sm text-stone-300">Define the shared chart of accounts used for all shops.</p>
     </div>

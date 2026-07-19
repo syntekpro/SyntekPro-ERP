@@ -5,7 +5,7 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 10</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Purchase Returns</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Create debit note</h1>
             <p class="mt-3 max-w-3xl text-sm text-stone-300">Choose a supplier bill, then enter only the quantities being returned to the supplier. Warehouse stock is reduced under lock, but product average cost is intentionally left untouched.</p>
         </div>

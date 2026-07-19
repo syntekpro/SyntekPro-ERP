@@ -5,7 +5,7 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 7</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Payables</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Accounts Payable Aging</h1>
             <p class="mt-3 max-w-2xl text-sm text-stone-300">Outstanding supplier balances bucketed by days overdue as of {{ $today->toDateString() }}.</p>
         </div>

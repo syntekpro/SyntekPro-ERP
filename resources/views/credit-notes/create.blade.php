@@ -5,7 +5,7 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 10</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Sales Returns</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Create credit note</h1>
             <p class="mt-3 max-w-3xl text-sm text-stone-300">Choose a sale, then enter only the quantities being returned. Sellable lines restock the original shop. Damaged lines stay out of stock and flow to the write-off account.</p>
         </div>

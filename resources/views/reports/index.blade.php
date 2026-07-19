@@ -5,7 +5,7 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Phase 4</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Reporting Center</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Reporting</h1>
             <p class="mt-3 max-w-2xl text-sm text-stone-300">Hub-level reporting for VAT, margin, and fast-moving SKUs with optional date and shop filters.</p>
             <div class="mt-4 flex flex-wrap gap-2 text-xs">

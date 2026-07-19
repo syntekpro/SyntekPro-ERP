@@ -9,7 +9,7 @@
                 <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Hub overview</p>
                 <h1 class="mt-3 text-4xl font-semibold text-white">SyntekPro ERP dashboard</h1>
                 <p class="mt-3 max-w-3xl text-sm text-stone-300">
-                    Central visibility for the current rollout. Shops, warehouses, and the shared product catalog are managed here from the hub.
+                    Live operational visibility for shops, inventory, purchasing, and finance across the business.
                 </p>
             </div>
 
@@ -21,21 +21,21 @@
 
         <div class="grid gap-4 md:grid-cols-3">
             <article class="rounded-3xl border border-white/10 bg-gradient-to-br from-stone-900 via-stone-950 to-black p-6 shadow-2xl shadow-black/25">
-                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Shops</p>
-                <p class="mt-4 text-5xl font-semibold text-white">{{ $counts['shops'] }}</p>
-                <p class="mt-2 text-sm text-stone-300">Registered branch locations and POS contexts.</p>
+                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Active shops</p>
+                <p class="mt-4 text-5xl font-semibold text-white">{{ $counts['active_shops'] }}</p>
+                <p class="mt-2 text-sm text-stone-300">Branches currently enabled for operations.</p>
             </article>
 
             <article class="rounded-3xl border border-white/10 bg-gradient-to-br from-amber-500/15 via-stone-950 to-black p-6 shadow-2xl shadow-black/25">
-                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Warehouses</p>
-                <p class="mt-4 text-5xl font-semibold text-white">{{ $counts['warehouses'] }}</p>
-                <p class="mt-2 text-sm text-stone-300">Central stock locations feeding shop transfers.</p>
+                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Products</p>
+                <p class="mt-4 text-5xl font-semibold text-white">{{ $counts['products'] }}</p>
+                <p class="mt-2 text-sm text-stone-300">Catalog items available for purchasing and sales.</p>
             </article>
 
             <article class="rounded-3xl border border-white/10 bg-gradient-to-br from-teal-500/15 via-stone-950 to-black p-6 shadow-2xl shadow-black/25">
-                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Products</p>
-                <p class="mt-4 text-5xl font-semibold text-white">{{ $counts['products'] }}</p>
-                <p class="mt-2 text-sm text-stone-300">Shared catalog entries available across the chain.</p>
+                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Open purchase orders</p>
+                <p class="mt-4 text-5xl font-semibold text-white">{{ $counts['open_purchase_orders'] }}</p>
+                <p class="mt-2 text-sm text-stone-300">Draft, submitted, or partially received orders awaiting closure.</p>
             </article>
         </div>
 
@@ -65,12 +65,21 @@
             </section>
 
             <section class="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <h2 class="text-lg font-semibold text-white">Rollout status</h2>
-                <ul class="mt-5 space-y-3 text-sm text-stone-300">
-                    <li class="rounded-2xl border border-white/10 bg-stone-900/70 px-4 py-3">Phase 0 tenancy and auth foundation is verified by feature tests.</li>
-                    <li class="rounded-2xl border border-white/10 bg-stone-900/70 px-4 py-3">Phase 1 hub CRUD surfaces are now wired for shops, warehouses, and products.</li>
-                    <li class="rounded-2xl border border-white/10 bg-stone-900/70 px-4 py-3">Early Phase 2 stock tables exist, with transfer status schema ready for workflow logic.</li>
-                </ul>
+                <h2 class="text-lg font-semibold text-white">Financial snapshot</h2>
+                <div class="mt-5 grid gap-3 text-sm text-stone-300">
+                    <div class="rounded-2xl border border-white/10 bg-stone-900/70 px-4 py-3">
+                        <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Outstanding receivables (AR)</p>
+                        <p class="mt-1 text-xl font-semibold text-white">SAR {{ number_format((float) $financials['ar_outstanding'], 2) }}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-stone-900/70 px-4 py-3">
+                        <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Outstanding payables (AP)</p>
+                        <p class="mt-1 text-xl font-semibold text-white">SAR {{ number_format((float) $financials['ap_outstanding'], 2) }}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-stone-900/70 px-4 py-3">
+                        <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Sales today</p>
+                        <p class="mt-1 text-xl font-semibold text-white">SAR {{ number_format((float) $financials['todays_sales'], 2) }}</p>
+                    </div>
+                </div>
             </section>
         </div>
 

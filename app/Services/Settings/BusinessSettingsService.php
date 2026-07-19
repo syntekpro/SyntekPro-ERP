@@ -34,7 +34,7 @@ class BusinessSettingsService
         $surface = $theme['surface'];
 
         return sprintf(
-            ':root{--brand-primary:%1$s;--brand-accent:%2$s;--brand-background:%3$s;--brand-surface:%4$s;--color-amber-100:color-mix(in srgb,%1$s 25%%,white);--color-amber-200:color-mix(in srgb,%1$s 45%%,white);--color-amber-300:color-mix(in srgb,%1$s 75%%,white);--color-amber-400:%1$s;--color-amber-500:color-mix(in srgb,%1$s 85%%,black);--color-cyan-100:color-mix(in srgb,%2$s 25%%,white);--color-cyan-200:color-mix(in srgb,%2$s 45%%,white);--color-cyan-300:color-mix(in srgb,%2$s 75%%,white);--color-cyan-400:%2$s;--color-cyan-500:color-mix(in srgb,%2$s 85%%,black);--color-stone-900:%4$s;--color-stone-950:%3$s;--color-slate-900:%4$s;--color-slate-950:%3$s;}',
+            ':root{--brand-primary:%1$s;--brand-accent:%2$s;--brand-background:%3$s;--brand-surface:%4$s;--color-brass:%1$s;--color-brass-contrast:#2b1b05;--color-ledger:%2$s;--color-amber-100:color-mix(in srgb,%1$s 25%%,white);--color-amber-200:color-mix(in srgb,%1$s 45%%,white);--color-amber-300:color-mix(in srgb,%1$s 75%%,white);--color-amber-400:%1$s;--color-amber-500:color-mix(in srgb,%1$s 85%%,black);--color-cyan-100:color-mix(in srgb,%2$s 25%%,white);--color-cyan-200:color-mix(in srgb,%2$s 45%%,white);--color-cyan-300:color-mix(in srgb,%2$s 75%%,white);--color-cyan-400:%2$s;--color-cyan-500:color-mix(in srgb,%2$s 85%%,black);--color-stone-900:%4$s;--color-stone-950:%3$s;--color-slate-900:%4$s;--color-slate-950:%3$s;}',
             $primary,
             $accent,
             $background,
@@ -47,11 +47,13 @@ class BusinessSettingsService
         $theme = $this->themePreset($this->current()->theme);
 
         return sprintf(
-            '--brand-primary:%s;--brand-accent:%s;--brand-background:%s;--brand-surface:%s;',
+            '--brand-primary:%s;--brand-accent:%s;--brand-background:%s;--brand-surface:%s;--color-brass:%s;--color-ledger:%s;',
             $theme['primary'],
             $theme['accent'],
             $theme['background'],
             $theme['surface'],
+            $theme['primary'],
+            $theme['accent'],
         );
     }
 

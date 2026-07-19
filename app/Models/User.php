@@ -29,6 +29,8 @@ class User extends Authenticatable
         'role',
         'shop_id',
         'is_active',
+        'theme_mode',
+        'navigation_state',
     ];
 
     /**
@@ -53,6 +55,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
             'is_active' => 'boolean',
+            'navigation_state' => 'array',
         ];
     }
 

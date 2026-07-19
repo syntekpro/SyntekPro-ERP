@@ -28,6 +28,7 @@ use App\Http\Controllers\CreditNoteController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TrialBalanceReportController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\UserInterfacePreferenceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,7 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::post('/user-interface-preferences', [UserInterfacePreferenceController::class, 'update'])->name('user-interface-preferences.update');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/trial-balance', [TrialBalanceReportController::class, 'index'])->name('reports.trial-balance');
     Route::get('/reports/ap-aging', [AccountsPayableReportController::class, 'index'])->name('reports.ap-aging');

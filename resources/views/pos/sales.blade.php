@@ -1,96 +1,115 @@
+@php
+    $themePreference = $cashier->theme_mode ?? 'system';
+@endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $themePreference }}" data-theme-preference="{{ $themePreference }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="user-interface-preferences-url" content="{{ route('user-interface-preferences.update') }}">
         <meta name="theme-color" content="#1daeff">
         <title>POS | {{ config('app.name', 'SyntekPro ERP') }}</title>
+        <script>
+            (() => {
+                const preference = document.documentElement.dataset.themePreference || 'system';
+                document.documentElement.dataset.theme = preference === 'dark' || preference === 'light'
+                    ? preference
+                    : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            })();
+        </script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
         <link rel="manifest" href="{{ route('manifest') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/icon-main-192.png') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
+        <link rel="stylesheet" href="{{ route('theme.css') }}">
     </head>
-    <body class="min-h-screen bg-slate-950 text-slate-100" data-pos-shell="true">
+    <body class="min-h-screen bg-paper text-ink" data-pos-shell="true" data-persist-theme-default="{{ $cashier->theme_mode === null ? 'true' : 'false' }}">
         <script id="pos-bootstrap" type="application/json">@json($bootstrap)</script>
 
         <main class="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-4 lg:grid-cols-[1.5fr_1fr] lg:px-6 lg:py-6">
-            <section class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/30 backdrop-blur">
-                <div class="flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-end lg:justify-between">
+            <section class="rounded-ui border border-line bg-surface p-6 backdrop-blur">
+                <div class="flex flex-col gap-4 border-b border-line pb-5 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-cyan-300">Offline cashier</p>
-                        <h1 class="mt-3 text-4xl font-semibold text-white">{{ $shop?->name }}</h1>
-                        <p class="mt-2 text-sm text-slate-300">{{ $cashier->name }} · {{ $cashier->email }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-ledger">Offline cashier</p>
+                        <h1 class="mt-3 text-4xl font-semibold text-ink">{{ $shop?->name }}</h1>
+                        <p class="mt-2 text-sm text-muted">{{ $cashier->name }} · {{ $cashier->email }}</p>
                     </div>
 
-                    <div class="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-100">
+                    <div class="rounded-ui border border-ledger/20 bg-ledger/10 px-4 py-3 text-sm text-ledger">
                         <p class="font-medium">Shop stock snapshot</p>
-                        <p class="mt-1 text-cyan-200/80">This screen stays usable offline after the first online load.</p>
+                        <p class="mt-1 text-muted">This screen stays usable offline after the first online load.</p>
                     </div>
                 </div>
 
                 <div class="mt-6 grid gap-4 lg:grid-cols-[1fr_auto]">
-                    <input id="product-search" type="search" placeholder="Search by name, SKU, or barcode" class="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-500" />
-                    <button id="sync-sales" type="button" class="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300">Sync queued sales</button>
+                    <input id="product-search" type="search" placeholder="Search by name, SKU, or barcode" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-sm text-ink outline-none placeholder:text-subtle" />
+                    <button id="sync-sales" type="button" class="btn-secondary">Sync queued sales</button>
                 </div>
 
-                <div class="mt-6 overflow-hidden rounded-3xl border border-white/10">
-                    <div id="product-list" class="grid max-h-[34rem] gap-px overflow-auto bg-white/5"></div>
+                <div class="mt-6 overflow-hidden rounded-ui border border-line">
+                    <div id="product-list" class="grid max-h-[34rem] gap-px overflow-auto bg-panel"></div>
                 </div>
             </section>
 
-            <aside class="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+            <aside class="rounded-ui border border-line bg-surface p-6 backdrop-blur">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-amber-300">Cart</p>
-                        <h2 class="mt-2 text-2xl font-semibold text-white">Current sale</h2>
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brass">Cart</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-ink">Current sale</h2>
                     </div>
-                    <span id="queue-status" class="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300">Offline ready</span>
+                    <button type="button" data-theme-toggle class="rounded-full border border-line px-3 py-1 text-xs font-semibold text-muted"><span data-theme-toggle-label>{{ $themePreference }}</span></button>
                 </div>
+
+                <span id="queue-status" class="mt-4 inline-flex rounded-full bg-panel px-3 py-1 text-xs font-semibold text-muted">Offline ready</span>
 
                 <div class="mt-6 space-y-3" id="cart-list"></div>
 
-                <div class="mt-6 rounded-3xl border border-white/10 bg-white/5 p-5">
+                <div class="mt-6 rounded-ui border border-line bg-panel p-5">
                     <div class="space-y-3">
                         <div>
-                            <label for="payment-method" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Payment method</label>
-                            <select id="payment-method" class="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-slate-100 outline-none">
+                            <label for="payment-method" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-muted">Payment method</label>
+                            <select id="payment-method" class="w-full rounded-ui border border-line bg-surface px-4 py-3 text-sm text-ink outline-none">
                                 <option value="cash">Cash</option>
                                 <option value="card">Card</option>
                                 <option value="credit_account">Credit account</option>
                             </select>
                         </div>
                         <div>
-                            <label for="customer-select" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Customer (credit only)</label>
-                            <select id="customer-select" class="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-slate-100 outline-none">
+                            <label for="customer-select" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-muted">Customer (credit only)</label>
+                            <select id="customer-select" class="w-full rounded-ui border border-line bg-surface px-4 py-3 text-sm text-ink outline-none">
                                 <option value="">Select customer</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between text-sm text-slate-300">
+                    <div class="flex items-center justify-between text-sm text-muted">
                         <span>Subtotal</span>
-                        <span id="subtotal-value">0.00</span>
+                        <span id="subtotal-value" class="figure-mono">0.00</span>
                     </div>
-                    <div class="mt-3 flex items-center justify-between text-sm text-slate-300">
+                    <div class="mt-3 flex items-center justify-between text-sm text-muted">
                         <span>VAT</span>
-                        <span id="vat-value">0.00</span>
+                        <span id="vat-value" class="figure-mono">0.00</span>
                     </div>
-                    <div class="mt-3 flex items-center justify-between text-sm text-slate-300">
+                    <div class="mt-3 flex items-center justify-between text-sm text-muted">
                         <span>Excise</span>
-                        <span id="excise-value">0.00</span>
+                        <span id="excise-value" class="figure-mono">0.00</span>
                     </div>
-                    <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-4 text-lg font-semibold text-white">
+                    <div class="mt-4 flex items-center justify-between border-t border-line pt-4 text-lg font-semibold text-ink">
                         <span>Total</span>
-                        <span id="total-value">0.00</span>
+                        <span id="total-value" class="ledger-total">0.00</span>
                     </div>
 
-                    <button id="complete-sale" type="button" class="mt-5 w-full rounded-2xl bg-amber-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-amber-300">Queue sale offline</button>
+                    <button id="complete-sale" type="button" class="btn-primary mt-5 w-full justify-center">Queue sale offline</button>
                 </div>
 
-                <div class="mt-5 rounded-3xl border border-white/10 bg-black/20 p-4 text-sm text-slate-300">
-                    <p class="font-medium text-white">Sync policy</p>
+                <div class="mt-5 rounded-ui border border-line bg-panel p-4 text-sm text-muted">
+                    <p class="font-medium text-ink">Sync policy</p>
                     <p class="mt-2">Queued sales are retried by idempotency key. If the server rejects a sale because shop stock changed before sync, the cashier must resolve it manually.</p>
                 </div>
             </aside>

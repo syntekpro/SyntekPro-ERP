@@ -32,7 +32,7 @@ step "1/7" "Pull latest code"
 run_cmd git pull --ff-only
 
 step "2/7" "Install PHP dependencies (safe to rerun)"
-run_cmd docker compose -f "${BUILD_COMPOSE_FILE}" run --rm composer install --no-dev --optimize-autoloader --no-interaction
+run_cmd docker compose -f "${BUILD_COMPOSE_FILE}" run --rm composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 step "3/7" "Install frontend dependencies and build assets"
 run_cmd docker compose -f "${BUILD_COMPOSE_FILE}" run --rm node ci

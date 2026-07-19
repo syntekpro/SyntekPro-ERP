@@ -32,8 +32,10 @@ WORKDIR /var/www/html
 RUN apk add --no-cache \
         bash \
         fcgi \
+        freetype-dev \
         git \
         icu-dev \
+        libjpeg-turbo-dev \
         libpng-dev \
         libxml2-dev \
         libzip-dev \
@@ -42,8 +44,10 @@ RUN apk add --no-cache \
     && apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         linux-headers \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
         bcmath \
+        gd \
         intl \
         pcntl \
         pdo_mysql \

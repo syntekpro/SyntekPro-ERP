@@ -9,7 +9,7 @@ class AccountPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('accounts.view');
     }
 
     public function view(User $user, Account $account): bool
@@ -19,16 +19,16 @@ class AccountPolicy
 
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin();
+        return $user->hasPermission('accounts.create');
     }
 
     public function update(User $user, Account $account): bool
     {
-        return $user->isSuperAdmin();
+        return $user->hasPermission('accounts.update');
     }
 
     public function delete(User $user, Account $account): bool
     {
-        return $user->isSuperAdmin() && ! $account->journalEntryLines()->exists();
+        return $user->hasPermission('accounts.delete') && ! $account->journalEntryLines()->exists();
     }
 }

@@ -134,7 +134,7 @@ class CreditNoteService
             }
 
             $creditNote = CreditNote::query()->create([
-                'credit_note_number' => $this->documentNumberService->next('credit_note', 'CN-'),
+                'credit_note_number' => $this->documentNumberService->next('credit_note'),
                 'sale_id' => $sale->id,
                 'shop_id' => $sale->shop_id,
                 'customer_id' => $sale->customer_id,

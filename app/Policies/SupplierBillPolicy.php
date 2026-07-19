@@ -9,7 +9,7 @@ class SupplierBillPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('supplier_bills.view');
     }
 
     public function view(User $user, SupplierBill $supplierBill): bool
@@ -19,7 +19,7 @@ class SupplierBillPolicy
 
     public function recordPayment(User $user, SupplierBill $supplierBill): bool
     {
-        return ($user->isSuperAdmin() || $user->isAccountant())
+        return $user->hasPermission('supplier_bills.record_payment')
             && (float) $supplierBill->outstanding_balance > 0;
     }
 }

@@ -9,7 +9,7 @@ class SupplierPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('suppliers.view');
     }
 
     public function view(User $user, Supplier $supplier): bool
@@ -19,11 +19,11 @@ class SupplierPolicy
 
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('suppliers.create');
     }
 
     public function update(User $user, Supplier $supplier): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('suppliers.update');
     }
 }

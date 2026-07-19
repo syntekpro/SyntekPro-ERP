@@ -22,6 +22,7 @@ class ChartOfAccountsSeeder extends Seeder
             ['code' => '2000', 'name' => 'Liabilities', 'account_type' => AccountType::Liability, 'parent_code' => null],
             ['code' => '2100', 'name' => 'Accounts Payable Control', 'account_type' => AccountType::Liability, 'parent_code' => '2000'],
             ['code' => '2200', 'name' => 'VAT Payable', 'account_type' => AccountType::Liability, 'parent_code' => '2000'],
+            ['code' => '2300', 'name' => 'Excise Tax Payable', 'account_type' => AccountType::Liability, 'parent_code' => '2000'],
 
             ['code' => '3000', 'name' => 'Equity', 'account_type' => AccountType::Equity, 'parent_code' => null],
             ['code' => '3100', 'name' => 'Owner Capital', 'account_type' => AccountType::Equity, 'parent_code' => '3000'],

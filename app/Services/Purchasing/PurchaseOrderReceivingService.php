@@ -9,6 +9,7 @@ use App\Models\SupplierBill;
 use App\Models\WarehouseStock;
 use App\Services\Accounting\PostsSupplierBillToLedger;
 use App\Services\Numbering\DocumentNumberService;
+use App\Services\Settings\BusinessSettingsService;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderReceivingService
@@ -16,6 +17,7 @@ class PurchaseOrderReceivingService
     public function __construct(
         protected PostsSupplierBillToLedger $postsSupplierBillToLedger,
         protected DocumentNumberService $documentNumberService,
+        protected BusinessSettingsService $businessSettingsService,
     )
     {
     }
@@ -78,7 +80,8 @@ class PurchaseOrderReceivingService
                 $this->updateProductAverageCost((int) $item->product_id, $requestedQty, (float) $item->unit_cost);
 
                 $netAmount = round($requestedQty * (float) $item->unit_cost, 2);
-                $lineVat = round($netAmount * ((float) $item->vat_rate / 100), 2);
+                $vatRate = $this->businessSettingsService->vatRate();
+                $lineVat = round($netAmount * ($vatRate / 100), 2);
                 $grossAmount = round($netAmount + $lineVat, 2);
 
                 $subtotal += $netAmount;
@@ -89,7 +92,7 @@ class PurchaseOrderReceivingService
                     'description' => $item->product->name,
                     'quantity' => $requestedQty,
                     'unit_cost' => $item->unit_cost,
-                    'vat_rate' => $item->vat_rate,
+                    'vat_rate' => $vatRate,
                     'net_amount' => $netAmount,
                     'vat_amount' => $lineVat,
                     'gross_amount' => $grossAmount,
@@ -106,7 +109,7 @@ class PurchaseOrderReceivingService
             $dueDate = now()->addDays((int) $lockedPurchaseOrder->supplier->payment_terms_days)->toDateString();
 
             $bill = SupplierBill::query()->create([
-                'bill_number' => $this->documentNumberService->next('supplier_bills', 'BILL-'),
+                'bill_number' => $this->documentNumberService->next('supplier_bills'),
                 'supplier_id' => $lockedPurchaseOrder->supplier_id,
                 'purchase_order_id' => $lockedPurchaseOrder->id,
                 'warehouse_id' => $lockedPurchaseOrder->warehouse_id,

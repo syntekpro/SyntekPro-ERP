@@ -3,11 +3,26 @@
 namespace App\Services\Numbering;
 
 use App\Models\DocumentCounter;
+use App\Models\DocumentNumberFormat;
 
 class DocumentNumberService
 {
-    public function next(string $key, string $prefix, int $pad = 6): string
+    protected const DEFAULT_PREFIXES = [
+        'sales' => 'INV-',
+        'credit_note' => 'CN-',
+        'debit_note' => 'DN-',
+        'purchase_orders' => 'PO-',
+        'supplier_bills' => 'BILL-',
+        'stock_transfers' => 'ST-',
+    ];
+
+    public function next(string $key, ?string $fallbackPrefix = null, int $pad = 6): string
     {
+        $prefix = DocumentNumberFormat::query()->where('key', $key)->value('prefix')
+            ?: $fallbackPrefix
+            ?: self::DEFAULT_PREFIXES[$key]
+            ?? strtoupper(str_replace('_', '-', $key)).'-';
+
         $counter = DocumentCounter::query()
             ->where('key', $key)
             ->lockForUpdate()

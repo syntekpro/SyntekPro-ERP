@@ -8,26 +8,26 @@ class UserPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin();
+        return $user->hasPermission('users.view');
     }
 
     public function view(User $user, User $managedUser): bool
     {
-        return $user->isSuperAdmin();
+        return $user->hasPermission('users.view');
     }
 
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin();
+        return $user->hasPermission('users.create');
     }
 
     public function update(User $user, User $managedUser): bool
     {
-        return $user->isSuperAdmin();
+        return $user->hasPermission('users.update');
     }
 
     public function delete(User $user, User $managedUser): bool
     {
-        return $user->isSuperAdmin() && $user->id !== $managedUser->id;
+        return $user->hasPermission('users.delete') && $user->id !== $managedUser->id;
     }
 }

@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ShopStock;
+use App\Services\Settings\BusinessSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PosSaleController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, BusinessSettingsService $businessSettings): View
     {
         $user = $request->user();
 
@@ -32,6 +33,8 @@ class PosSaleController extends Controller
                 'products.barcode',
                 'products.price',
                 'products.vat_rate',
+                'products.is_excise_applicable',
+                'products.excise_rate',
                 'stock.quantity as local_stock',
             ])
             ->map(fn (Product $product) => [
@@ -40,7 +43,9 @@ class PosSaleController extends Controller
                 'sku' => $product->sku,
                 'barcode' => $product->barcode,
                 'price' => (string) $product->price,
-                'vat_rate' => (string) $product->vat_rate,
+                'vat_rate' => number_format($businessSettings->vatRate(), 2, '.', ''),
+                'is_excise_applicable' => (bool) $product->is_excise_applicable,
+                'excise_rate' => $product->is_excise_applicable ? (string) ($product->excise_rate ?? '0.00') : '0.00',
                 'local_stock' => (string) ($product->local_stock ?? '0'),
             ])
             ->values();
@@ -67,6 +72,10 @@ class PosSaleController extends Controller
             'cashier' => $user,
             'bootstrap' => [
                 'sale_contract_version' => '2026-07-16',
+                'tax' => [
+                    'vat_enabled' => $businessSettings->vatEnabled(),
+                    'vat_rate' => number_format($businessSettings->vatRate(), 2, '.', ''),
+                ],
                 'shop' => [
                     'id' => $user->shop?->id,
                     'name' => $user->shop?->name,

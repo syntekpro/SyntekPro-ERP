@@ -12,7 +12,7 @@ class WarehousePolicy
 
     public function viewAny(User $user): bool
     {
-        return ! $this->deniesCashier($user);
+        return $user->hasPermission('warehouses.view');
     }
 
     public function view(User $user, Warehouse $warehouse): bool
@@ -22,16 +22,16 @@ class WarehousePolicy
 
     public function create(User $user): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('warehouses.create');
     }
 
     public function update(User $user, Warehouse $warehouse): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('warehouses.update');
     }
 
     public function delete(User $user, Warehouse $warehouse): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('warehouses.delete');
     }
 }

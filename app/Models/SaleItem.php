@@ -22,6 +22,8 @@ class SaleItem extends Model
         'unit_cost',
         'vat_rate',
         'vat_amount',
+        'excise_rate',
+        'excise_amount',
         'line_total',
     ];
 
@@ -33,6 +35,8 @@ class SaleItem extends Model
             'unit_cost' => 'decimal:2',
             'vat_rate' => 'decimal:2',
             'vat_amount' => 'decimal:2',
+            'excise_rate' => 'decimal:2',
+            'excise_amount' => 'decimal:2',
             'line_total' => 'decimal:2',
         ];
     }

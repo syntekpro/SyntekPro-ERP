@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -78,5 +79,32 @@ class User extends Authenticatable
     public function isCashier(): bool
     {
         return $this->role === UserRole::Cashier;
+    }
+
+    public function hasPermission(string $key): bool
+    {
+        $permission = Permission::query()->where('key', $key)->first();
+
+        if ($permission === null) {
+            return false;
+        }
+
+        $override = DB::table('user_permissions')
+            ->where('user_id', $this->id)
+            ->where('permission_id', $permission->id)
+            ->value('effect');
+
+        if ($override === 'grant') {
+            return true;
+        }
+
+        if ($override === 'revoke') {
+            return false;
+        }
+
+        return DB::table('role_permissions')
+            ->where('role', $this->role?->value)
+            ->where('permission_id', $permission->id)
+            ->exists();
     }
 }

@@ -26,6 +26,10 @@ class FormPage extends Component
 
     public string $vat_rate = '15.00';
 
+    public bool $is_excise_applicable = false;
+
+    public string $excise_rate = '';
+
     public bool $is_active = true;
 
     protected bool $skuWasManuallyEdited = false;
@@ -43,6 +47,8 @@ class FormPage extends Component
             $this->price = number_format((float) $this->product->price, 2, '.', '');
             $this->cost_price = number_format((float) $this->product->cost_price, 2, '.', '');
             $this->vat_rate = number_format((float) $this->product->vat_rate, 2, '.', '');
+            $this->is_excise_applicable = $this->product->is_excise_applicable;
+            $this->excise_rate = $this->product->excise_rate !== null ? number_format((float) $this->product->excise_rate, 2, '.', '') : '';
             $this->is_active = $this->product->is_active;
             $this->skuWasManuallyEdited = true;
 
@@ -83,10 +89,13 @@ class FormPage extends Component
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'vat_rate' => ['required', 'numeric', 'min:0'],
+            'is_excise_applicable' => ['required', 'boolean'],
+            'excise_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'is_active' => ['required', 'boolean'],
         ]);
 
         $validated['barcode'] = $validated['barcode'] === '' ? null : $validated['barcode'];
+        $validated['excise_rate'] = $validated['is_excise_applicable'] ? ($validated['excise_rate'] === '' ? null : $validated['excise_rate']) : null;
 
         if ($this->product) {
             $this->product->update($validated);

@@ -4,7 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title') | {{ config('app.name', 'SyntekPro ERP') }}</title>
-        <link rel="icon" type="image/png" href="{{ asset('images/icon-main.png') }}">
+        <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
+        <link rel="manifest" href="{{ route('manifest') }}">
+        <link rel="stylesheet" href="{{ route('theme.css') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
@@ -21,7 +23,7 @@
             <aside class="border-b border-white/10 bg-black/30 backdrop-blur lg:border-b-0 lg:border-r">
                 <div class="flex h-full flex-col px-5 py-6">
                     <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
-                        <img src="{{ asset('images/logo-full.png') }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[15rem]" />
+                        <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[15rem]" />
                         <p class="mt-3 text-xs font-semibold uppercase tracking-[0.35em] text-amber-300">SyntekPro ERP</p>
                         <h1 class="mt-2 text-2xl font-semibold text-white">Hub console</h1>
                         <p class="mt-2 text-sm text-stone-300">Central command for shops, warehouses, products, and chain operations.</p>
@@ -193,6 +195,13 @@
                                 <span class="text-xs uppercase tracking-[0.28em]">Offline</span>
                             </a>
                         @endif
+
+                        @if (auth()->user()?->hasPermission('settings.manage'))
+                            <a href="{{ route('settings.index') }}" class="flex items-center justify-between rounded-2xl px-4 py-3 transition {{ request()->routeIs('settings.*') ? 'bg-amber-400 text-stone-950' : 'text-stone-200 hover:bg-white/5' }}">
+                                <span>Settings</span>
+                                <span class="text-xs uppercase tracking-[0.28em]">Admin</span>
+                            </a>
+                        @endif
                     </nav>
 
                     <div class="mt-6 rounded-3xl border border-white/10 bg-stone-900/70 p-5 text-sm text-stone-300">
@@ -206,6 +215,8 @@
                             Sign out
                         </button>
                     </form>
+
+                    <a href="https://syntekpro.com" target="_blank" rel="noopener noreferrer" class="mt-4 block text-center text-xs font-semibold uppercase tracking-[0.24em] text-stone-500 transition hover:text-amber-300">Powered by SyntekPro ERP</a>
                 </div>
             </aside>
 

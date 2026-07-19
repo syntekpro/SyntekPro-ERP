@@ -111,7 +111,7 @@ class DebitNoteService
             ]);
 
             $debitNote = DebitNote::query()->create([
-                'debit_note_number' => $this->documentNumberService->next('debit_note', 'DN-'),
+                'debit_note_number' => $this->documentNumberService->next('debit_note'),
                 'supplier_bill_id' => $bill->id,
                 'purchase_order_id' => $bill->purchase_order_id,
                 'supplier_id' => $bill->supplier_id,

@@ -17,6 +17,7 @@ const elements = {
     search: document.getElementById('product-search'),
     subtotal: document.getElementById('subtotal-value'),
     vat: document.getElementById('vat-value'),
+    excise: document.getElementById('excise-value'),
     total: document.getElementById('total-value'),
     queueStatus: document.getElementById('queue-status'),
     syncButton: document.getElementById('sync-sales'),
@@ -33,6 +34,7 @@ function readBootstrap() {
             sale_contract_version: 'unknown',
             shop: null,
             cashier: null,
+            tax: { vat_enabled: true, vat_rate: 15 },
             products: [],
             shop_stock: {},
             customers: [],
@@ -55,6 +57,24 @@ function quantity(value) {
 
 function toNumber(value) {
     return Number.parseFloat(Number(value || 0).toFixed(3));
+}
+
+function taxSettings() {
+    return state.bootstrap.tax || { vat_enabled: true, vat_rate: 15 };
+}
+
+function lineTaxes(quantityValue, unitPrice, product) {
+    const lineSubtotal = Number(quantityValue) * Number(unitPrice);
+    const vatRate = taxSettings().vat_enabled ? Number(taxSettings().vat_rate || 0) : 0;
+    const exciseRate = product?.is_excise_applicable ? Number(product.excise_rate || 0) : 0;
+
+    return {
+        lineSubtotal,
+        vatRate,
+        vatAmount: lineSubtotal * (vatRate / 100),
+        exciseRate,
+        exciseAmount: lineSubtotal * (exciseRate / 100),
+    };
 }
 
 function openDatabase() {
@@ -165,7 +185,7 @@ function renderProducts() {
                         <h3 class="font-semibold text-white">${escapeHtml(product.name)}</h3>
                         <span class="rounded-full bg-white/5 px-2 py-0.5 text-[11px] uppercase tracking-[0.24em] text-slate-400">${escapeHtml(product.sku || 'No SKU')}</span>
                     </div>
-                    <p class="mt-1 text-sm text-slate-400">Barcode ${escapeHtml(product.barcode || 'n/a')} · VAT ${escapeHtml(product.vat_rate)}%</p>
+                    <p class="mt-1 text-sm text-slate-400">Barcode ${escapeHtml(product.barcode || 'n/a')} · VAT ${escapeHtml(product.vat_rate)}%${product.is_excise_applicable ? ` · Excise ${escapeHtml(product.excise_rate)}%` : ''}</p>
                     <p class="mt-1 text-xs text-slate-500">Local stock ${stockLeft}</p>
                 </div>
 
@@ -190,7 +210,7 @@ function renderCart() {
 
     if (cartEntries.length === 0) {
         elements.cartList.innerHTML = '<div class="rounded-3xl border border-dashed border-white/10 px-4 py-8 text-sm text-slate-400">Cart is empty. Add products from the catalog.</div>';
-        renderTotals(0, 0, 0);
+        renderTotals(0, 0, 0, 0);
         return;
     }
 
@@ -198,22 +218,23 @@ function renderCart() {
 
     let subtotal = 0;
     let vatTotal = 0;
+    let exciseTotal = 0;
 
     elements.cartList.innerHTML = cartEntries.map(([productId, cartItem]) => {
         const product = index.get(Number(productId));
-        const lineSubtotal = cartItem.quantity * Number(cartItem.unit_price);
-        const lineVat = lineSubtotal * (Number(cartItem.vat_rate) / 100);
-        const lineTotal = lineSubtotal + lineVat;
+        const taxes = lineTaxes(cartItem.quantity, cartItem.unit_price, product || cartItem);
+        const lineTotal = taxes.lineSubtotal + taxes.vatAmount + taxes.exciseAmount;
 
-        subtotal += lineSubtotal;
-        vatTotal += lineVat;
+        subtotal += taxes.lineSubtotal;
+        vatTotal += taxes.vatAmount;
+        exciseTotal += taxes.exciseAmount;
 
         return `
             <article class="rounded-3xl border border-white/10 bg-white/5 p-4">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h3 class="font-semibold text-white">${escapeHtml(product?.name || cartItem.product_name)}</h3>
-                        <p class="mt-1 text-sm text-slate-400">${cartItem.quantity.toFixed(3)} × ${money(cartItem.unit_price)} · VAT ${cartItem.vat_rate}%</p>
+                        <p class="mt-1 text-sm text-slate-400">${cartItem.quantity.toFixed(3)} × ${money(cartItem.unit_price)} · VAT ${taxes.vatRate}%${taxes.exciseRate > 0 ? ` · Excise ${taxes.exciseRate}%` : ''}</p>
                     </div>
                     <button type="button" data-remove-product="${productId}" class="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-white/10">Remove</button>
                 </div>
@@ -225,12 +246,13 @@ function renderCart() {
         `;
     }).join('');
 
-    renderTotals(subtotal, vatTotal, subtotal + vatTotal);
+    renderTotals(subtotal, vatTotal, exciseTotal, subtotal + vatTotal + exciseTotal);
 }
 
-function renderTotals(subtotal, vatTotal, total) {
+function renderTotals(subtotal, vatTotal, exciseTotal, total) {
     if (elements.subtotal) elements.subtotal.textContent = money(subtotal);
     if (elements.vat) elements.vat.textContent = money(vatTotal);
+    if (elements.excise) elements.excise.textContent = money(exciseTotal);
     if (elements.total) elements.total.textContent = money(total);
 }
 
@@ -280,6 +302,8 @@ function setCartQuantity(productId, quantityValue) {
             quantity: quantity(safeQuantity),
             unit_price: Number(product.price),
             vat_rate: Number(product.vat_rate),
+            is_excise_applicable: Boolean(product.is_excise_applicable),
+            excise_rate: Number(product.excise_rate || 0),
         });
     }
 
@@ -313,6 +337,8 @@ async function seedProducts() {
         ...product,
         price: Number(product.price),
         vat_rate: Number(product.vat_rate),
+        is_excise_applicable: Boolean(product.is_excise_applicable),
+        excise_rate: Number(product.excise_rate || 0),
         local_stock: Number(product.local_stock || 0),
     }));
 
@@ -345,8 +371,7 @@ function buildSalePayload(cartEntries) {
     }
 
     const items = cartEntries.map(([productId, item]) => {
-        const lineSubtotal = Number(item.quantity) * Number(item.unit_price);
-        const vatAmount = lineSubtotal * (Number(item.vat_rate) / 100);
+        const taxes = lineTaxes(item.quantity, item.unit_price, item);
 
         return {
             product_id: Number(productId),
@@ -355,14 +380,15 @@ function buildSalePayload(cartEntries) {
             barcode: item.barcode || null,
             quantity: Number(item.quantity).toFixed(3),
             unit_price: Number(item.unit_price).toFixed(2),
-            vat_rate: Number(item.vat_rate).toFixed(2),
-            vat_amount: vatAmount.toFixed(2),
-            line_total: (lineSubtotal + vatAmount).toFixed(2),
+            vat_rate: taxes.vatRate.toFixed(2),
+            vat_amount: taxes.vatAmount.toFixed(2),
+            line_total: (taxes.lineSubtotal + taxes.vatAmount + taxes.exciseAmount).toFixed(2),
         };
     });
 
     const subtotal = items.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
     const vatTotal = items.reduce((sum, item) => sum + Number(item.vat_amount), 0);
+    const exciseTotal = cartEntries.reduce((sum, [, item]) => sum + lineTaxes(item.quantity, item.unit_price, item).exciseAmount, 0);
 
     return {
         idempotency_key: idempotencyKey,
@@ -371,7 +397,7 @@ function buildSalePayload(cartEntries) {
         sold_at: soldAt,
         subtotal: subtotal.toFixed(2),
         vat_total: vatTotal.toFixed(2),
-        total: (subtotal + vatTotal).toFixed(2),
+        total: (subtotal + vatTotal + exciseTotal).toFixed(2),
         payment_method: paymentMethod,
         customer_id: customerId,
         items,

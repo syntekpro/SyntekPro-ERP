@@ -22,6 +22,7 @@ class Sale extends Model
         'sold_at',
         'subtotal',
         'vat_total',
+        'excise_total',
         'total',
         'payment_method',
         'customer_id',
@@ -45,6 +46,7 @@ class Sale extends Model
             'synced_at' => 'datetime',
             'subtotal' => 'decimal:2',
             'vat_total' => 'decimal:2',
+            'excise_total' => 'decimal:2',
             'total' => 'decimal:2',
             'outstanding_balance' => 'decimal:2',
         ];

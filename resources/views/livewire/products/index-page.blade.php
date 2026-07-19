@@ -30,6 +30,7 @@
                         <th class="px-4 py-3 font-medium">Price</th>
                         <th class="px-4 py-3 font-medium">Cost</th>
                         <th class="px-4 py-3 font-medium">VAT</th>
+                        <th class="px-4 py-3 font-medium">Excise</th>
                         <th class="px-4 py-3 font-medium">Status</th>
                         <th class="px-4 py-3 font-medium text-right">Actions</th>
                     </tr>
@@ -42,6 +43,7 @@
                             <td class="px-4 py-4">SAR {{ number_format((float) $product->price, 2) }}</td>
                             <td class="px-4 py-4">SAR {{ number_format((float) $product->cost_price, 2) }}</td>
                             <td class="px-4 py-4">{{ number_format((float) $product->vat_rate, 2) }}%</td>
+                            <td class="px-4 py-4">{{ $product->is_excise_applicable ? number_format((float) $product->excise_rate, 2).'%' : 'No' }}</td>
                             <td class="px-4 py-4">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $product->is_active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200' }}">{{ $product->is_active ? 'Active' : 'Inactive' }}</span>
                             </td>
@@ -58,7 +60,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-10 text-center text-stone-400">No products match the current filter.</td>
+                            <td colspan="8" class="px-4 py-10 text-center text-stone-400">No products match the current filter.</td>
                         </tr>
                     @endforelse
                 </tbody>

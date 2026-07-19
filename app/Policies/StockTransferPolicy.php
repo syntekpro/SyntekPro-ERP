@@ -13,27 +13,29 @@ class StockTransferPolicy
 
     public function viewAny(User $user): bool
     {
-        return $this->isSuperAdmin($user) || $this->isShopManager($user);
+        return $user->hasPermission('stock_transfers.view');
     }
 
     public function view(User $user, StockTransfer $transfer): bool
     {
-        return $this->isSuperAdmin($user) || $this->managesShopId($user, $transfer->destination_shop_id);
+        return $user->hasPermission('stock_transfers.view')
+            && ($user->role?->value !== 'shop_manager' || $this->managesShopId($user, $transfer->destination_shop_id));
     }
 
     public function create(User $user): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('stock_transfers.create');
     }
 
     public function markInTransit(User $user, StockTransfer $transfer): bool
     {
-        return $this->isSuperAdmin($user) && $transfer->status === StockTransferStatus::Pending;
+        return $user->hasPermission('stock_transfers.mark_in_transit') && $transfer->status === StockTransferStatus::Pending;
     }
 
     public function receive(User $user, StockTransfer $transfer): bool
     {
-        return ($this->isSuperAdmin($user) || $this->managesShopId($user, $transfer->destination_shop_id))
+        return $user->hasPermission('stock_transfers.receive')
+            && ($user->role?->value !== 'shop_manager' || $this->managesShopId($user, $transfer->destination_shop_id))
             && $transfer->status === StockTransferStatus::InTransit;
     }
 }

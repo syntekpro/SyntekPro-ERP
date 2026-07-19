@@ -9,7 +9,7 @@ class CustomerPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('customers.view');
     }
 
     public function view(User $user, Customer $customer): bool
@@ -19,11 +19,11 @@ class CustomerPolicy
 
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('customers.create');
     }
 
     public function update(User $user, Customer $customer): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('customers.update');
     }
 }

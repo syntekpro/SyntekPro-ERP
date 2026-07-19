@@ -13,6 +13,7 @@ use App\Models\Shop;
 use App\Models\ShopStock;
 use App\Services\Accounting\PostsSaleToLedger;
 use App\Services\Numbering\DocumentNumberService;
+use App\Services\Settings\BusinessSettingsService;
 use App\Support\ZatcaQrEncoder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -154,16 +155,47 @@ class PosSaleSyncController extends Controller
                     $outstandingBalance = $salePayload['total'];
                 }
 
+                $businessSettings = app(BusinessSettingsService::class);
+                $vatRate = $businessSettings->vatRate();
+                $calculatedSubtotal = 0.0;
+                $calculatedVatTotal = 0.0;
+                $calculatedExciseTotal = 0.0;
+                $calculatedItems = [];
+
+                foreach ($salePayload['items'] as $item) {
+                    $product = Product::query()->find($item['product_id']);
+                    $netAmount = round((float) $item['quantity'] * (float) $item['unit_price'], 2);
+                    $exciseRate = $product?->is_excise_applicable ? (float) ($product->excise_rate ?? 0) : 0.0;
+                    $exciseAmount = round($netAmount * ($exciseRate / 100), 2);
+                    $vatAmount = round($netAmount * ($vatRate / 100), 2);
+                    $lineTotal = round($netAmount + $vatAmount + $exciseAmount, 2);
+
+                    $calculatedSubtotal += $netAmount;
+                    $calculatedVatTotal += $vatAmount;
+                    $calculatedExciseTotal += $exciseAmount;
+                    $calculatedItems[] = compact('item', 'product', 'vatRate', 'vatAmount', 'exciseRate', 'exciseAmount', 'lineTotal');
+                }
+
+                $calculatedSubtotal = round($calculatedSubtotal, 2);
+                $calculatedVatTotal = round($calculatedVatTotal, 2);
+                $calculatedExciseTotal = round($calculatedExciseTotal, 2);
+                $calculatedTotal = round($calculatedSubtotal + $calculatedVatTotal + $calculatedExciseTotal, 2);
+
+                if ($paymentMethod === SalePaymentMethod::CreditAccount) {
+                    $outstandingBalance = $calculatedTotal;
+                }
+
                 $sale = Sale::query()->create([
                     'shop_id' => $shopId,
                     'cashier_id' => $cashierId,
                     'idempotency_key' => $salePayload['idempotency_key'],
-                    'invoice_number' => app(DocumentNumberService::class)->next('sales', 'INV-'),
+                    'invoice_number' => app(DocumentNumberService::class)->next('sales'),
                     'status' => SaleStatus::Queued,
                     'sold_at' => $salePayload['sold_at'],
-                    'subtotal' => $salePayload['subtotal'],
-                    'vat_total' => $salePayload['vat_total'],
-                    'total' => $salePayload['total'],
+                    'subtotal' => $calculatedSubtotal,
+                    'vat_total' => $calculatedVatTotal,
+                    'excise_total' => $calculatedExciseTotal,
+                    'total' => $calculatedTotal,
                     'payment_method' => $paymentMethod,
                     'customer_id' => $customer?->id,
                     'due_date' => $dueDate,
@@ -174,8 +206,9 @@ class PosSaleSyncController extends Controller
 
                 $sellerData = $this->resolveSellerData($shopId);
 
-                foreach ($salePayload['items'] as $item) {
-                    $product = Product::query()->find($item['product_id']);
+                foreach ($calculatedItems as $calculatedItem) {
+                    $item = $calculatedItem['item'];
+                    $product = $calculatedItem['product'];
 
                     $stock = ShopStock::query()
                         ->where('shop_id', $shopId)
@@ -204,9 +237,11 @@ class PosSaleSyncController extends Controller
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
                         'unit_cost' => $product?->average_cost ?? $product?->cost_price ?? 0,
-                        'vat_rate' => $item['vat_rate'],
-                        'vat_amount' => $item['vat_amount'],
-                        'line_total' => $item['line_total'],
+                        'vat_rate' => $calculatedItem['vatRate'],
+                        'vat_amount' => $calculatedItem['vatAmount'],
+                        'excise_rate' => $calculatedItem['exciseRate'] > 0 ? $calculatedItem['exciseRate'] : null,
+                        'excise_amount' => $calculatedItem['exciseAmount'],
+                        'line_total' => $calculatedItem['lineTotal'],
                     ]);
                 }
 
@@ -283,13 +318,14 @@ class PosSaleSyncController extends Controller
     protected function resolveSellerData(int $shopId): array
     {
         $shop = Shop::query()->find($shopId);
+        $businessSettings = app(BusinessSettingsService::class)->current();
 
         $sellerName = $shop?->legal_name
-            ?: config('zatca.seller_legal_name')
+            ?: $businessSettings->legal_name
             ?: $shop?->name
             ?: 'SyntekPro';
         $vatNumber = $shop?->vat_registration_number
-            ?: config('zatca.seller_vat_registration_number')
+            ?: $businessSettings->vat_number
             ?: '000000000000000';
 
         return [

@@ -12,16 +12,18 @@ class ShopStockPolicy
 
     public function viewAny(User $user): bool
     {
-        return $this->isSuperAdmin($user) || $this->isShopManager($user);
+        return $user->hasPermission('shop_stock.view');
     }
 
     public function view(User $user, ShopStock $shopStock): bool
     {
-        return $this->isSuperAdmin($user) || $this->managesShopId($user, $shopStock->shop_id);
+        return $user->hasPermission('shop_stock.view')
+            && ($user->role?->value !== 'shop_manager' || $this->managesShopId($user, $shopStock->shop_id));
     }
 
     public function update(User $user, ShopStock $shopStock): bool
     {
-        return $this->isSuperAdmin($user) || $this->managesShopId($user, $shopStock->shop_id);
+        return $user->hasPermission('shop_stock.update')
+            && ($user->role?->value !== 'shop_manager' || $this->managesShopId($user, $shopStock->shop_id));
     }
 }

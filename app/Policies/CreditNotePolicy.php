@@ -9,7 +9,7 @@ class CreditNotePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('credit_notes.view');
     }
 
     public function view(User $user, CreditNote $creditNote): bool
@@ -19,6 +19,6 @@ class CreditNotePolicy
 
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('credit_notes.create');
     }
 }

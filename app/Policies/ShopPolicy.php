@@ -12,26 +12,27 @@ class ShopPolicy
 
     public function viewAny(User $user): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('shops.view_any');
     }
 
     public function view(User $user, Shop $shop): bool
     {
-        return $this->isSuperAdmin($user) || $this->managesShopId($user, $shop->id);
+        return $user->hasPermission('shops.view_any')
+            || ($user->hasPermission('shops.view') && $this->managesShopId($user, $shop->id));
     }
 
     public function create(User $user): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('shops.create');
     }
 
     public function update(User $user, Shop $shop): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('shops.update');
     }
 
     public function delete(User $user, Shop $shop): bool
     {
-        return $this->isSuperAdmin($user);
+        return $user->hasPermission('shops.delete');
     }
 }

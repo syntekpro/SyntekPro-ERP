@@ -11,6 +11,7 @@ return [
         'cash_account_code' => env('GL_POS_CASH_ACCOUNT_CODE', '1010'),
         'sales_revenue_account_code' => env('GL_POS_SALES_REVENUE_ACCOUNT_CODE', '4100'),
         'vat_payable_account_code' => env('GL_POS_VAT_PAYABLE_ACCOUNT_CODE', '2200'),
+        'excise_tax_payable_account_code' => env('GL_POS_EXCISE_TAX_PAYABLE_ACCOUNT_CODE', '2300'),
         'cogs_account_code' => env('GL_POS_COGS_ACCOUNT_CODE', '5100'),
     ],
 

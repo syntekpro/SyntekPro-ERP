@@ -9,7 +9,7 @@ class DebitNotePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('debit_notes.view');
     }
 
     public function view(User $user, DebitNote $debitNote): bool
@@ -19,6 +19,6 @@ class DebitNotePolicy
 
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('debit_notes.create');
     }
 }

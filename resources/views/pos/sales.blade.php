@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#1daeff">
         <title>POS | {{ config('app.name', 'SyntekPro ERP') }}</title>
-        <link rel="icon" type="image/png" href="{{ asset('images/icon-main.png') }}">
-        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
+        <link rel="manifest" href="{{ route('manifest') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/icon-main-192.png') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -76,6 +76,10 @@
                     <div class="mt-3 flex items-center justify-between text-sm text-slate-300">
                         <span>VAT</span>
                         <span id="vat-value">0.00</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-sm text-slate-300">
+                        <span>Excise</span>
+                        <span id="excise-value">0.00</span>
                     </div>
                     <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-4 text-lg font-semibold text-white">
                         <span>Total</span>

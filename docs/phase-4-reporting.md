@@ -65,6 +65,8 @@ Future Phase 2 implementation should add:
 
 ## Seller Identity Configuration (Needs Product Decision)
 
+Superseded in Phase 11: seller legal name and VAT number now live in the singleton `business_settings` table and are edited through Hub Settings. The old env fallback below is retained only as historical Phase 4 context.
+
 Implemented lookup order:
 1. Per-shop values (`shops.legal_name`, `shops.vat_registration_number`)
 2. Fallback global values (`ZATCA_SELLER_LEGAL_NAME`, `ZATCA_SELLER_VAT_NUMBER`)

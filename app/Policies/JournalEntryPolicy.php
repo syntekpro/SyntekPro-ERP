@@ -9,18 +9,17 @@ class JournalEntryPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant() || $user->isShopManager();
+        return $user->hasPermission('journal_entries.view');
     }
 
     public function view(User $user, JournalEntry $journalEntry): bool
     {
-        return $user->isSuperAdmin()
-            || $user->isAccountant()
-            || ($user->isShopManager() && $user->shop_id === $journalEntry->shop_id);
+        return $user->hasPermission('journal_entries.view')
+            && ($user->role?->value !== 'shop_manager' || $user->shop_id === $journalEntry->shop_id);
     }
 
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAccountant();
+        return $user->hasPermission('journal_entries.create');
     }
 }

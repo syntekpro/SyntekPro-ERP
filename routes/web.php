@@ -18,6 +18,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\ManifestController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ThemeStylesController;
 use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\SupplierBillController;
 use App\Http\Controllers\CreditNoteController;
@@ -28,6 +31,8 @@ use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login')->name('home');
+Route::get('/manifest.json', ManifestController::class)->name('manifest');
+Route::get('/theme.css', ThemeStylesController::class)->name('theme.css');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -47,6 +52,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/fiscal-periods/{period}/close', [FiscalPeriodController::class, 'close'])->name('fiscal-periods.close');
     Route::post('/fiscal-periods/{period}/reopen', [FiscalPeriodController::class, 'reopen'])->name('fiscal-periods.reopen');
     Route::get('/pos/sales', [PosSaleController::class, 'index'])->name('pos.sales');
+    Route::get('/settings', SettingsController::class)->name('settings.index');
     Route::resource('shops', ShopController::class)->only(['index', 'create', 'edit']);
     Route::resource('warehouses', WarehouseController::class)->only(['index', 'create', 'edit']);
     Route::resource('products', ProductController::class)->only(['index', 'create', 'edit']);

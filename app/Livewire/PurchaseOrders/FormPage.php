@@ -93,7 +93,7 @@ class FormPage extends Component
         } else {
             $purchaseOrder = DB::transaction(function () use ($validated, $documentNumberService): PurchaseOrder {
                 return PurchaseOrder::query()->create([
-                    'po_number' => $documentNumberService->next('purchase_orders', 'PO-'),
+                    'po_number' => $documentNumberService->next('purchase_orders'),
                     'supplier_id' => $validated['supplier_id'],
                     'warehouse_id' => $validated['warehouse_id'],
                     'notes' => $validated['notes'] === '' ? null : $validated['notes'],

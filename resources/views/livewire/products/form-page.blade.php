@@ -42,7 +42,17 @@
                 <input wire:model.live="vat_rate" type="number" step="0.01" min="0" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
                 @error('vat_rate') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
             </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-stone-200">Excise rate (%)</label>
+                <input wire:model.live="excise_rate" type="number" step="0.01" min="0" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
+                @error('excise_rate') <p class="mt-2 text-sm text-rose-300">{{ $message }}</p> @enderror
+            </div>
         </div>
+
+        <label class="mt-5 flex items-center gap-3 text-sm text-stone-300">
+            <input wire:model="is_excise_applicable" type="checkbox" class="h-4 w-4 rounded border-white/10 bg-stone-900 text-amber-400" />
+            <span>Excise tax applies to this product</span>
+        </label>
 
         <label class="mt-5 flex items-center gap-3 text-sm text-stone-300">
             <input wire:model="is_active" type="checkbox" class="h-4 w-4 rounded border-white/10 bg-stone-900 text-amber-400" />

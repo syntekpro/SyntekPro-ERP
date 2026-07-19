@@ -14,7 +14,7 @@ class Product extends Model
     {
         static::creating(function (Product $product): void {
             if ($product->average_cost === null) {
-                $product->average_cost = $product->cost_price;
+                $product->average_cost = $product->cost_price ?? 0;
             }
         });
     }
@@ -27,6 +27,8 @@ class Product extends Model
         'cost_price',
         'average_cost',
         'vat_rate',
+        'is_excise_applicable',
+        'excise_rate',
         'is_active',
     ];
 
@@ -37,6 +39,8 @@ class Product extends Model
             'cost_price' => 'decimal:2',
             'average_cost' => 'decimal:4',
             'vat_rate' => 'decimal:2',
+            'is_excise_applicable' => 'boolean',
+            'excise_rate' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }

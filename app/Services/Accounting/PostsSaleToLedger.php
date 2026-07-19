@@ -28,6 +28,7 @@ class PostsSaleToLedger
         $accountsReceivableAccount = $this->resolveRequiredAccount(config('accounting.receivables.accounts_receivable_account_code'));
         $salesRevenueAccount = $this->resolveRequiredAccount(config('accounting.pos.sales_revenue_account_code'));
         $vatPayableAccount = $this->resolveRequiredAccount(config('accounting.pos.vat_payable_account_code'));
+        $exciseTaxPayableAccount = $this->resolveRequiredAccount(config('accounting.pos.excise_tax_payable_account_code'));
         $cogsAccount = $this->resolveRequiredAccount(config('accounting.pos.cogs_account_code'));
         $inventoryAccount = $this->resolveRequiredAccount(config('accounting.purchasing.inventory_account_code'));
 
@@ -53,6 +54,15 @@ class PostsSaleToLedger
                 'debit' => 0,
                 'credit' => $sale->vat_total,
                 'description' => 'Output VAT',
+            ];
+        }
+
+        if ((float) $sale->excise_total > 0) {
+            $lines[] = [
+                'account_id' => $exciseTaxPayableAccount->id,
+                'debit' => 0,
+                'credit' => $sale->excise_total,
+                'description' => 'Excise Tax Payable',
             ];
         }
 

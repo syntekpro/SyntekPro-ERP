@@ -26,8 +26,10 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'sku',
         'barcode',
+        'image_path',
         'base_unit_id',
         'price',
         'cost_price',
@@ -35,6 +37,8 @@ class Product extends Model
         'vat_rate',
         'is_excise_applicable',
         'excise_rate',
+        'stock_min',
+        'stock_max',
         'is_active',
     ];
 
@@ -48,6 +52,8 @@ class Product extends Model
             'vat_rate' => 'decimal:2',
             'is_excise_applicable' => 'boolean',
             'excise_rate' => 'decimal:2',
+            'stock_min' => 'decimal:3',
+            'stock_max' => 'decimal:3',
             'is_active' => 'boolean',
         ];
     }

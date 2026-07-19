@@ -1,76 +1,198 @@
 <section class="space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Hub module</p>
-            <h1 class="mt-3 text-4xl font-semibold text-white">Products</h1>
-            <p class="mt-3 max-w-2xl text-sm text-stone-300">Manage the shared product catalog used across every shop in the chain.</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Hub module</p>
+            <h1 class="mt-3 text-4xl font-semibold text-ink">Products</h1>
+            <p class="mt-3 max-w-2xl text-sm text-muted">Manage the shared catalog, unit setup, and pricing defaults used across every shop.</p>
         </div>
 
         @can('create', \App\Models\Product::class)
-            <a href="{{ route('products.create') }}" class="inline-flex rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Create product</a>
+            <x-button :href="route('products.create')">
+                <x-lucide-plus class="h-4 w-4" />
+                Create New
+            </x-button>
         @endcan
     </div>
 
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
-        <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <h2 class="text-lg font-semibold text-white">Catalog</h2>
-                <p class="mt-1 text-sm text-stone-400">Search by product name, SKU, or barcode.</p>
+    <div class="rounded-ui border border-line bg-surface p-6 shadow-sm">
+        @if (session('status'))
+            <div class="mb-5 rounded-ui border border-line bg-panel px-4 py-3 text-sm text-ink">{{ session('status') }}</div>
+        @endif
+
+        <div class="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-end">
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <div class="md:col-span-2 xl:col-span-2">
+                    <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Search</label>
+                    <div class="relative">
+                        <x-lucide-search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+                        <input wire:model.live.debounce.300ms="search" type="search" placeholder="Name, SKU, or barcode" class="w-full rounded-ui border border-line bg-panel py-2.5 pl-9 pr-3 text-sm text-ink outline-none placeholder:text-subtle" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Status</label>
+                    <select wire:model.live="statusFilter" class="w-full rounded-ui border border-line bg-panel px-3 py-2.5 text-sm text-ink outline-none">
+                        <option value="all">All</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Base unit</label>
+                    <select wire:model.live="unitFilter" class="w-full rounded-ui border border-line bg-panel px-3 py-2.5 text-sm text-ink outline-none">
+                        <option value="">All units</option>
+                        @foreach ($unitOptions as $unitOption)
+                            <option value="{{ $unitOption->id }}">{{ $unitOption->code }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">VAT</label>
+                    <select wire:model.live="vatRateFilter" class="w-full rounded-ui border border-line bg-panel px-3 py-2.5 text-sm text-ink outline-none">
+                        <option value="">All VAT rates</option>
+                        @foreach ($vatRateOptions as $vatRate)
+                            <option value="{{ $vatRate }}">{{ number_format((float) $vatRate, 2) }}%</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Price category</label>
+                    <select wire:model.live="priceCategoryFilter" class="w-full rounded-ui border border-line bg-panel px-3 py-2.5 text-sm text-ink outline-none">
+                        <option value="">All categories</option>
+                        @foreach ($priceCategoryOptions as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
-            <input wire:model.live.debounce.300ms="search" type="search" placeholder="Search by name, SKU, or barcode" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-sm text-stone-100 outline-none placeholder:text-stone-500 lg:max-w-sm" />
+            <div class="flex flex-wrap gap-2 xl:justify-end">
+                <x-button variant="secondary" wire:click="clearFilters">
+                    <x-lucide-filter-x class="h-4 w-4" />
+                    Clear
+                </x-button>
+                <x-button variant="secondary" :href="route('products.export', ['format' => 'xlsx'])">
+                    <x-lucide-download class="h-4 w-4" />
+                    Export
+                </x-button>
+                <x-button variant="secondary" :href="route('products.import')">
+                    <x-lucide-upload class="h-4 w-4" />
+                    Import
+                </x-button>
+            </div>
         </div>
 
-        <div class="overflow-hidden rounded-2xl border border-white/10">
-            <table class="min-w-full divide-y divide-white/10 text-left text-sm">
-                <thead class="bg-stone-900/80 text-stone-400">
-                    <tr>
-                        <th class="px-4 py-3 font-medium">Name</th>
-                        <th class="px-4 py-3 font-medium">SKU</th>
-                        <th class="px-4 py-3 font-medium">Base unit</th>
-                        <th class="px-4 py-3 font-medium">Price</th>
-                        <th class="px-4 py-3 font-medium">Cost</th>
-                        <th class="px-4 py-3 font-medium">VAT</th>
-                        <th class="px-4 py-3 font-medium">Excise</th>
-                        <th class="px-4 py-3 font-medium">Status</th>
-                        <th class="px-4 py-3 font-medium text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-white/10 bg-stone-950/60 text-stone-200">
-                    @forelse ($products as $product)
-                        <tr>
-                            <td class="px-4 py-4 font-medium text-white">{{ $product->name }}</td>
-                            <td class="px-4 py-4">{{ $product->sku }}</td>
-                            <td class="px-4 py-4">{{ $product->baseUnit?->code ?? 'PCS' }}</td>
-                            <td class="px-4 py-4">SAR {{ number_format((float) $product->price, 2) }}</td>
-                            <td class="px-4 py-4">SAR {{ number_format((float) $product->cost_price, 2) }}</td>
-                            <td class="px-4 py-4">{{ number_format((float) $product->vat_rate, 2) }}%</td>
-                            <td class="px-4 py-4">{{ $product->is_excise_applicable ? number_format((float) $product->excise_rate, 2).'%' : 'No' }}</td>
-                            <td class="px-4 py-4">
-                                <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $product->is_active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200' }}">{{ $product->is_active ? 'Active' : 'Inactive' }}</span>
-                            </td>
-                            <td class="px-4 py-4 text-right">
-                                <div class="flex justify-end gap-2">
-                                    @can('update', $product)
-                                        <a href="{{ route('products.edit', $product) }}" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10">Edit</a>
-                                    @endcan
-                                    @can('update', $product)
-                                        <button wire:click="setActive({{ $product->id }}, {{ $product->is_active ? 'false' : 'true' }})" wire:confirm="{{ $product->is_active ? 'Deactivate' : 'Activate' }} this product?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">{{ $product->is_active ? 'Deactivate' : 'Activate' }}</button>
-                                    @endcan
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="px-4 py-10 text-center text-stone-400">No products match the current filter.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+        @if (count($selectedProductIds) > 0)
+            <div class="mt-5 flex flex-col gap-3 rounded-ui border border-line bg-panel px-4 py-3 text-sm text-ink md:flex-row md:items-center md:justify-between">
+                <span class="font-semibold">{{ count($selectedProductIds) }} selected</span>
+                <div class="flex flex-wrap gap-2">
+                    <x-button variant="secondary" wire:click="bulkSetActive(true)">
+                        <x-lucide-circle-check class="h-4 w-4" />
+                        Activate
+                    </x-button>
+                    <x-button variant="danger" wire:click="bulkSetActive(false)" wire:confirm="Deactivate selected products?">
+                        <x-lucide-circle-off class="h-4 w-4" />
+                        Deactivate
+                    </x-button>
+                </div>
+            </div>
+        @endif
 
-        <div class="mt-5">
-            {{ $products->links() }}
-        </div>
+        @if ($products->isEmpty())
+            <x-empty-state class="mt-6" icon="package-search" title="No products found" message="Adjust the filters or create the first catalog item." :action-label="auth()->user()->can('create', \App\Models\Product::class) ? 'Create New' : null" :action-href="auth()->user()->can('create', \App\Models\Product::class) ? route('products.create') : null" />
+        @else
+            <div class="mt-6 overflow-x-auto rounded-ui border border-line table-baseline">
+                <table class="min-w-full text-left text-sm">
+                    <thead class="text-muted">
+                        <tr>
+                            <th class="w-12 px-4 py-3 font-medium">
+                                <span class="sr-only">Select</span>
+                            </th>
+                            @foreach ([
+                                'sku' => 'Code',
+                                'name' => 'Name',
+                                'price' => 'Sales price',
+                                'cost_price' => 'Purchase price',
+                                'base_unit_id' => 'Base unit',
+                            ] as $field => $label)
+                                <th class="px-4 py-3 font-medium">
+                                    <button type="button" wire:click="sortBy('{{ $field }}')" class="inline-flex items-center gap-1 text-left font-semibold text-muted hover:text-ink">
+                                        {{ $label }}
+                                        @if ($sortField === $field)
+                                            @if ($sortDirection === 'asc')
+                                                <x-lucide-arrow-up class="h-3.5 w-3.5" />
+                                            @else
+                                                <x-lucide-arrow-down class="h-3.5 w-3.5" />
+                                            @endif
+                                        @else
+                                            <x-lucide-arrow-up-down class="h-3.5 w-3.5 text-subtle" />
+                                        @endif
+                                    </button>
+                                </th>
+                            @endforeach
+                            <th class="px-4 py-3 font-medium">VAT</th>
+                            <th class="px-4 py-3 font-medium">Status</th>
+                            <th class="px-4 py-3 font-medium text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line text-ink">
+                        @foreach ($products as $product)
+                            <tr class="group bg-surface transition hover:bg-panel">
+                                <td class="px-4 py-4">
+                                    <input wire:model.live="selectedProductIds" value="{{ $product->id }}" type="checkbox" class="h-4 w-4 rounded border-line bg-panel text-brass" />
+                                </td>
+                                <td class="px-4 py-4 figure-mono text-muted">{{ $product->sku }}</td>
+                                <td class="px-4 py-4">
+                                    <div class="font-semibold text-ink">{{ $product->name }}</div>
+                                    <div class="mt-1 text-xs text-subtle">{{ $product->barcode ?: 'No barcode' }}</div>
+                                </td>
+                                <td class="px-4 py-4 figure-mono">SAR {{ number_format((float) $product->price, 2) }}</td>
+                                <td class="px-4 py-4 figure-mono">SAR {{ number_format((float) $product->cost_price, 2) }}</td>
+                                <td class="px-4 py-4">{{ $product->baseUnit?->code ?? 'PCS' }}</td>
+                                <td class="px-4 py-4 figure-mono">{{ number_format((float) $product->vat_rate, 2) }}%</td>
+                                <td class="px-4 py-4">
+                                    <x-status-badge :tone="$product->is_active ? 'success' : 'danger'">{{ $product->is_active ? 'Active' : 'Inactive' }}</x-status-badge>
+                                </td>
+                                <td class="px-4 py-4 text-right">
+                                    <details class="relative inline-block text-left">
+                                        <summary class="inline-flex cursor-pointer items-center rounded-ui border border-line p-2 text-muted transition hover:bg-panel hover:text-ink">
+                                            <x-lucide-more-vertical class="h-4 w-4" />
+                                            <span class="sr-only">Open row actions</span>
+                                        </summary>
+                                        <div class="absolute right-0 z-20 mt-2 w-56 rounded-ui border border-line bg-surface p-2 text-sm shadow-xl">
+                                            @can('update', $product)
+                                                <a href="{{ route('products.edit', $product) }}" class="flex items-center gap-2 rounded-ui px-3 py-2 text-ink hover:bg-panel">
+                                                    <x-lucide-pencil class="h-4 w-4" />
+                                                    Edit
+                                                </a>
+                                                <button type="button" wire:click="setActive({{ $product->id }}, {{ $product->is_active ? 'false' : 'true' }})" wire:confirm="{{ $product->is_active ? 'Deactivate' : 'Activate' }} this product?" class="flex w-full items-center gap-2 rounded-ui px-3 py-2 text-left text-ink hover:bg-panel">
+                                                    <x-lucide-power class="h-4 w-4" />
+                                                    {{ $product->is_active ? 'Deactivate' : 'Activate' }}
+                                                </button>
+                                            @endcan
+                                            <a href="{{ route('products.edit', $product) }}#units" class="flex items-center gap-2 rounded-ui px-3 py-2 text-ink hover:bg-panel">
+                                                <x-lucide-ruler class="h-4 w-4" />
+                                                View unit conversions
+                                            </a>
+                                            <a href="{{ route('products.edit', $product) }}#pricing" class="flex items-center gap-2 rounded-ui px-3 py-2 text-ink hover:bg-panel">
+                                                <x-lucide-tags class="h-4 w-4" />
+                                                View price overrides
+                                            </a>
+                                        </div>
+                                    </details>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                {{ $products->links() }}
+            </div>
+        @endif
     </div>
 </section>

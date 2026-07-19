@@ -26,6 +26,7 @@
                             <th class="px-4 py-3">Total</th>
                             <th class="px-4 py-3">Refund</th>
                             <th class="px-4 py-3">Applied to AR</th>
+                            <th class="px-4 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/10 bg-stone-950/40 text-stone-200">
@@ -38,9 +39,10 @@
                                 <td class="px-4 py-3">SAR {{ number_format((float) $creditNote->total, 2) }}</td>
                                 <td class="px-4 py-3">SAR {{ number_format((float) $creditNote->refund_amount, 2) }}</td>
                                 <td class="px-4 py-3">SAR {{ number_format((float) $creditNote->applied_to_sale_balance, 2) }}</td>
+                                <td class="px-4 py-3 text-right"><x-document-actions type="credit-note" :id="$creditNote->id" /></td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="px-4 py-10 text-center text-stone-400">No credit notes posted yet.</td></tr>
+                            <tr><td colspan="8" class="px-4 py-10 text-center text-stone-400">No credit notes posted yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

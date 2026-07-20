@@ -10,17 +10,22 @@ class ChartOfAccountsSeeder extends Seeder
 {
     public function run(): void
     {
+        $pdcReceivableCode = (string) config('accounting.cheques.pdc_receivable_account_code', '1160');
+        $pdcPayableCode = (string) config('accounting.cheques.pdc_payable_account_code', '2150');
+
         $accounts = [
             ['code' => '1000', 'name' => 'Assets', 'account_type' => AccountType::Asset, 'parent_code' => null],
             ['code' => '1010', 'name' => 'Cash on Hand', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1020', 'name' => 'Bank Account', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1100', 'name' => 'Accounts Receivable Control', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1150', 'name' => 'Due from Supplier - Returns', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
+            ['code' => $pdcReceivableCode, 'name' => 'Post-Dated Cheques Receivable', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1200', 'name' => 'Inventory', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
             ['code' => '1300', 'name' => 'VAT Receivable', 'account_type' => AccountType::Asset, 'parent_code' => '1000'],
 
             ['code' => '2000', 'name' => 'Liabilities', 'account_type' => AccountType::Liability, 'parent_code' => null],
             ['code' => '2100', 'name' => 'Accounts Payable Control', 'account_type' => AccountType::Liability, 'parent_code' => '2000'],
+            ['code' => $pdcPayableCode, 'name' => 'Post-Dated Cheques Payable', 'account_type' => AccountType::Liability, 'parent_code' => '2000'],
             ['code' => '2200', 'name' => 'VAT Payable', 'account_type' => AccountType::Liability, 'parent_code' => '2000'],
             ['code' => '2300', 'name' => 'Excise Tax Payable', 'account_type' => AccountType::Liability, 'parent_code' => '2000'],
 

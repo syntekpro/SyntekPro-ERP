@@ -35,6 +35,9 @@
 
             <div class="mt-8 flex gap-3">
                 <button type="submit" class="rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Record payment</button>
+                @can('create', \App\Models\Cheque::class)
+                    <a href="{{ route('cheques.create', ['sale_id' => $sale->id]) }}" class="rounded-2xl border border-amber-300/40 px-5 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/10">Record cheque instead</a>
+                @endcan
                 <a href="{{ route('customer-receivables.index') }}" class="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/10">Cancel</a>
             </div>
         </form>

@@ -81,4 +81,9 @@ class Sale extends Model
     {
         return $this->hasMany(CreditNote::class);
     }
+
+    public function cheques(): HasMany
+    {
+        return $this->hasMany(Cheque::class);
+    }
 }

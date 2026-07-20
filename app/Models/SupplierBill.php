@@ -81,4 +81,9 @@ class SupplierBill extends Model
     {
         return $this->hasMany(DebitNote::class);
     }
+
+    public function cheques(): HasMany
+    {
+        return $this->hasMany(Cheque::class);
+    }
 }

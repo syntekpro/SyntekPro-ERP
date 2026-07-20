@@ -37,6 +37,7 @@
             $canSettings = (bool) $currentUser?->hasPermission('settings.manage');
             $canReports = $currentUser?->isSuperAdmin() || $currentUser?->isShopManager() || $currentUser?->isAccountant();
             $canFinancialReports = $currentUser?->isSuperAdmin() || $currentUser?->isAccountant();
+            $canCheques = (bool) $currentUser?->hasPermission('cheques.view');
             $collapsedSections = $currentUser?->navigation_state['collapsed_sections'] ?? [];
             $isActive = function (array|string $patterns): bool {
                 foreach ((array) $patterns as $pattern) {
@@ -70,6 +71,7 @@
                 ['key' => 'accounting', 'label' => 'Accounting', 'icon' => 'landmark', 'items' => [
                     ['label' => 'Accounts', 'route' => 'accounts.index', 'patterns' => 'accounts.*', 'icon' => 'book-open', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Account::class)],
                     ['label' => 'Journal Entries', 'route' => 'journal-entries.index', 'patterns' => 'journal-entries.*', 'icon' => 'notebook-tabs', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\JournalEntry::class)],
+                    ['label' => 'Cheques Register', 'route' => 'cheques.index', 'patterns' => 'cheques.*', 'icon' => 'scroll-text', 'visible' => $canCheques],
                     ['label' => 'Fiscal Periods', 'route' => 'fiscal-periods.index', 'patterns' => 'fiscal-periods.*', 'icon' => 'calendar-days', 'visible' => $canFinancialReports],
                 ]],
                 ['key' => 'reports', 'label' => 'Reports', 'icon' => 'chart-column', 'items' => [

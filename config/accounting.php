@@ -27,6 +27,11 @@ return [
         'payment_cash_or_bank_account_code' => env('GL_RECEIVABLES_PAYMENT_CASH_ACCOUNT_CODE', '1020'),
     ],
 
+    'cheques' => [
+        'pdc_receivable_account_code' => env('GL_CHEQUES_PDC_RECEIVABLE_ACCOUNT_CODE', '1160'),
+        'pdc_payable_account_code' => env('GL_CHEQUES_PDC_PAYABLE_ACCOUNT_CODE', '2150'),
+    ],
+
     'returns' => [
         'damaged_goods_account_code' => env('GL_RETURNS_DAMAGED_GOODS_ACCOUNT_CODE', '5500'),
         'due_from_supplier_account_code' => env('GL_RETURNS_DUE_FROM_SUPPLIER_ACCOUNT_CODE', '1150'),

@@ -16,6 +16,10 @@ class DefaultPermissions
             'customers.view' => 'View customers',
             'customers.create' => 'Create customers',
             'customers.update' => 'Update customers',
+            'cheques.view' => 'View cheque register',
+            'cheques.record' => 'Record post-dated cheques',
+            'cheques.clear' => 'Mark cheques as cleared',
+            'cheques.bounce' => 'Mark cheques as bounced',
             'credit_notes.view' => 'View credit notes',
             'credit_notes.create' => 'Create credit notes',
             'debit_notes.view' => 'View debit notes',
@@ -66,6 +70,7 @@ class DefaultPermissions
             UserRole::SuperAdmin->value => array_keys(self::labels()),
             UserRole::Accountant->value => [
                 'accounts.view', 'customers.view', 'customers.create', 'customers.update',
+                'cheques.view', 'cheques.record', 'cheques.clear', 'cheques.bounce',
                 'credit_notes.view', 'credit_notes.create', 'debit_notes.view', 'debit_notes.create',
                 'journal_entries.view', 'journal_entries.create', 'products.view', 'purchase_orders.view',
                 'purchase_orders.create', 'purchase_orders.update', 'purchase_orders.submit',

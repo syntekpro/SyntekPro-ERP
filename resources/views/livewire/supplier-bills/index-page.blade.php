@@ -36,6 +36,9 @@
                                     @can('recordPayment', $bill)
                                         <a href="{{ route('supplier-bills.payments.create', $bill) }}" class="rounded-xl border border-emerald-400/20 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/10">Record payment</a>
                                     @endcan
+                                    @can('create', \App\Models\Cheque::class)
+                                        <a href="{{ route('cheques.create', ['supplier_bill_id' => $bill->id]) }}" class="rounded-xl border border-amber-400/20 px-3 py-2 text-xs font-semibold text-amber-200 transition hover:bg-amber-500/10">Record cheque</a>
+                                    @endcan
                                 </div>
                                 <x-document-actions type="supplier-bill" :id="$bill->id" />
                             </td>

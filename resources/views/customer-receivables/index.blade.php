@@ -35,6 +35,9 @@
                                     <div class="mb-2 flex justify-end gap-2">
                                         <a href="{{ route('credit-notes.create', ['sale_id' => $sale->id]) }}" class="rounded-xl border border-sky-400/20 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:bg-sky-500/10">Create credit note</a>
                                         <a href="{{ route('customer-receivables.payments.create', $sale) }}" class="rounded-xl border border-emerald-400/20 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/10">Record payment</a>
+                                        @can('create', \App\Models\Cheque::class)
+                                            <a href="{{ route('cheques.create', ['sale_id' => $sale->id]) }}" class="rounded-xl border border-amber-400/20 px-3 py-2 text-xs font-semibold text-amber-200 transition hover:bg-amber-500/10">Record cheque</a>
+                                        @endcan
                                     </div>
                                     <x-document-actions type="sale" :id="$sale->id" :allow-receipt="true" />
                                 </td>

@@ -22,7 +22,7 @@
             <section class="w-full rounded-ui border border-line bg-surface p-8 backdrop-blur">
                 <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[16rem]" />
                 <p class="mt-3 text-sm uppercase tracking-[0.3em] text-brass">SyntekPro ERP</p>
-                <h1 class="mt-4 text-3xl font-semibold">Hub sign in</h1>
+                <h1 class="mt-4 text-3xl font-semibold">Back Office sign in</h1>
                 <p class="mt-2 text-sm text-muted">Use the seeded super-admin account or your assigned shop credentials.</p>
 
                 <form method="POST" action="{{ route('login.store') }}" class="mt-8 space-y-5">

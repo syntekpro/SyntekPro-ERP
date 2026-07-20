@@ -3,7 +3,7 @@
         <div>
             <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Chart of Accounts</p>
             <h1 class="mt-2 text-4xl font-semibold text-white">Chart of Accounts</h1>
-            <p class="mt-2 text-sm text-stone-300">Shared hub-level chart used by all shops for ledger postings.</p>
+            <p class="mt-2 text-sm text-stone-300">Shared Back Office chart used by all shops for ledger postings.</p>
         </div>
         @can('create', \App\Models\Account::class)
             <a href="{{ route('accounts.create') }}" class="rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Add account</a>

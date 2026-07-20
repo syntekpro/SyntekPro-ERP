@@ -1,6 +1,6 @@
 <section class="space-y-6">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Hub module</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Back Office module</p>
         <h1 class="mt-3 text-4xl font-semibold text-white">{{ $user ? 'Edit user' : 'Create user' }}</h1>
         <p class="mt-3 max-w-2xl text-sm text-stone-300">Assign role and, when needed, bind the user to a specific shop context.</p>
     </div>
@@ -29,7 +29,7 @@
             <div>
                 <label class="mb-2 block text-sm font-medium text-stone-200">Shop assignment</label>
                 <select wire:model.live="shop_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
-                    <option value="">Hub / none</option>
+                    <option value="">Back Office / none</option>
                     @foreach ($this->shopOptions as $shop)
                         <option value="{{ $shop->id }}">{{ $shop->name }}</option>
                     @endforeach

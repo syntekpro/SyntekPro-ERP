@@ -3,7 +3,7 @@
         <div>
             <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Supplier Management</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Suppliers</h1>
-            <p class="mt-3 max-w-2xl text-sm text-stone-300">Hub-level supplier master shared across all warehouse purchasing flows.</p>
+            <p class="mt-3 max-w-2xl text-sm text-stone-300">Back Office supplier master shared across all warehouse purchasing flows.</p>
         </div>
         <a href="{{ route('suppliers.create') }}" class="inline-flex rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Create supplier</a>
     </div>

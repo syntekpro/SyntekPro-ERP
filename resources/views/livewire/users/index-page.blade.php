@@ -1,9 +1,9 @@
 <section class="space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Hub module</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Back Office module</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Users</h1>
-            <p class="mt-3 max-w-2xl text-sm text-stone-300">Manage hub administrators, shop managers, and cashiers with explicit role and shop assignment.</p>
+            <p class="mt-3 max-w-2xl text-sm text-stone-300">Manage Back Office administrators, shop managers, and cashiers with explicit role and shop assignment.</p>
         </div>
 
         <a href="{{ route('users.create') }}" class="inline-flex rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Create user</a>
@@ -37,7 +37,7 @@
                             <td class="px-4 py-4 font-medium text-white">{{ $managedUser->name }}</td>
                             <td class="px-4 py-4">{{ $managedUser->email }}</td>
                             <td class="px-4 py-4">{{ str($managedUser->role->value)->replace('_', ' ')->title() }}</td>
-                            <td class="px-4 py-4">{{ $managedUser->shop?->name ?? 'Hub' }}</td>
+                            <td class="px-4 py-4">{{ $managedUser->shop?->name ?? 'Back Office' }}</td>
                             <td class="px-4 py-4">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $managedUser->is_active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200' }}">{{ $managedUser->is_active ? 'Active' : 'Inactive' }}</span>
                             </td>

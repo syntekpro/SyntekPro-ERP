@@ -1,8 +1,8 @@
 <section class="space-y-6">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Hub module</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Back Office module</p>
         <h1 class="mt-3 text-4xl font-semibold text-white">{{ $shop ? 'Edit shop' : 'Create shop' }}</h1>
-        <p class="mt-3 max-w-2xl text-sm text-stone-300">Define the hub-managed shop record and the path segment that resolves its tenant context.</p>
+        <p class="mt-3 max-w-2xl text-sm text-stone-300">Define the Back Office-managed shop record and the path segment that resolves its tenant context.</p>
     </div>
 
     <form wire:submit="save" class="rounded-3xl border border-white/10 bg-white/5 p-6">

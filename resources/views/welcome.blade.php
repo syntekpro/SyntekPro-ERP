@@ -85,7 +85,7 @@
                                                 <div class="max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-2xl shadow-black/25 backdrop-blur">
                                                     <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">SyntekPro ERP</p>
                                                     <h1 class="mt-4 text-3xl font-semibold">Redirecting to sign in</h1>
-                                                    <p class="mt-3 text-sm text-stone-300">The hub landing page is handled through the authenticated dashboard. If you are not redirected automatically, continue below.</p>
+                                                    <p class="mt-3 text-sm text-stone-300">The Back Office landing page is handled through the authenticated dashboard. If you are not redirected automatically, continue below.</p>
                                                     <a href="{{ route('login') }}" class="mt-6 inline-flex rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Go to login</a>
                                                 </div>
                                             </body>

@@ -114,7 +114,7 @@
                     <div class="rounded-ui border border-line bg-panel p-4">
                         <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[14rem]" />
                         <p class="mt-3 text-xs font-semibold uppercase tracking-[0.28em] text-brass">SyntekPro ERP</p>
-                        <h1 class="mt-2 text-xl font-semibold text-ink">Operations Hub</h1>
+                        <h1 class="mt-2 text-xl font-semibold text-ink">Back Office</h1>
                         <p class="mt-2 text-sm text-muted">Chain operations, finance, and administration.</p>
                     </div>
 

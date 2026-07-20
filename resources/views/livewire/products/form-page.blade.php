@@ -1,6 +1,6 @@
 <section class="space-y-6">
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Hub module</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Back Office module</p>
         <h1 class="mt-3 text-4xl font-semibold text-ink">{{ $product ? 'Edit product' : 'Create product' }}</h1>
         <p class="mt-3 max-w-2xl text-sm text-muted">Manage the catalog record, pricing, stock thresholds, unit conversions, and category overrides in one flow.</p>
     </div>

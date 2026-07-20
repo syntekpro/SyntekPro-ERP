@@ -1,7 +1,7 @@
 <section class="space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Hub module</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Back Office module</p>
             <h1 class="mt-3 text-4xl font-semibold text-ink">Products</h1>
             <p class="mt-3 max-w-2xl text-sm text-muted">Manage the shared catalog, unit setup, and pricing defaults used across every shop.</p>
         </div>

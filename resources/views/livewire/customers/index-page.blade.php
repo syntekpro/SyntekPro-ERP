@@ -3,7 +3,7 @@
         <div>
             <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Customer Management</p>
             <h1 class="mt-3 text-4xl font-semibold text-white">Customers</h1>
-            <p class="mt-3 max-w-2xl text-sm text-stone-300">Hub-level customer master shared across all shops and AR workflows.</p>
+            <p class="mt-3 max-w-2xl text-sm text-stone-300">Back Office customer master shared across all shops and AR workflows.</p>
         </div>
         <a href="{{ route('customers.create') }}" class="inline-flex rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Create customer</a>
     </div>

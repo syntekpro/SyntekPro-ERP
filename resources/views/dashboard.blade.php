@@ -6,7 +6,7 @@
     <section class="space-y-8">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Hub overview</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Back Office overview</p>
                 <h1 class="mt-3 text-4xl font-semibold text-white">SyntekPro ERP dashboard</h1>
                 <p class="mt-3 max-w-3xl text-sm text-stone-300">
                     Live operational visibility for shops, inventory, purchasing, and finance across the business.
@@ -15,7 +15,7 @@
 
             <div class="rounded-3xl border border-white/10 bg-stone-900/70 px-5 py-4 text-sm text-stone-300">
                 <p class="font-medium text-white">Signed in as {{ $user?->email ?? 'Guest' }}</p>
-                <p class="mt-1">Shop context: {{ $currentShopId ?? 'Hub context' }}</p>
+                <p class="mt-1">Viewing: {{ $currentShopId ?? 'Back Office' }}</p>
             </div>
         </div>
 

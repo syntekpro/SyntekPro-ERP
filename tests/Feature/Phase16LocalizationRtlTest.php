@@ -49,6 +49,28 @@ class Phase16LocalizationRtlTest extends TestCase
             ->assertSee('dir="rtl"', false);
     }
 
+    public function test_guest_locale_toggle_persists_in_session_and_changes_login_language(): void
+    {
+        BusinessSetting::query()->firstOrCreate(['singleton_key' => 1])->update([
+            'default_locale' => 'en',
+        ]);
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('lang="en"', false);
+
+        $this->from(route('login'))
+            ->post(route('locale.update'), [
+                'locale' => 'ar',
+            ])
+            ->assertRedirect(route('login'));
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('lang="ar"', false)
+            ->assertSee('dir="rtl"', false);
+    }
+
     public function test_financial_figures_render_ltr_with_western_numerals_under_arabic_locale(): void
     {
         $shop = Shop::query()->create([

@@ -44,7 +44,7 @@
             <div class="flex min-w-0 items-center gap-2">
                 <details class="header-menu relative hidden sm:block">
                     <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
-                        <x-lucide-buildings class="h-4 w-4" />
+                        <x-lucide-layout-dashboard class="h-4 w-4" />
                         <span class="max-w-[12rem] truncate">{{ $headerBrandText ?: $workspaceLabel }}</span>
                         <x-lucide-chevron-down class="h-3.5 w-3.5 text-subtle" />
                     </summary>

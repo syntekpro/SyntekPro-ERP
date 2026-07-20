@@ -9,7 +9,7 @@
         <input type="search" wire:model.live.debounce.300ms="search" placeholder="Search by bill number or supplier" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-sm text-stone-100 outline-none placeholder:text-stone-500 lg:max-w-sm" />
 
         <div class="mt-5 overflow-hidden rounded-2xl border border-white/10">
-            <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+            <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                 <thead class="bg-stone-900/80 text-stone-400">
                     <tr>
                         <th class="px-4 py-3">Bill</th>
@@ -18,7 +18,7 @@
                         <th class="px-4 py-3">Total</th>
                         <th class="px-4 py-3">Outstanding</th>
                         <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3 text-right">Actions</th>
+                        <th class="px-4 py-3 text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/10 bg-stone-950/40 text-stone-200">
@@ -30,7 +30,7 @@
                             <td class="px-4 py-3">SAR {{ number_format((float) $bill->total, 2) }}</td>
                             <td class="px-4 py-3">SAR {{ number_format((float) $bill->outstanding_balance, 2) }}</td>
                             <td class="px-4 py-3">{{ str($bill->status->value)->replace('_', ' ')->title() }}</td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="px-4 py-3 text-end">
                                 <div class="mb-2 flex justify-end gap-2">
                                     <a href="{{ route('debit-notes.create', ['supplier_bill_id' => $bill->id]) }}" class="rounded-xl border border-sky-400/20 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:bg-sky-500/10">Create debit note</a>
                                     @can('recordPayment', $bill)

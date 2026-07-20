@@ -19,7 +19,7 @@
         />
 
         <div class="mt-5 overflow-hidden rounded-2xl border border-white/10">
-            <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+            <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                 <thead class="bg-stone-900/80 text-stone-400">
                     <tr>
                         <th class="px-4 py-3 font-medium">Code</th>
@@ -27,7 +27,7 @@
                         <th class="px-4 py-3 font-medium">Type</th>
                         <th class="px-4 py-3 font-medium">Parent</th>
                         <th class="px-4 py-3 font-medium">Status</th>
-                        <th class="px-4 py-3 font-medium text-right">Actions</th>
+                        <th class="px-4 py-3 font-medium text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/10 bg-stone-950/60 text-stone-200">
@@ -40,7 +40,7 @@
                             <td class="px-4 py-4">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $account->is_active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200' }}">{{ $account->is_active ? 'Active' : 'Inactive' }}</span>
                             </td>
-                            <td class="px-4 py-4 text-right">
+                            <td class="px-4 py-4 text-end">
                                 <div class="flex justify-end gap-2">
                                     @can('update', $account)
                                         <a href="{{ route('accounts.edit', $account) }}" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10">Edit</a>

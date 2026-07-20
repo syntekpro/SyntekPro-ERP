@@ -12,6 +12,7 @@ class UserInterfacePreferenceController extends Controller
     {
         $validated = $request->validate([
             'theme_mode' => ['sometimes', 'nullable', Rule::in(['light', 'dark'])],
+            'locale' => ['sometimes', Rule::in(['en', 'ar'])],
             'navigation_state' => ['sometimes', 'array'],
             'navigation_state.collapsed_sections' => ['sometimes', 'array'],
             'navigation_state.collapsed_sections.*' => ['string', 'max:80'],
@@ -23,6 +24,11 @@ class UserInterfacePreferenceController extends Controller
             $user->theme_mode = $validated['theme_mode'];
         }
 
+        if (array_key_exists('locale', $validated)) {
+            $user->locale = $validated['locale'];
+            $request->session()->put('locale', $validated['locale']);
+        }
+
         if (array_key_exists('navigation_state', $validated)) {
             $user->navigation_state = array_replace_recursive($user->navigation_state ?? [], $validated['navigation_state']);
         }
@@ -31,6 +37,7 @@ class UserInterfacePreferenceController extends Controller
 
         return response()->json([
             'theme_mode' => $user->theme_mode,
+            'locale' => $user->locale,
             'navigation_state' => $user->navigation_state ?? [],
         ]);
     }

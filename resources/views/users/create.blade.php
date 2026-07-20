@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Create User')
+@section('title', __(''))
 
 @section('content')
     <livewire:users.form-page />

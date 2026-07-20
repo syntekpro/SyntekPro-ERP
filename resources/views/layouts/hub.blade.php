@@ -1,9 +1,11 @@
 @php
     $currentUser = auth()->user();
     $themePreference = $currentUser?->theme_mode ?? 'system';
+    $activeLocale = app()->getLocale();
+    $isRtl = $activeLocale === 'ar';
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $themePreference }}" data-theme-preference="{{ $themePreference }}">
+<html lang="{{ str_replace('_', '-', $activeLocale) }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}" data-theme="{{ $themePreference }}" data-theme-preference="{{ $themePreference }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +25,7 @@
         </script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
         <link rel="manifest" href="{{ route('manifest') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -50,44 +52,44 @@
             };
 
             $navSections = [
-                ['key' => 'operations', 'label' => 'Operations', 'icon' => 'warehouse', 'items' => [
-                    ['label' => 'Shops', 'route' => 'shops.index', 'patterns' => 'shops.*', 'icon' => 'store', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Shop::class)],
-                    ['label' => 'Warehouses', 'route' => 'warehouses.index', 'patterns' => 'warehouses.*', 'icon' => 'warehouse', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Warehouse::class)],
-                    ['label' => 'Products', 'route' => 'products.index', 'patterns' => 'products.*', 'icon' => 'package-search', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Product::class)],
-                    ['label' => 'Stock Transfers', 'route' => 'stock-transfers.index', 'patterns' => 'stock-transfers.*', 'icon' => 'arrow-left-right', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\StockTransfer::class)],
+                ['key' => 'operations', 'label' => __('Operations'), 'icon' => 'warehouse', 'items' => [
+                    ['label' => __('Shops'), 'route' => 'shops.index', 'patterns' => 'shops.*', 'icon' => 'store', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Shop::class)],
+                    ['label' => __('Warehouses'), 'route' => 'warehouses.index', 'patterns' => 'warehouses.*', 'icon' => 'warehouse', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Warehouse::class)],
+                    ['label' => __('Products'), 'route' => 'products.index', 'patterns' => 'products.*', 'icon' => 'package-search', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Product::class)],
+                    ['label' => __('Stock Transfers'), 'route' => 'stock-transfers.index', 'patterns' => 'stock-transfers.*', 'icon' => 'arrow-left-right', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\StockTransfer::class)],
                 ]],
-                ['key' => 'purchasing', 'label' => 'Purchasing', 'icon' => 'shopping-bag', 'items' => [
-                    ['label' => 'Suppliers', 'route' => 'suppliers.index', 'patterns' => 'suppliers.*', 'icon' => 'truck', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Supplier::class)],
-                    ['label' => 'Purchase Orders', 'route' => 'purchase-orders.index', 'patterns' => 'purchase-orders.*', 'icon' => 'clipboard-list', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\PurchaseOrder::class)],
-                    ['label' => 'Supplier Bills', 'route' => 'supplier-bills.index', 'patterns' => 'supplier-bills.*', 'icon' => 'receipt-text', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\SupplierBill::class)],
-                    ['label' => 'Debit Notes', 'route' => 'debit-notes.index', 'patterns' => 'debit-notes.*', 'icon' => 'undo-2', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\DebitNote::class)],
+                ['key' => 'purchasing', 'label' => __('Purchasing'), 'icon' => 'shopping-bag', 'items' => [
+                    ['label' => __('Suppliers'), 'route' => 'suppliers.index', 'patterns' => 'suppliers.*', 'icon' => 'truck', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Supplier::class)],
+                    ['label' => __('Purchase Orders'), 'route' => 'purchase-orders.index', 'patterns' => 'purchase-orders.*', 'icon' => 'clipboard-list', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\PurchaseOrder::class)],
+                    ['label' => __('Supplier Bills'), 'route' => 'supplier-bills.index', 'patterns' => 'supplier-bills.*', 'icon' => 'receipt-text', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\SupplierBill::class)],
+                    ['label' => __('Debit Notes'), 'route' => 'debit-notes.index', 'patterns' => 'debit-notes.*', 'icon' => 'undo-2', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\DebitNote::class)],
                 ]],
-                ['key' => 'sales', 'label' => 'Sales', 'icon' => 'badge-dollar-sign', 'items' => [
-                    ['label' => 'Customers', 'route' => 'customers.index', 'patterns' => 'customers.*', 'icon' => 'users', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Customer::class)],
-                    ['label' => 'Customer Receivables', 'route' => 'customer-receivables.index', 'patterns' => 'customer-receivables.*', 'icon' => 'wallet-cards', 'visible' => $canFinancialReports],
-                    ['label' => 'Credit Notes', 'route' => 'credit-notes.index', 'patterns' => 'credit-notes.*', 'icon' => 'rotate-ccw', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\CreditNote::class)],
+                ['key' => 'sales', 'label' => __('Sales'), 'icon' => 'badge-dollar-sign', 'items' => [
+                    ['label' => __('Customers'), 'route' => 'customers.index', 'patterns' => 'customers.*', 'icon' => 'users', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Customer::class)],
+                    ['label' => __('Customer Receivables'), 'route' => 'customer-receivables.index', 'patterns' => 'customer-receivables.*', 'icon' => 'wallet-cards', 'visible' => $canFinancialReports],
+                    ['label' => __('Credit Notes'), 'route' => 'credit-notes.index', 'patterns' => 'credit-notes.*', 'icon' => 'rotate-ccw', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\CreditNote::class)],
                     ['label' => 'POS', 'route' => 'pos.sales', 'patterns' => 'pos.sales', 'icon' => 'monitor-smartphone', 'visible' => $currentUser?->shop_id !== null],
                 ]],
-                ['key' => 'accounting', 'label' => 'Accounting', 'icon' => 'landmark', 'items' => [
-                    ['label' => 'Accounts', 'route' => 'accounts.index', 'patterns' => 'accounts.*', 'icon' => 'book-open', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Account::class)],
-                    ['label' => 'Journal Entries', 'route' => 'journal-entries.index', 'patterns' => 'journal-entries.*', 'icon' => 'notebook-tabs', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\JournalEntry::class)],
-                    ['label' => 'Cheques Register', 'route' => 'cheques.index', 'patterns' => 'cheques.*', 'icon' => 'scroll-text', 'visible' => $canCheques],
-                    ['label' => 'Fiscal Periods', 'route' => 'fiscal-periods.index', 'patterns' => 'fiscal-periods.*', 'icon' => 'calendar-days', 'visible' => $canFinancialReports],
+                ['key' => 'accounting', 'label' => __('Accounting'), 'icon' => 'landmark', 'items' => [
+                    ['label' => __('Accounts'), 'route' => 'accounts.index', 'patterns' => 'accounts.*', 'icon' => 'book-open', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Account::class)],
+                    ['label' => __('Journal Entries'), 'route' => 'journal-entries.index', 'patterns' => 'journal-entries.*', 'icon' => 'notebook-tabs', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\JournalEntry::class)],
+                    ['label' => __('Cheques Register'), 'route' => 'cheques.index', 'patterns' => 'cheques.*', 'icon' => 'scroll-text', 'visible' => $canCheques],
+                    ['label' => __('Fiscal Periods'), 'route' => 'fiscal-periods.index', 'patterns' => 'fiscal-periods.*', 'icon' => 'calendar-days', 'visible' => $canFinancialReports],
                 ]],
-                ['key' => 'reports', 'label' => 'Reports', 'icon' => 'chart-column', 'items' => [
-                    ['label' => 'Reports Overview', 'route' => 'reports.index', 'patterns' => 'reports.index', 'icon' => 'chart-no-axes-combined', 'visible' => $currentUser?->isSuperAdmin() || $currentUser?->isShopManager()],
-                    ['label' => 'Trial Balance', 'route' => 'reports.trial-balance', 'patterns' => 'reports.trial-balance', 'icon' => 'scale', 'visible' => $canReports],
-                    ['label' => 'Balance Sheet', 'route' => 'reports.balance-sheet', 'patterns' => 'reports.balance-sheet', 'icon' => 'columns-3', 'visible' => $canFinancialReports],
-                    ['label' => 'Income Statement', 'route' => 'reports.income-statement', 'patterns' => 'reports.income-statement', 'icon' => 'chart-line', 'visible' => $canReports],
-                    ['label' => 'Cash Flow Statement', 'route' => 'reports.cash-flow', 'patterns' => 'reports.cash-flow', 'icon' => 'waves', 'visible' => $canFinancialReports],
-                    ['label' => 'AP Aging', 'route' => 'reports.ap-aging', 'patterns' => 'reports.ap-aging', 'icon' => 'hourglass', 'visible' => $canFinancialReports],
-                    ['label' => 'AR Aging', 'route' => 'reports.ar-aging', 'patterns' => 'reports.ar-aging', 'icon' => 'timer-reset', 'visible' => $canFinancialReports],
+                ['key' => 'reports', 'label' => __('Reports'), 'icon' => 'chart-column', 'items' => [
+                    ['label' => __('Reports Overview'), 'route' => 'reports.index', 'patterns' => 'reports.index', 'icon' => 'chart-no-axes-combined', 'visible' => $currentUser?->isSuperAdmin() || $currentUser?->isShopManager()],
+                    ['label' => __('Trial Balance'), 'route' => 'reports.trial-balance', 'patterns' => 'reports.trial-balance', 'icon' => 'scale', 'visible' => $canReports],
+                    ['label' => __('Balance Sheet'), 'route' => 'reports.balance-sheet', 'patterns' => 'reports.balance-sheet', 'icon' => 'columns-3', 'visible' => $canFinancialReports],
+                    ['label' => __('Income Statement'), 'route' => 'reports.income-statement', 'patterns' => 'reports.income-statement', 'icon' => 'chart-line', 'visible' => $canReports],
+                    ['label' => __('Cash Flow Statement'), 'route' => 'reports.cash-flow', 'patterns' => 'reports.cash-flow', 'icon' => 'waves', 'visible' => $canFinancialReports],
+                    ['label' => __('AP Aging'), 'route' => 'reports.ap-aging', 'patterns' => 'reports.ap-aging', 'icon' => 'hourglass', 'visible' => $canFinancialReports],
+                    ['label' => __('AR Aging'), 'route' => 'reports.ar-aging', 'patterns' => 'reports.ar-aging', 'icon' => 'timer-reset', 'visible' => $canFinancialReports],
                 ]],
-                ['key' => 'administration', 'label' => 'Administration', 'icon' => 'settings-2', 'items' => [
-                    ['label' => 'Users', 'route' => 'users.index', 'patterns' => 'users.*', 'icon' => 'user-cog', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\User::class)],
-                    ['label' => 'Units', 'route' => 'units.index', 'patterns' => 'units.*', 'icon' => 'ruler', 'visible' => $canSettings],
-                    ['label' => 'Price Categories', 'route' => 'price-categories.index', 'patterns' => 'price-categories.*', 'icon' => 'tags', 'visible' => $canSettings],
-                    ['label' => 'Settings / Roles / Branding', 'route' => 'settings.index', 'patterns' => 'settings.*', 'icon' => 'sliders-horizontal', 'visible' => $canSettings],
+                ['key' => 'administration', 'label' => __('Administration'), 'icon' => 'settings-2', 'items' => [
+                    ['label' => __('Users'), 'route' => 'users.index', 'patterns' => 'users.*', 'icon' => 'user-cog', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\User::class)],
+                    ['label' => __('Units'), 'route' => 'units.index', 'patterns' => 'units.*', 'icon' => 'ruler', 'visible' => $canSettings],
+                    ['label' => __('Price Categories'), 'route' => 'price-categories.index', 'patterns' => 'price-categories.*', 'icon' => 'tags', 'visible' => $canSettings],
+                    ['label' => __('Settings / Roles / Branding'), 'route' => 'settings.index', 'patterns' => 'settings.*', 'icon' => 'sliders-horizontal', 'visible' => $canSettings],
                 ]],
             ];
 
@@ -101,40 +103,49 @@
                 'label' => $item['label'],
                 'section' => $section['label'],
                 'url' => route($item['route']),
-            ]))->prepend(['label' => 'Dashboard', 'section' => 'Home', 'url' => route('dashboard')])->values()->all();
+            ]))->prepend(['label' => __('Dashboard'), 'section' => __('Home'), 'url' => route('dashboard')])->values()->all();
         @endphp
 
         @if (config('app.demo_mode'))
             <div class="border-b border-brass/40 bg-brass/15 px-4 py-2 text-center text-sm font-semibold uppercase tracking-[0.2em] text-brass-contrast">
-                Demo Mode - Fictional data resets nightly
+                {{ __('Demo Mode - Fictional data resets nightly') }}
             </div>
         @endif
 
         <div class="min-h-screen lg:grid lg:grid-cols-[19rem_1fr]">
-            <aside class="border-b border-line bg-surface/90 backdrop-blur lg:border-b-0 lg:border-r">
+            <aside class="border-b border-line bg-surface/90 backdrop-blur lg:border-b-0 lg:border-e">
                 <div class="flex h-full flex-col px-4 py-5">
                     <div class="rounded-ui border border-line bg-panel p-4">
                         <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[14rem]" />
                         <p class="mt-3 text-xs font-semibold uppercase tracking-[0.28em] text-brass">SyntekPro ERP</p>
-                        <h1 class="mt-2 text-xl font-semibold text-ink">Back Office</h1>
-                        <p class="mt-2 text-sm text-muted">Chain operations, finance, and administration.</p>
+                        <h1 class="mt-2 text-xl font-semibold text-ink">{{ __('Back Office') }}</h1>
+                        <p class="mt-2 text-sm text-muted">{{ __('Chain operations, finance, and administration.') }}</p>
                     </div>
 
                     <div class="mt-4 grid gap-2">
-                        <button type="button" data-command-open class="flex items-center justify-between rounded-ui border border-line bg-panel px-3 py-2 text-left text-sm text-muted transition hover:border-brass/60 hover:text-ink">
-                            <span class="flex items-center gap-2"><x-lucide-search class="h-4 w-4" /> Search screens</span>
+                        <form method="POST" action="{{ route('locale.update') }}" class="rounded-ui border border-line bg-panel px-3 py-2">
+                            @csrf
+                            <label for="locale-switch" class="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Language') }}</label>
+                            <select id="locale-switch" name="locale" onchange="this.form.submit()" class="w-full bg-transparent text-sm text-ink outline-none">
+                                <option value="en" @selected($activeLocale === 'en')>{{ __('English') }}</option>
+                                <option value="ar" @selected($activeLocale === 'ar')>{{ __('Arabic') }}</option>
+                            </select>
+                        </form>
+
+                        <button type="button" data-command-open class="flex items-center justify-between rounded-ui border border-line bg-panel px-3 py-2 text-start text-sm text-muted transition hover:border-brass/60 hover:text-ink">
+                            <span class="flex items-center gap-2"><x-lucide-search class="h-4 w-4" /> {{ __('Search screens') }}</span>
                             <kbd class="font-mono text-[0.65rem] text-subtle">Ctrl K</kbd>
                         </button>
                         <button type="button" data-theme-toggle class="flex items-center justify-between rounded-ui border border-line px-3 py-2 text-sm font-semibold text-ink transition hover:border-brass/60">
-                            <span class="flex items-center gap-2"><x-lucide-sun-moon class="h-4 w-4" /> Appearance</span>
+                            <span class="flex items-center gap-2"><x-lucide-sun-moon class="h-4 w-4" /> {{ __('Appearance') }}</span>
                             <span data-theme-toggle-label class="text-xs uppercase tracking-[0.2em] text-subtle">{{ $themePreference }}</span>
                         </button>
                     </div>
 
-                    <nav class="mt-5 space-y-2 text-sm" aria-label="Primary navigation" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
+                    <nav class="mt-5 space-y-2 text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
                         <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'nav-link-active' : '' }}">
                             <x-lucide-layout-dashboard class="h-4 w-4" />
-                            <span>Dashboard</span>
+                            <span>{{ __('Dashboard') }}</span>
                         </a>
 
                         @foreach ($visibleSections as $section)
@@ -150,7 +161,7 @@
                                     </span>
                                     <x-lucide-chevron-down class="h-4 w-4 transition" data-nav-chevron />
                                 </button>
-                                <div id="nav-section-{{ $section['key'] }}" class="mt-1 space-y-1 pl-2 {{ $sectionCollapsed ? 'hidden' : '' }}" data-nav-section-panel>
+                                <div id="nav-section-{{ $section['key'] }}" class="mt-1 space-y-1 ps-2 {{ $sectionCollapsed ? 'hidden' : '' }}" data-nav-section-panel>
                                     @foreach ($section['items'] as $item)
                                         <a href="{{ route($item['route']) }}" class="nav-link nav-link-nested {{ $isActive($item['patterns']) ? 'nav-link-active' : '' }}">
                                             <x-dynamic-component :component="'lucide-'.$item['icon']" class="h-4 w-4" />
@@ -164,18 +175,18 @@
 
                     <div class="mt-6 rounded-ui border border-line bg-panel p-4 text-sm text-muted">
                         <p class="font-medium text-ink">{{ $currentUser?->email }}</p>
-                        <p class="mt-1 uppercase tracking-[0.24em] text-subtle">{{ $currentUser?->role?->value ?? 'user' }}</p>
+                        <p class="mt-1 uppercase tracking-[0.24em] text-subtle">{{ $currentUser?->role?->value ?? __('user') }}</p>
                     </div>
 
                     <form method="POST" action="{{ route('logout') }}" class="mt-auto pt-6">
                         @csrf
                         <button type="submit" class="btn-secondary w-full justify-center">
                             <x-lucide-log-out class="h-4 w-4" />
-                            Sign out
+                            {{ __('Sign out') }}
                         </button>
                     </form>
 
-                    <a href="https://syntekpro.com" target="_blank" rel="noopener noreferrer" class="mt-4 block text-center text-xs font-semibold uppercase tracking-[0.24em] text-subtle transition hover:text-brass">Powered by SyntekPro ERP</a>
+                    <a href="https://syntekpro.com" target="_blank" rel="noopener noreferrer" class="mt-4 block text-center text-xs font-semibold uppercase tracking-[0.24em] text-subtle transition hover:text-brass">{{ __('Powered by SyntekPro ERP') }}</a>
                 </div>
             </aside>
 
@@ -200,7 +211,7 @@
             <div class="mx-auto mt-20 max-w-2xl overflow-hidden rounded-ui border border-line bg-surface shadow-xl">
                 <div class="flex items-center gap-3 border-b border-line px-4 py-3">
                     <x-lucide-search class="h-5 w-5 text-muted" />
-                    <input data-command-input type="search" placeholder="Jump to a screen" class="w-full bg-transparent py-2 text-base text-ink outline-none placeholder:text-subtle" />
+                    <input data-command-input type="search" placeholder="{{ __('Jump to a screen') }}" class="w-full bg-transparent py-2 text-base text-ink outline-none placeholder:text-subtle" />
                     <kbd class="rounded border border-line px-2 py-1 font-mono text-xs text-subtle">Esc</kbd>
                 </div>
                 <div class="max-h-96 overflow-auto p-2" data-command-results></div>

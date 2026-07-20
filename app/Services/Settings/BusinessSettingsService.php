@@ -81,6 +81,7 @@ class BusinessSettingsService
             'quantity_decimal_places' => 3,
             'price_decimal_places' => 2,
             'date_format' => 'Y-m-d',
+            'default_locale' => 'en',
             'theme' => 'syntek-default',
             'mail_from_name' => config('mail.from.name'),
             'mail_from_address' => config('mail.from.address'),

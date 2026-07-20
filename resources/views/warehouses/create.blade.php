@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Create Warehouse')
+@section('title', __(''))
 
 @section('content')
     <livewire:warehouses.form-page />

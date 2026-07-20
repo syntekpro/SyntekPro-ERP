@@ -44,7 +44,7 @@
                     </div>
 
                     <div class="mt-4 overflow-hidden rounded-2xl border border-white/10">
-                        <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+                        <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                             <thead class="bg-stone-900/80 text-stone-400">
                                 <tr>
                                     <th class="px-4 py-3">Product</th>

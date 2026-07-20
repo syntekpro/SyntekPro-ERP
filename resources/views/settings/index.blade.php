@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Settings')
+@section('title', __('Settings'))
 
 @section('content')
     <livewire:settings.settings-page />

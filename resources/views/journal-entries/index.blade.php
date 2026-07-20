@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Journal Entries')
+@section('title', __(''))
 
 @section('content')
     <livewire:journal-entries.index-page />

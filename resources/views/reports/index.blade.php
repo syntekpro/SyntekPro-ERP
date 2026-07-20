@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Reports')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">
@@ -52,7 +52,7 @@
         <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
             <h2 class="text-xl font-semibold text-white">VAT report</h2>
             <div class="mt-4 overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+                <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                     <thead class="bg-stone-900/80 text-stone-400"><tr><th class="px-4 py-3">Shop</th><th class="px-4 py-3">Sales</th><th class="px-4 py-3">VAT total</th><th class="px-4 py-3">Gross total</th></tr></thead>
                     <tbody class="divide-y divide-white/10 bg-stone-950/60 text-stone-200">
                         @forelse ($vatRows as $row)
@@ -68,7 +68,7 @@
         <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
             <h2 class="text-xl font-semibold text-white">Margin report</h2>
             <div class="mt-4 overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+                <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                     <thead class="bg-stone-900/80 text-stone-400"><tr><th class="px-4 py-3">Shop</th><th class="px-4 py-3">Product</th><th class="px-4 py-3">Revenue (ex VAT)</th><th class="px-4 py-3">COGS</th><th class="px-4 py-3">Margin</th></tr></thead>
                     <tbody class="divide-y divide-white/10 bg-stone-950/60 text-stone-200">
                         @forelse ($marginRows as $row)
@@ -84,7 +84,7 @@
         <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
             <h2 class="text-xl font-semibold text-white">Fast-moving SKUs</h2>
             <div class="mt-4 overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+                <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                     <thead class="bg-stone-900/80 text-stone-400"><tr><th class="px-4 py-3">Shop</th><th class="px-4 py-3">Product</th><th class="px-4 py-3">Quantity sold</th><th class="px-4 py-3">Line total</th></tr></thead>
                     <tbody class="divide-y divide-white/10 bg-stone-950/60 text-stone-200">
                         @forelse ($fastMovingRows as $row)

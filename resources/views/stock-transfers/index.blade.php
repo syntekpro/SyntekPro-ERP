@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Stock Transfers')
+@section('title', __(''))
 
 @section('content')
     <livewire:stock-transfers.index-page />

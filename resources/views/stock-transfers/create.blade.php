@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Create Stock Transfer')
+@section('title', __(''))
 
 @section('content')
     <livewire:stock-transfers.form-page />

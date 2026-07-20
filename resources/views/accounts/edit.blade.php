@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Edit Account')
+@section('title', __(''))
 
 @section('content')
     <livewire:accounts.form-page :account="$account" />

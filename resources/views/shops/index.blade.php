@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Shops')
+@section('title', __(''))
 
 @section('content')
     <livewire:shops.index-page />

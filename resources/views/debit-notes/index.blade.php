@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Debit Notes')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">
@@ -16,7 +16,7 @@
 
         <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
             <div class="overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+                <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                     <thead class="bg-stone-900/80 text-stone-400">
                         <tr>
                             <th class="px-4 py-3">Debit note</th>
@@ -26,7 +26,7 @@
                             <th class="px-4 py-3">Total</th>
                             <th class="px-4 py-3">Applied to AP</th>
                             <th class="px-4 py-3">Manual excess</th>
-                            <th class="px-4 py-3 text-right">Actions</th>
+                            <th class="px-4 py-3 text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/10 bg-stone-950/40 text-stone-200">
@@ -39,7 +39,7 @@
                                 <td class="px-4 py-3">SAR {{ number_format((float) $debitNote->total, 2) }}</td>
                                 <td class="px-4 py-3">SAR {{ number_format((float) $debitNote->applied_to_bill_balance, 2) }}</td>
                                 <td class="px-4 py-3">SAR {{ number_format((float) $debitNote->excess_amount, 2) }}</td>
-                                <td class="px-4 py-3 text-right"><x-document-actions type="debit-note" :id="$debitNote->id" /></td>
+                                <td class="px-4 py-3 text-end"><x-document-actions type="debit-note" :id="$debitNote->id" /></td>
                             </tr>
                         @empty
                             <tr><td colspan="8" class="px-4 py-10 text-center text-stone-400">No debit notes posted yet.</td></tr>

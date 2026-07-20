@@ -31,6 +31,7 @@ class User extends Authenticatable
         'is_active',
         'theme_mode',
         'navigation_state',
+        'locale',
     ];
 
     /**

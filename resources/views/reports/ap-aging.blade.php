@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'AP Aging')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">
@@ -12,7 +12,7 @@
 
         <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
             <div class="overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+                <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                     <thead class="bg-stone-900/80 text-stone-400">
                         <tr>
                             <th class="px-4 py-3">Supplier</th>

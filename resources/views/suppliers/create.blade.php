@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Create Supplier')
+@section('title', __(''))
 
 @section('content')
     <livewire:suppliers.form-page />

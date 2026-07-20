@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Balance Sheet')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">

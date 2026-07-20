@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Document Shares')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">
@@ -15,15 +15,15 @@
         @endif
 
         <div class="overflow-hidden rounded-ui border border-line bg-surface table-baseline">
-            <table class="min-w-full text-left text-sm">
-                <thead class="text-muted"><tr><th class="px-4 py-3">Document</th><th class="px-4 py-3">Expires</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Actions</th></tr></thead>
+            <table class="min-w-full text-start text-sm">
+                <thead class="text-muted"><tr><th class="px-4 py-3">Document</th><th class="px-4 py-3">Expires</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-end">Actions</th></tr></thead>
                 <tbody class="divide-y divide-line text-ink">
                     @forelse ($shares as $share)
                         <tr>
                             <td class="px-4 py-3 figure-mono">{{ $share->document_type }} #{{ $share->document_id }}</td>
                             <td class="px-4 py-3">{{ $share->expires_at->toDateString() }}</td>
                             <td class="px-4 py-3"><x-status-badge :tone="$share->isViewable() ? 'success' : 'danger'">{{ $share->isViewable() ? 'Active' : 'Unavailable' }}</x-status-badge></td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="px-4 py-3 text-end">
                                 <div class="flex justify-end gap-2">
                                     <x-button variant="secondary" :href="route('documents.shared', $share->token)"><x-lucide-external-link class="h-4 w-4" /> Open</x-button>
                                     @if ($share->revoked_at === null)

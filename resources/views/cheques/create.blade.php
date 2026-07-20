@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Record Cheque')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6 max-w-3xl">

@@ -151,7 +151,7 @@
                         <p class="mt-1 text-sm text-muted">One row per active price category.</p>
                     </div>
                     <div class="overflow-hidden rounded-ui border border-line table-baseline">
-                        <table class="min-w-full text-left text-sm">
+                        <table class="min-w-full text-start text-sm">
                             <thead class="text-muted"><tr><th class="px-4 py-3">Category</th><th class="px-4 py-3">Price</th></tr></thead>
                             <tbody class="divide-y divide-line text-ink">
                                 @forelse ($this->priceCategoryOptions as $category)

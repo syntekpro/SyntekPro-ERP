@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Import Products')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">
@@ -46,7 +46,7 @@
                 @endif
 
                 <div class="mt-5 overflow-hidden rounded-ui border border-line table-baseline">
-                    <table class="min-w-full text-left text-sm">
+                    <table class="min-w-full text-start text-sm">
                         <thead class="text-muted"><tr><th class="px-4 py-3">Row</th><th class="px-4 py-3">SKU</th><th class="px-4 py-3">Action</th><th class="px-4 py-3">Result</th></tr></thead>
                         <tbody class="divide-y divide-line text-ink">
                             @foreach ($preview['rows'] as $row)

@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Dashboard')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-8">

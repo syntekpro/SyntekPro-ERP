@@ -24,8 +24,8 @@
                 <div class="md:col-span-2 xl:col-span-2">
                     <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Search</label>
                     <div class="relative">
-                        <x-lucide-search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-                        <input wire:model.live.debounce.300ms="search" type="search" placeholder="Name, SKU, or barcode" class="w-full rounded-ui border border-line bg-panel py-2.5 pl-9 pr-3 text-sm text-ink outline-none placeholder:text-subtle" />
+                        <x-lucide-search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+                        <input wire:model.live.debounce.300ms="search" type="search" placeholder="Name, SKU, or barcode" class="w-full rounded-ui border border-line bg-panel py-2.5 ps-9 pe-3 text-sm text-ink outline-none placeholder:text-subtle" />
                     </div>
                 </div>
 
@@ -105,7 +105,7 @@
             <x-empty-state class="mt-6" icon="package-search" title="No products found" message="Adjust the filters or create the first catalog item." :action-label="auth()->user()->can('create', \App\Models\Product::class) ? 'Create New' : null" :action-href="auth()->user()->can('create', \App\Models\Product::class) ? route('products.create') : null" />
         @else
             <div class="mt-6 overflow-x-auto rounded-ui border border-line table-baseline">
-                <table class="min-w-full text-left text-sm">
+                <table class="min-w-full text-start text-sm">
                     <thead class="text-muted">
                         <tr>
                             <th class="w-12 px-4 py-3 font-medium">
@@ -119,7 +119,7 @@
                                 'base_unit_id' => 'Base unit',
                             ] as $field => $label)
                                 <th class="px-4 py-3 font-medium">
-                                    <button type="button" wire:click="sortBy('{{ $field }}')" class="inline-flex items-center gap-1 text-left font-semibold text-muted hover:text-ink">
+                                    <button type="button" wire:click="sortBy('{{ $field }}')" class="inline-flex items-center gap-1 text-start font-semibold text-muted hover:text-ink">
                                         {{ $label }}
                                         @if ($sortField === $field)
                                             @if ($sortDirection === 'asc')
@@ -135,7 +135,7 @@
                             @endforeach
                             <th class="px-4 py-3 font-medium">VAT</th>
                             <th class="px-4 py-3 font-medium">Status</th>
-                            <th class="px-4 py-3 font-medium text-right">Actions</th>
+                            <th class="px-4 py-3 font-medium text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-line text-ink">
@@ -156,19 +156,19 @@
                                 <td class="px-4 py-4">
                                     <x-status-badge :tone="$product->is_active ? 'success' : 'danger'">{{ $product->is_active ? 'Active' : 'Inactive' }}</x-status-badge>
                                 </td>
-                                <td class="px-4 py-4 text-right">
-                                    <details class="relative inline-block text-left">
+                                <td class="px-4 py-4 text-end">
+                                    <details class="relative inline-block text-start">
                                         <summary class="inline-flex cursor-pointer items-center rounded-ui border border-line p-2 text-muted transition hover:bg-panel hover:text-ink">
                                             <x-lucide-more-vertical class="h-4 w-4" />
                                             <span class="sr-only">Open row actions</span>
                                         </summary>
-                                        <div class="absolute right-0 z-20 mt-2 w-56 rounded-ui border border-line bg-surface p-2 text-sm shadow-xl">
+                                        <div class="absolute end-0 z-20 mt-2 w-56 rounded-ui border border-line bg-surface p-2 text-sm shadow-xl">
                                             @can('update', $product)
                                                 <a href="{{ route('products.edit', $product) }}" class="flex items-center gap-2 rounded-ui px-3 py-2 text-ink hover:bg-panel">
                                                     <x-lucide-pencil class="h-4 w-4" />
                                                     Edit
                                                 </a>
-                                                <button type="button" wire:click="setActive({{ $product->id }}, {{ $product->is_active ? 'false' : 'true' }})" wire:confirm="{{ $product->is_active ? 'Deactivate' : 'Activate' }} this product?" class="flex w-full items-center gap-2 rounded-ui px-3 py-2 text-left text-ink hover:bg-panel">
+                                                <button type="button" wire:click="setActive({{ $product->id }}, {{ $product->is_active ? 'false' : 'true' }})" wire:confirm="{{ $product->is_active ? 'Deactivate' : 'Activate' }} this product?" class="flex w-full items-center gap-2 rounded-ui px-3 py-2 text-start text-ink hover:bg-panel">
                                                     <x-lucide-power class="h-4 w-4" />
                                                     {{ $product->is_active ? 'Deactivate' : 'Activate' }}
                                                 </button>

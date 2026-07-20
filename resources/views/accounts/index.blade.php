@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Chart of Accounts')
+@section('title', __(''))
 
 @section('content')
     <livewire:accounts.index-page />

@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Create Price Category')
+@section('title', __(''))
 
 @section('content')
     <livewire:price-categories.form-page />

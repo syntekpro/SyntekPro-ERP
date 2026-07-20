@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Income Statement')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">

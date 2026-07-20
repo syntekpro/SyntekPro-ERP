@@ -1,6 +1,6 @@
 @extends('layouts.hub')
 
-@section('title', 'Cheques Register')
+@section('title', __(''))
 
 @section('content')
     <section class="space-y-6">
@@ -56,7 +56,7 @@
         </form>
 
         <div class="overflow-hidden rounded-2xl border border-white/10">
-            <table class="min-w-full divide-y divide-white/10 text-left text-sm">
+            <table class="min-w-full divide-y divide-white/10 text-start text-sm">
                 <thead class="bg-stone-900/80 text-stone-400">
                     <tr>
                         <th class="px-4 py-3">Date</th>
@@ -66,7 +66,7 @@
                         <th class="px-4 py-3">Settlement</th>
                         <th class="px-4 py-3">Amount</th>
                         <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3 text-right">Actions</th>
+                        <th class="px-4 py-3 text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/10 bg-stone-950/40 text-stone-200">
@@ -89,7 +89,7 @@
                             <td class="px-4 py-3">{{ $settlementLabel }}</td>
                             <td class="px-4 py-3">SAR {{ number_format((float) $cheque->amount, 2) }}</td>
                             <td class="px-4 py-3"><x-status-badge :tone="$statusTone">{{ str($cheque->status->value)->title() }}</x-status-badge></td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="px-4 py-3 text-end">
                                 @if ($cheque->status->value === 'pending')
                                     <div class="flex justify-end gap-2">
                                         @can('clear', $cheque)

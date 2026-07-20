@@ -15,6 +15,7 @@ use App\Http\Controllers\DocumentOutputController;
 use App\Http\Controllers\FiscalPeriodController;
 use App\Http\Controllers\IncomeStatementReportController;
 use App\Http\Controllers\JournalEntryController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PosSaleController;
 use App\Http\Controllers\PriceCategoryController;
 use App\Http\Controllers\ProductCatalogTransferController;
@@ -40,6 +41,7 @@ Route::redirect('/', '/login')->name('home');
 Route::get('/manifest.json', ManifestController::class)->name('manifest');
 Route::get('/theme.css', ThemeStylesController::class)->name('theme.css');
 Route::get('/shared-documents/{token}', [DocumentOutputController::class, 'shared'])->name('documents.shared');
+Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');

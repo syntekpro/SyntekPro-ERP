@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
 
         $middleware->web(prepend: [
+            \App\Http\Middleware\ResolveLocale::class,
             \App\Http\Middleware\ResolveShopContext::class,
         ]);
 

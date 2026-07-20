@@ -41,7 +41,8 @@ class SettingsPage extends Component
         $this->settings = $businessSettings->only([
             'legal_name', 'cr_number', 'vat_number', 'address', 'phone', 'email', 'vat_enabled', 'vat_rate',
             'currency_code', 'currency_symbol', 'quantity_decimal_places', 'price_decimal_places', 'date_format',
-            'theme', 'invoice_footer_text', 'mail_from_name', 'mail_from_address',
+            'default_locale', 'theme', 'invoice_footer_text', 'mail_from_name', 'mail_from_address',
+            'legal_name_ar', 'address_ar', 'invoice_footer_text_ar',
         ]);
         $this->settings['vat_enabled'] = (bool) $this->settings['vat_enabled'];
         $this->settings['vat_rate'] = number_format((float) $this->settings['vat_rate'], 2, '.', '');
@@ -68,6 +69,10 @@ class SettingsPage extends Component
             'settings.quantity_decimal_places' => ['required', 'integer', 'min:0', 'max:6'],
             'settings.price_decimal_places' => ['required', 'integer', 'min:0', 'max:4'],
             'settings.date_format' => ['required', 'string', 'max:40'],
+            'settings.default_locale' => ['required', Rule::in(['en', 'ar'])],
+            'settings.legal_name_ar' => ['nullable', 'string', 'max:255'],
+            'settings.address_ar' => ['nullable', 'string', 'max:2000'],
+            'settings.invoice_footer_text_ar' => ['nullable', 'string', 'max:2000'],
         ]);
 
         BusinessSetting::query()->firstOrCreate(['singleton_key' => 1])->update($this->emptyStringsToNull($validated['settings']));
@@ -143,6 +148,7 @@ class SettingsPage extends Component
         $rules = [
             'settings.theme' => ['required', Rule::in(array_keys($settingsService->themePresets()))],
             'settings.invoice_footer_text' => ['nullable', 'string', 'max:2000'],
+            'settings.invoice_footer_text_ar' => ['nullable', 'string', 'max:2000'],
             'settings.mail_from_name' => ['nullable', 'string', 'max:255'],
             'settings.mail_from_address' => ['nullable', 'email', 'max:255'],
             'logoUpload' => ['nullable', 'image', 'max:2048'],

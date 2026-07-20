@@ -25,7 +25,15 @@
     </style>
 </head>
 <body>
+    @php
+        $pdfBranding = app(\App\Services\Settings\BusinessSettingsService::class)->pdfBrandingPlaceholders();
+    @endphp
+
     <main class="print-sheet {{ $format === 'receipt' ? 'receipt' : '' }}">
+        @if ($pdfBranding['watermark'])
+            <div aria-hidden="true" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.05;font-size:4rem;font-weight:700;letter-spacing:.12em;transform:rotate(-24deg);">{{ $pdfBranding['watermark'] }}</div>
+        @endif
+
         <div class="no-print mb-6 flex justify-end gap-2">
             <button onclick="window.print()" class="btn-primary"><x-lucide-printer class="h-4 w-4" /> Print</button>
         </div>
@@ -45,6 +53,9 @@
 
         <section class="mt-6 grid gap-4 sm:grid-cols-2">
             <div>
+                @if ($pdfBranding['header'])
+                    <p class="mb-2 text-xs uppercase tracking-[0.2em] text-gray-500">{{ $pdfBranding['header'] }}</p>
+                @endif
                 <p class="text-xs uppercase tracking-[0.18em] text-gray-500">{{ __('Counterparty') }}</p>
                 <p class="mt-2 font-semibold">{{ $document['counterparty_name'] ?: __('N/A') }}</p>
             </div>
@@ -86,6 +97,10 @@
         @endphp
         @if ($footerText)
             <footer class="mt-10 border-t border-gray-300 pt-4 text-center text-sm text-gray-600">{{ $footerText }}</footer>
+        @endif
+
+        @if ($pdfBranding['footer'])
+            <footer class="mt-4 text-center text-xs uppercase tracking-[0.2em] text-gray-500">{{ $pdfBranding['footer'] }}</footer>
         @endif
     </main>
 </body>

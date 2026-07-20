@@ -1,4 +1,4 @@
-# SyntekPro ERP Architecture Decisions (Phase 0)
+# ERP Platform Architecture Decisions (Phase 0)
 
 Version: 1.0.0
 
@@ -34,7 +34,7 @@ Version: 1.0.0
 - Sanctum setup and API token endpoint (`POST /api/tokens`)
 - Hub-owned models remain unscoped: `shops`, `warehouses`, and shared `products`
 - Role model via enum (`super_admin`, `shop_manager`, `cashier`)
-- Seeded super admin account `development@syntekpro.com`
+- Seeded super admin account `development@example.com`
 - Dockerfile, nginx config, and docker-compose for local parity
 - Branding placeholders wired in layout, favicon, and manifest
 

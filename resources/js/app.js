@@ -2,6 +2,29 @@ import './bootstrap';
 
 const preferenceUrl = document.querySelector('meta[name="user-interface-preferences-url"]')?.content;
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+const systemThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+const desktopDrawerMedia = window.matchMedia('(min-width: 64rem)');
+const drawerStorageKey = 'shell:drawer-collapsed';
+
+const resolveTheme = (preference) => {
+	if (preference === 'dark' || preference === 'light') {
+		return preference;
+	}
+
+	return systemThemeMedia.matches ? 'dark' : 'light';
+};
+
+const prettyThemeLabel = (preference) => {
+	if (preference === 'light') {
+		return 'Light';
+	}
+
+	if (preference === 'dark') {
+		return 'Dark';
+	}
+
+	return 'Auto';
+};
 
 const persistPreferences = (payload) => {
 	if (!preferenceUrl || !csrfToken) {
@@ -19,28 +42,200 @@ const persistPreferences = (payload) => {
 	}).catch(() => {});
 };
 
-const setTheme = (theme) => {
+const setTheme = (preference) => {
 	const root = document.documentElement;
-	root.dataset.theme = theme;
-	root.dataset.themePreference = theme;
+	root.dataset.themePreference = preference;
+	root.dataset.theme = resolveTheme(preference);
 	document.querySelectorAll('[data-theme-toggle-label]').forEach((label) => {
-		label.textContent = theme;
+		label.textContent = prettyThemeLabel(preference);
 	});
 };
 
+const cycleThemePreference = (preference) => {
+	if (preference === 'light') {
+		return 'dark';
+	}
+
+	if (preference === 'dark') {
+		return 'system';
+	}
+
+	return 'light';
+};
+
+const currentThemePreference = () => document.documentElement.dataset.themePreference || 'system';
+
+const updateHeaderClock = () => {
+	const dateTarget = document.querySelector('[data-header-date]');
+	const timeTarget = document.querySelector('[data-header-time]');
+
+	if (!dateTarget && !timeTarget) {
+		return;
+	}
+
+	const now = new Date();
+	if (dateTarget) {
+		dateTarget.textContent = new Intl.DateTimeFormat(undefined, {
+			weekday: 'short',
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+		}).format(now);
+	}
+
+	if (timeTarget) {
+		timeTarget.textContent = new Intl.DateTimeFormat(undefined, {
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit',
+			hour12: false,
+		}).format(now);
+	}
+};
+
+setTheme(currentThemePreference());
+updateHeaderClock();
+window.setInterval(updateHeaderClock, 1000);
+
 if (document.body?.dataset.persistThemeDefault === 'true') {
-	const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-	setTheme(preferred);
-	persistPreferences({ theme_mode: preferred });
+	setTheme('system');
+	persistPreferences({ theme_mode: 'system' });
 }
 
 document.querySelectorAll('[data-theme-toggle]').forEach((toggle) => {
 	toggle.addEventListener('click', () => {
-		const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-		setTheme(nextTheme);
-		persistPreferences({ theme_mode: nextTheme });
+		const nextThemePreference = cycleThemePreference(currentThemePreference());
+		setTheme(nextThemePreference);
+		persistPreferences({ theme_mode: nextThemePreference });
 	});
 });
+
+systemThemeMedia.addEventListener('change', () => {
+	if (currentThemePreference() === 'system') {
+		setTheme('system');
+	}
+});
+
+const applyDrawerState = () => {
+	if (!desktopDrawerMedia.matches) {
+		document.body.classList.remove('shell-drawer-collapsed');
+		return;
+	}
+
+	const collapsed = window.localStorage.getItem(drawerStorageKey) === '1';
+	document.body.classList.toggle('shell-drawer-collapsed', collapsed);
+	document.body.classList.remove('shell-drawer-open');
+};
+
+const openDrawer = () => {
+	if (!desktopDrawerMedia.matches) {
+		document.body.classList.add('shell-drawer-open');
+		document.querySelector('[data-shell-overlay]')?.classList.remove('hidden');
+	}
+};
+
+const closeDrawer = () => {
+	document.body.classList.remove('shell-drawer-open');
+	document.querySelector('[data-shell-overlay]')?.classList.add('hidden');
+};
+
+const toggleDrawer = () => {
+	if (desktopDrawerMedia.matches) {
+		const collapsed = !document.body.classList.contains('shell-drawer-collapsed');
+		document.body.classList.toggle('shell-drawer-collapsed', collapsed);
+		window.localStorage.setItem(drawerStorageKey, collapsed ? '1' : '0');
+		return;
+	}
+
+	if (document.body.classList.contains('shell-drawer-open')) {
+		closeDrawer();
+		return;
+	}
+
+	openDrawer();
+};
+
+const setSurfaceVisibility = (id, visible, type) => {
+	const target = document.getElementById(id);
+	if (!target) {
+		return;
+	}
+
+	target.classList.toggle('hidden', !visible);
+	target.setAttribute('aria-hidden', visible ? 'false' : 'true');
+	target.dataset.uiState = visible ? 'open' : 'closed';
+
+	if (!visible && type === 'drawer') {
+		target.querySelector('[data-ui-drawer-autofocus]')?.blur();
+	}
+};
+
+const openSurface = (id, type) => {
+	setSurfaceVisibility(id, true, type);
+	document.body.classList.add('overflow-hidden');
+};
+
+const closeSurface = (id, type) => {
+	setSurfaceVisibility(id, false, type);
+
+	const openSurfaces = document.querySelectorAll('[data-ui-modal]:not(.hidden), [data-ui-drawer]:not(.hidden)');
+	if (openSurfaces.length === 0) {
+		document.body.classList.remove('overflow-hidden');
+	}
+};
+
+document.querySelectorAll('[data-ui-modal-open]').forEach((trigger) => {
+	trigger.addEventListener('click', () => {
+		const targetId = trigger.getAttribute('data-ui-modal-open');
+		if (targetId) {
+			openSurface(targetId, 'modal');
+		}
+	});
+});
+
+document.querySelectorAll('[data-ui-modal-close]').forEach((trigger) => {
+	trigger.addEventListener('click', () => {
+		const targetId = trigger.getAttribute('data-ui-modal-close');
+		if (targetId) {
+			closeSurface(targetId, 'modal');
+		}
+	});
+});
+
+document.querySelectorAll('[data-ui-drawer-open]').forEach((trigger) => {
+	trigger.addEventListener('click', () => {
+		const targetId = trigger.getAttribute('data-ui-drawer-open');
+		if (targetId) {
+			openSurface(targetId, 'drawer');
+		}
+	});
+});
+
+document.querySelectorAll('[data-ui-drawer-close]').forEach((trigger) => {
+	trigger.addEventListener('click', () => {
+		const targetId = trigger.getAttribute('data-ui-drawer-close');
+		if (targetId) {
+			closeSurface(targetId, 'drawer');
+		}
+	});
+});
+
+document.querySelectorAll('[data-shell-drawer-toggle]').forEach((button) => {
+	button.addEventListener('click', toggleDrawer);
+});
+
+document.querySelectorAll('[data-shell-drawer-close]').forEach((button) => {
+	button.addEventListener('click', closeDrawer);
+});
+
+document.querySelector('[data-shell-overlay]')?.addEventListener('click', closeDrawer);
+
+desktopDrawerMedia.addEventListener('change', () => {
+	applyDrawerState();
+	closeDrawer();
+});
+
+applyDrawerState();
 
 const persistCollapsedSections = () => {
 	const collapsedSections = [...document.querySelectorAll('[data-nav-section]')]
@@ -52,6 +247,11 @@ const persistCollapsedSections = () => {
 
 document.querySelectorAll('[data-nav-section-toggle]').forEach((toggle) => {
 	toggle.addEventListener('click', () => {
+		if (desktopDrawerMedia.matches && document.body.classList.contains('shell-drawer-collapsed')) {
+			toggleDrawer();
+			return;
+		}
+
 		const section = toggle.closest('[data-nav-section]');
 		const panel = section?.querySelector('[data-nav-section-panel]');
 		const chevron = section?.querySelector('[data-nav-chevron]');
@@ -117,13 +317,35 @@ palette?.addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+	const target = event.target;
+	const isTypingTarget = target instanceof HTMLElement
+		&& (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+
+	if (!isTypingTarget && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'b') {
+		event.preventDefault();
+		toggleDrawer();
+	}
+
 	if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
 		event.preventDefault();
 		openPalette();
 	}
 
 	if (event.key === 'Escape') {
+		closeDrawer();
 		closePalette();
+
+		document.querySelectorAll('[data-ui-modal]:not(.hidden)').forEach((modal) => {
+			if (modal.id) {
+				closeSurface(modal.id, 'modal');
+			}
+		});
+
+		document.querySelectorAll('[data-ui-drawer]:not(.hidden)').forEach((drawer) => {
+			if (drawer.id) {
+				closeSurface(drawer.id, 'drawer');
+			}
+		});
 	}
 });
 
@@ -138,11 +360,12 @@ const applyDesignSystemBaseline = () => {
 		}
 
 		const text = element.textContent?.trim() || '';
-		if (/\bSAR\s+-?\d|^-?\d{1,3}(,\d{3})*(\.\d{2,3})?%?$/.test(text)) {
+			const hasFinancialNumber = /\bSAR\s+-?\d|^-?\d{1,3}(,\d{3})*(\.\d{2,3})?%?$|^-?\d+(\.\d{2,3})?$/.test(text);
+			if (hasFinancialNumber) {
 			element.classList.add('figure-mono');
 		}
 
-		if (/^(Total|Grand total|Gross Profit|Net Income|Net cash|Operating cash flow|Assets = Liabilities \+ Equity)/i.test(text)) {
+			if (hasFinancialNumber && /^(Total|Grand total|Gross Profit|Net Income|Net cash|Operating cash flow)\b/i.test(text)) {
 			element.classList.add('ledger-total');
 		}
 	});

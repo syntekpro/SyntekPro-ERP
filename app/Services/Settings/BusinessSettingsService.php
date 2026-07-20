@@ -9,6 +9,7 @@ class BusinessSettingsService
 {
     public const DEFAULT_LOGO = '/images/logo-full.png';
     public const DEFAULT_FAVICON = '/images/icon-main.png';
+    public const DEFAULT_TOUCH_ICON = '/images/icon-main-192.png';
 
     public function themePresets(): array
     {
@@ -27,7 +28,7 @@ class BusinessSettingsService
 
     public function themeCss(): string
     {
-        $theme = $this->themePreset($this->current()->theme);
+        $theme = $this->resolvedTheme();
         $primary = $theme['primary'];
         $accent = $theme['accent'];
         $background = $theme['background'];
@@ -44,7 +45,7 @@ class BusinessSettingsService
 
     public function themeStyleAttribute(): string
     {
-        $theme = $this->themePreset($this->current()->theme);
+        $theme = $this->resolvedTheme();
 
         return sprintf(
             '--brand-primary:%s;--brand-accent:%s;--brand-background:%s;--brand-surface:%s;--color-brass:%s;--color-ledger:%s;',
@@ -67,11 +68,95 @@ class BusinessSettingsService
         return $this->publicUrlOrDefault($this->current()->favicon_path, self::DEFAULT_FAVICON);
     }
 
+    public function touchIconUrl(): string
+    {
+        return $this->publicUrlOrDefault($this->current()->touch_icon_path, self::DEFAULT_TOUCH_ICON);
+    }
+
+    public function applicationName(): string
+    {
+        $settings = $this->current();
+
+        return $settings->application_name
+            ?: $settings->legal_name
+            ?: config('app.name', 'ERP');
+    }
+
+    public function applicationShortName(): string
+    {
+        $settings = $this->current();
+
+        return $settings->application_short_name
+            ?: str($this->applicationName())->limit(20, '')->toString();
+    }
+
+    public function brandWebsite(): string
+    {
+        $settings = $this->current();
+
+        return $settings->brand_website ?: config('app.url', url('/'));
+    }
+
+    public function loginBranding(): array
+    {
+        $settings = $this->current();
+
+        return [
+            'title' => $settings->login_title ?: __('Back Office sign in'),
+            'subtitle' => $settings->login_subtitle ?: __('Use the seeded super-admin account or your assigned shop credentials.'),
+        ];
+    }
+
+    public function headerBranding(): array
+    {
+        $settings = $this->current();
+
+        return [
+            'text' => $settings->header_brand_text ?: __('Workspace'),
+            'subtext' => $settings->header_brand_subtext ?: __('Operations Hub'),
+        ];
+    }
+
+    public function footerBranding(): array
+    {
+        $settings = $this->current();
+        $defaultPoweredBy = __('Powered by :name', ['name' => $this->applicationName()]);
+
+        return [
+            'show_powered_by' => $settings->footer_show_powered_by ?? true,
+            'powered_by_text' => $settings->footer_powered_by_text ?: $defaultPoweredBy,
+            'website' => $this->brandWebsite(),
+        ];
+    }
+
+    public function emailBrandingPlaceholders(): array
+    {
+        $settings = $this->current();
+
+        return [
+            'header' => $settings->email_branding_header ?: $this->applicationName(),
+            'footer' => $settings->email_branding_footer ?: __('Sent from :name', ['name' => $this->applicationName()]),
+            'logo_url' => $this->logoUrl(),
+        ];
+    }
+
+    public function pdfBrandingPlaceholders(): array
+    {
+        $settings = $this->current();
+
+        return [
+            'header' => $settings->pdf_branding_header ?: $this->applicationName(),
+            'footer' => $settings->pdf_branding_footer ?: null,
+            'watermark' => $settings->pdf_watermark_text ?: null,
+        ];
+    }
+
     public function current(): BusinessSetting
     {
         return BusinessSetting::query()->firstOrCreate([
             'singleton_key' => 1,
         ], [
+            'application_name' => config('app.name', 'ERP'),
             'legal_name' => env('ZATCA_SELLER_LEGAL_NAME'),
             'vat_number' => env('ZATCA_SELLER_VAT_NUMBER'),
             'vat_enabled' => true,
@@ -83,6 +168,7 @@ class BusinessSettingsService
             'date_format' => 'Y-m-d',
             'default_locale' => 'en',
             'theme' => 'syntek-default',
+            'footer_show_powered_by' => true,
             'mail_from_name' => config('mail.from.name'),
             'mail_from_address' => config('mail.from.address'),
         ]);
@@ -91,6 +177,11 @@ class BusinessSettingsService
     public function vatEnabled(): bool
     {
         return $this->current()->vat_enabled;
+    }
+
+    public function brandPalette(): array
+    {
+        return $this->resolvedTheme();
     }
 
     public function vatRate(): float
@@ -105,5 +196,18 @@ class BusinessSettingsService
         }
 
         return $default;
+    }
+
+    protected function resolvedTheme(): array
+    {
+        $settings = $this->current();
+        $theme = $this->themePreset($settings->theme);
+
+        return [
+            'primary' => $settings->brand_primary_color ?: $theme['primary'],
+            'accent' => $settings->brand_accent_color ?: $theme['accent'],
+            'background' => $settings->brand_background_color ?: $theme['background'],
+            'surface' => $settings->brand_surface_color ?: $theme['surface'],
+        ];
     }
 }

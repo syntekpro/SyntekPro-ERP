@@ -11,7 +11,7 @@ class UserInterfacePreferenceController extends Controller
     public function update(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'theme_mode' => ['sometimes', 'nullable', Rule::in(['light', 'dark'])],
+            'theme_mode' => ['sometimes', 'nullable', Rule::in(['light', 'dark', 'system'])],
             'locale' => ['sometimes', Rule::in(['en', 'ar'])],
             'navigation_state' => ['sometimes', 'array'],
             'navigation_state.collapsed_sections' => ['sometimes', 'array'],

@@ -6,18 +6,18 @@
     <section class="space-y-6">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Sales Returns</p>
-                <h1 class="mt-3 text-4xl font-semibold text-white">Credit Notes</h1>
-                <p class="mt-3 max-w-2xl text-sm text-stone-300">Sales returns create new reversal entries, never edits to the original sale posting.</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Sales Returns</p>
+                <h1 class="mt-3 text-4xl font-semibold text-ink">Credit Notes</h1>
+                <p class="mt-3 max-w-2xl text-sm text-muted">Sales returns create new reversal entries, never edits to the original sale posting.</p>
             </div>
 
-            <a href="{{ route('credit-notes.create') }}" class="rounded-2xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Create credit note</a>
+            <a href="{{ route('credit-notes.create') }}" class="btn-primary">Create credit note</a>
         </div>
 
-        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <div class="overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-start text-sm">
-                    <thead class="bg-stone-900/80 text-stone-400">
+        <div class="rounded-ui border border-line bg-surface p-6">
+            <div class="overflow-hidden rounded-ui border border-line table-baseline">
+                <table class="min-w-full text-start text-sm ui-table">
+                    <thead>
                         <tr>
                             <th class="px-4 py-3">Credit note</th>
                             <th class="px-4 py-3">Sale</th>
@@ -29,20 +29,20 @@
                             <th class="px-4 py-3 text-end">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/10 bg-stone-950/40 text-stone-200">
+                    <tbody class="divide-y divide-line text-ink">
                         @forelse ($creditNotes as $creditNote)
                             <tr>
-                                <td class="px-4 py-3 text-white">{{ $creditNote->credit_note_number }}</td>
+                                <td class="px-4 py-3 figure-mono font-medium text-ink">{{ $creditNote->credit_note_number }}</td>
                                 <td class="px-4 py-3">{{ $creditNote->sale?->invoice_number ?? ('Sale #'.$creditNote->sale_id) }}</td>
                                 <td class="px-4 py-3">{{ $creditNote->sale?->customer?->name ?? 'Walk-in customer' }}</td>
-                                <td class="px-4 py-3">{{ $creditNote->note_date?->toDateString() }}</td>
-                                <td class="px-4 py-3">SAR {{ number_format((float) $creditNote->total, 2) }}</td>
-                                <td class="px-4 py-3">SAR {{ number_format((float) $creditNote->refund_amount, 2) }}</td>
-                                <td class="px-4 py-3">SAR {{ number_format((float) $creditNote->applied_to_sale_balance, 2) }}</td>
+                                <td class="px-4 py-3 figure-mono">{{ $creditNote->note_date?->toDateString() }}</td>
+                                <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $creditNote->total, 2) }}</td>
+                                <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $creditNote->refund_amount, 2) }}</td>
+                                <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $creditNote->applied_to_sale_balance, 2) }}</td>
                                 <td class="px-4 py-3 text-end"><x-document-actions type="credit-note" :id="$creditNote->id" /></td>
                             </tr>
                         @empty
-                            <tr><td colspan="8" class="px-4 py-10 text-center text-stone-400">No credit notes posted yet.</td></tr>
+                            <tr><td colspan="8" class="px-4 py-10 text-center text-muted">No credit notes posted yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

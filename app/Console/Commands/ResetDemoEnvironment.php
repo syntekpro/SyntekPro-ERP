@@ -113,7 +113,7 @@ class ResetDemoEnvironment extends Command
 
         User::query()->create([
             'name' => 'Demo Super Admin',
-            'email' => (string) env('DEMO_SUPER_ADMIN_EMAIL', 'demo.admin@syntekpro.com'),
+            'email' => (string) env('DEMO_SUPER_ADMIN_EMAIL', 'demo.admin@example.com'),
             'password' => Hash::make($password),
             'role' => UserRole::SuperAdmin,
             'shop_id' => null,
@@ -123,7 +123,7 @@ class ResetDemoEnvironment extends Command
 
         User::query()->create([
             'name' => 'Demo Shop Manager',
-            'email' => (string) env('DEMO_SHOP_MANAGER_EMAIL', 'demo.manager@syntekpro.com'),
+            'email' => (string) env('DEMO_SHOP_MANAGER_EMAIL', 'demo.manager@example.com'),
             'password' => Hash::make($password),
             'role' => UserRole::ShopManager,
             'shop_id' => $shop->id,
@@ -133,7 +133,7 @@ class ResetDemoEnvironment extends Command
 
         User::query()->create([
             'name' => 'Demo Cashier',
-            'email' => (string) env('DEMO_CASHIER_EMAIL', 'demo.cashier@syntekpro.com'),
+            'email' => (string) env('DEMO_CASHIER_EMAIL', 'demo.cashier@example.com'),
             'password' => Hash::make($password),
             'role' => UserRole::Cashier,
             'shop_id' => $shop->id,

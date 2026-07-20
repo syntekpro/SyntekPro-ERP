@@ -25,9 +25,9 @@ class DatabaseSeeder extends Seeder
         }
 
         User::query()->updateOrCreate([
-            'email' => env('SEED_SUPER_ADMIN_EMAIL', 'development@syntekpro.com'),
+            'email' => env('SEED_SUPER_ADMIN_EMAIL', 'development@example.com'),
         ], [
-            'name' => 'SyntekPro Super Admin',
+            'name' => 'Super Admin',
             'password' => Hash::make(env('SEED_SUPER_ADMIN_PASSWORD', 'password')),
             'role' => UserRole::SuperAdmin,
             'shop_id' => null,

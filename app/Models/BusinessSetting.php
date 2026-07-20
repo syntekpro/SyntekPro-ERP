@@ -19,6 +19,8 @@ class BusinessSetting extends Model
 
     protected $fillable = [
         'singleton_key',
+        'application_name',
+        'application_short_name',
         'legal_name',
         'cr_number',
         'vat_number',
@@ -34,8 +36,25 @@ class BusinessSetting extends Model
         'date_format',
         'default_locale',
         'theme',
+        'brand_primary_color',
+        'brand_accent_color',
+        'brand_background_color',
+        'brand_surface_color',
         'logo_path',
         'favicon_path',
+        'touch_icon_path',
+        'login_title',
+        'login_subtitle',
+        'header_brand_text',
+        'header_brand_subtext',
+        'footer_show_powered_by',
+        'footer_powered_by_text',
+        'brand_website',
+        'email_branding_header',
+        'email_branding_footer',
+        'pdf_branding_header',
+        'pdf_branding_footer',
+        'pdf_watermark_text',
         'invoice_footer_text',
         'legal_name_ar',
         'address_ar',
@@ -51,6 +70,7 @@ class BusinessSetting extends Model
             'vat_rate' => 'decimal:2',
             'quantity_decimal_places' => 'integer',
             'price_decimal_places' => 'integer',
+            'footer_show_powered_by' => 'boolean',
         ];
     }
 }

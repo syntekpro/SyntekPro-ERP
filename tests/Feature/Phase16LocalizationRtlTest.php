@@ -100,8 +100,8 @@ class Phase16LocalizationRtlTest extends TestCase
 
         $settings = BusinessSetting::query()->firstOrCreate(['singleton_key' => 1]);
         $settings->update([
-            'legal_name' => 'SyntekPro Trading Co',
-            'legal_name_ar' => 'شركة سينتك برو التجارية',
+            'legal_name' => 'Trading Company',
+            'legal_name_ar' => 'شركة تجارية',
             'invoice_footer_text' => 'Thank you',
             'invoice_footer_text_ar' => 'شكرا لتعاملكم',
         ]);
@@ -134,7 +134,7 @@ class Phase16LocalizationRtlTest extends TestCase
         ])
             ->assertSee('lang="ar"', false)
             ->assertSee('dir="rtl"', false)
-            ->assertSee('شركة سينتك برو التجارية')
+            ->assertSee('شركة تجارية')
             ->assertSee('شكرا لتعاملكم')
             ->assertSee('class="ltr-content">SAR 115.00', false);
     }

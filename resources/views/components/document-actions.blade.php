@@ -15,7 +15,7 @@
     </form>
     <form method="POST" action="{{ route('documents.email', ['type' => $type, 'id' => $id]) }}" class="flex gap-2">
         @csrf
-        <input name="email" type="email" required placeholder="Email" class="w-44 rounded-ui border border-line bg-panel px-3 py-2 text-sm text-ink outline-none" />
-        <x-button type="submit" variant="secondary"><x-lucide-mail class="h-4 w-4" /> Email</x-button>
+        <x-input name="email" type="email" required placeholder="Email" class="w-44 px-3 py-2 text-sm" />
+        <x-button type="submit" variant="secondary" size="sm"><x-lucide-mail class="h-4 w-4" /> Email</x-button>
     </form>
 </div>

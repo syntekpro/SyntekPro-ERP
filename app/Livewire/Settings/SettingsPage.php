@@ -29,6 +29,7 @@ class SettingsPage extends Component
     public ?int $selectedUserId = null;
     public $logoUpload;
     public $faviconUpload;
+    public $touchIconUpload;
 
     public function mount(BusinessSettingsService $settingsService): void
     {
@@ -43,8 +44,16 @@ class SettingsPage extends Component
             'currency_code', 'currency_symbol', 'quantity_decimal_places', 'price_decimal_places', 'date_format',
             'default_locale', 'theme', 'invoice_footer_text', 'mail_from_name', 'mail_from_address',
             'legal_name_ar', 'address_ar', 'invoice_footer_text_ar',
+            'application_name', 'application_short_name',
+            'brand_primary_color', 'brand_accent_color', 'brand_background_color', 'brand_surface_color',
+            'login_title', 'login_subtitle',
+            'header_brand_text', 'header_brand_subtext',
+            'footer_show_powered_by', 'footer_powered_by_text', 'brand_website',
+            'email_branding_header', 'email_branding_footer',
+            'pdf_branding_header', 'pdf_branding_footer', 'pdf_watermark_text',
         ]);
         $this->settings['vat_enabled'] = (bool) $this->settings['vat_enabled'];
+        $this->settings['footer_show_powered_by'] = (bool) ($this->settings['footer_show_powered_by'] ?? true);
         $this->settings['vat_rate'] = number_format((float) $this->settings['vat_rate'], 2, '.', '');
 
         $this->loadFormats();
@@ -151,8 +160,27 @@ class SettingsPage extends Component
             'settings.invoice_footer_text_ar' => ['nullable', 'string', 'max:2000'],
             'settings.mail_from_name' => ['nullable', 'string', 'max:255'],
             'settings.mail_from_address' => ['nullable', 'email', 'max:255'],
+            'settings.application_name' => ['nullable', 'string', 'max:255'],
+            'settings.application_short_name' => ['nullable', 'string', 'max:32'],
+            'settings.brand_primary_color' => ['nullable', 'string', 'max:20'],
+            'settings.brand_accent_color' => ['nullable', 'string', 'max:20'],
+            'settings.brand_background_color' => ['nullable', 'string', 'max:20'],
+            'settings.brand_surface_color' => ['nullable', 'string', 'max:20'],
+            'settings.login_title' => ['nullable', 'string', 'max:255'],
+            'settings.login_subtitle' => ['nullable', 'string', 'max:255'],
+            'settings.header_brand_text' => ['nullable', 'string', 'max:255'],
+            'settings.header_brand_subtext' => ['nullable', 'string', 'max:255'],
+            'settings.footer_show_powered_by' => ['boolean'],
+            'settings.footer_powered_by_text' => ['nullable', 'string', 'max:255'],
+            'settings.brand_website' => ['nullable', 'string', 'max:255'],
+            'settings.email_branding_header' => ['nullable', 'string', 'max:255'],
+            'settings.email_branding_footer' => ['nullable', 'string', 'max:2000'],
+            'settings.pdf_branding_header' => ['nullable', 'string', 'max:255'],
+            'settings.pdf_branding_footer' => ['nullable', 'string', 'max:2000'],
+            'settings.pdf_watermark_text' => ['nullable', 'string', 'max:255'],
             'logoUpload' => ['nullable', 'image', 'max:2048'],
             'faviconUpload' => ['nullable', 'image', 'max:1024'],
+            'touchIconUpload' => ['nullable', 'image', 'max:1024'],
         ];
 
         $validated = $this->validate($rules);
@@ -166,9 +194,14 @@ class SettingsPage extends Component
             $payload['favicon_path'] = $this->faviconUpload->store('branding', 'public');
         }
 
+        if ($this->touchIconUpload instanceof TemporaryUploadedFile) {
+            $payload['touch_icon_path'] = $this->touchIconUpload->store('branding', 'public');
+        }
+
         BusinessSetting::query()->firstOrCreate(['singleton_key' => 1])->update($payload);
         $this->logoUpload = null;
         $this->faviconUpload = null;
+        $this->touchIconUpload = null;
         session()->flash('status', 'Branding settings updated.');
     }
 

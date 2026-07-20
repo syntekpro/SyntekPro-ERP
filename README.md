@@ -1,11 +1,11 @@
-# SyntekPro ERP
+# ERP Platform
 
-SyntekPro ERP is a Laravel-based multi-tenant ERP and POS platform for the Saudi market. The application uses a shared database tenancy model where shop-owned data is isolated with `shop_id` scoping, while hub-owned resources such as shops, warehouses, and products remain unscoped and centrally managed.
+This application is a Laravel-based multi-tenant ERP and POS platform for the Saudi market. The application uses a shared database tenancy model where shop-owned data is isolated with `shop_id` scoping, while hub-owned resources such as shops, warehouses, and products remain unscoped and centrally managed.
 
 ## Product Documentation
 
-- Full Feature List (Phase 0-9): [docs/syntekpro-erp-feature-list.md](docs/syntekpro-erp-feature-list.md)
-- End-User Operating Guide: [docs/syntekpro-erp-user-guide.md](docs/syntekpro-erp-user-guide.md)
+- Full Feature List (Phase 0-9): see the feature list document in [docs](docs)
+- End-User Operating Guide: see the user guide document in [docs](docs)
 
 These two documents provide the business-facing product description and operational usage details for the current `v1.0.0` milestone.
 
@@ -41,8 +41,8 @@ This repository currently includes:
 - `WEB_HTTP_PORT` must be unique per stack on the same host.
   Example production: `WEB_HTTP_PORT=8082`; example demo: `WEB_HTTP_PORT=8083`.
 - Set a unique `COMPOSE_PROJECT_NAME` per stack to prevent cross-stack resource name collisions.
-  Example production: `COMPOSE_PROJECT_NAME=syntekpro-prod`; example demo: `COMPOSE_PROJECT_NAME=syntekpro-demo`.
-- The web service also joins external `syntekpro-net` for existing Docker-network-based integrations.
+  Example production: `COMPOSE_PROJECT_NAME=erp-prod`; example demo: `COMPOSE_PROJECT_NAME=erp-demo`.
+- The web service also joins external `erp-net` for existing Docker-network-based integrations.
 
 ## Stack
 
@@ -101,7 +101,7 @@ http://localhost:8080
 
 The default seeded super-admin account is controlled by these environment values:
 
-- `SEED_SUPER_ADMIN_EMAIL=development@syntekpro.com`
+- `SEED_SUPER_ADMIN_EMAIL=development@example.com`
 - `SEED_SUPER_ADMIN_PASSWORD=password`
 
 ## Useful Commands

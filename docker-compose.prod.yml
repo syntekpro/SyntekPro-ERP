@@ -1,4 +1,4 @@
-name: ${COMPOSE_PROJECT_NAME:-syntekpro}
+name: ${COMPOSE_PROJECT_NAME:-erp}
 
 services:
   app:
@@ -27,34 +27,34 @@ services:
       - "127.0.0.1:${WEB_HTTP_PORT:-8082}:80"
     networks:
       - internal
-      - syntekpro-net
+      - erp-net
 
   db:
     image: mariadb:11.4
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-syntekpro_demo}
-      MYSQL_USER: ${DB_USERNAME:-syntekpro}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-syntekpro}
+      MYSQL_DATABASE: ${DB_DATABASE:-erp_demo}
+      MYSQL_USER: ${DB_USERNAME:-erp}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-erp}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
     volumes:
-      - syntekpro-db:/var/lib/mysql
+      - erp-db:/var/lib/mysql
     networks:
       - internal
 
   redis:
     image: redis:7-alpine
     volumes:
-      - syntekpro-redis:/data
+      - erp-redis:/data
     networks:
       - internal
 
 volumes:
-  syntekpro-db:
-  syntekpro-redis:
+  erp-db:
+  erp-redis:
 
 networks:
   internal:
     driver: bridge
-  syntekpro-net:
+  erp-net:
     external: true
-    name: syntekpro-net
+    name: erp-net

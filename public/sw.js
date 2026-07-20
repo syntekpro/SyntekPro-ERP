@@ -1,4 +1,4 @@
-const cacheName = 'syntekpro-pos-shell-v1';
+const cacheName = 'erp-pos-shell-v1';
 const cacheablePrefixes = ['/build/', '/css/', '/js/', '/images/', '/favicon'];
 const offlinePaths = ['/', '/login', '/dashboard', '/pos/sales'];
 

@@ -3,6 +3,14 @@
     $themePreference = $currentUser?->theme_mode ?? 'system';
     $activeLocale = app()->getLocale();
     $isRtl = $activeLocale === 'ar';
+    $brandingService = app(\App\Services\Settings\BusinessSettingsService::class);
+    $brandingSettings = $brandingService->current();
+    $applicationName = $brandingService->applicationName();
+    $footerBranding = $brandingService->footerBranding();
+    $headerBranding = $brandingService->headerBranding();
+    $poweredByLabel = $footerBranding['powered_by_text'];
+    $brandWebsite = $footerBranding['website'];
+    $showPoweredBy = $footerBranding['show_powered_by'];
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $activeLocale) }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}" data-theme="{{ $themePreference }}" data-theme-preference="{{ $themePreference }}">
@@ -11,7 +19,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="user-interface-preferences-url" content="{{ route('user-interface-preferences.update') }}">
-        <title>@yield('title') | {{ config('app.name', 'SyntekPro ERP') }}</title>
+        <title>@yield('title') | {{ $applicationName }}</title>
         <script>
             (() => {
                 const root = document.documentElement;
@@ -26,7 +34,8 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
+        <link rel="icon" type="image/png" href="{{ $brandingService->faviconUrl() }}">
+        <link rel="apple-touch-icon" href="{{ $brandingService->touchIconUrl() }}">
         <link rel="manifest" href="{{ route('manifest') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -112,85 +121,30 @@
             </div>
         @endif
 
-        <div class="min-h-screen lg:grid lg:grid-cols-[19rem_1fr]">
-            <aside class="border-b border-line bg-surface/90 backdrop-blur lg:border-b-0 lg:border-e">
-                <div class="flex h-full flex-col px-4 py-5">
-                    <div class="rounded-ui border border-line bg-panel p-4">
-                        <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[14rem]" />
-                        <p class="mt-3 text-xs font-semibold uppercase tracking-[0.28em] text-brass">SyntekPro ERP</p>
-                        <h1 class="mt-2 text-xl font-semibold text-ink">{{ __('Back Office') }}</h1>
-                        <p class="mt-2 text-sm text-muted">{{ __('Chain operations, finance, and administration.') }}</p>
-                    </div>
+        <div class="shell-overlay hidden bg-ink/40 backdrop-blur-sm lg:hidden" data-shell-overlay></div>
 
-                    <div class="mt-4 grid gap-2">
-                        <form method="POST" action="{{ route('locale.update') }}" class="rounded-ui border border-line bg-panel px-3 py-2">
-                            @csrf
-                            <label for="locale-switch" class="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Language') }}</label>
-                            <select id="locale-switch" name="locale" onchange="this.form.submit()" class="w-full bg-transparent text-sm text-ink outline-none">
-                                <option value="en" @selected($activeLocale === 'en')>{{ __('English') }}</option>
-                                <option value="ar" @selected($activeLocale === 'ar')>{{ __('Arabic') }}</option>
-                            </select>
-                        </form>
+        <div class="shell-layout">
+            <x-shell.drawer
+                :application-name="$applicationName"
+                :brand-website="$brandWebsite"
+                :powered-by-label="$poweredByLabel"
+                :show-powered-by="$showPoweredBy"
+                :visible-sections="$visibleSections"
+                :collapsed-sections="$collapsedSections"
+                :is-active="$isActive"
+            />
 
-                        <button type="button" data-command-open class="flex items-center justify-between rounded-ui border border-line bg-panel px-3 py-2 text-start text-sm text-muted transition hover:border-brass/60 hover:text-ink">
-                            <span class="flex items-center gap-2"><x-lucide-search class="h-4 w-4" /> {{ __('Search screens') }}</span>
-                            <kbd class="font-mono text-[0.65rem] text-subtle">Ctrl K</kbd>
-                        </button>
-                        <button type="button" data-theme-toggle class="flex items-center justify-between rounded-ui border border-line px-3 py-2 text-sm font-semibold text-ink transition hover:border-brass/60">
-                            <span class="flex items-center gap-2"><x-lucide-sun-moon class="h-4 w-4" /> {{ __('Appearance') }}</span>
-                            <span data-theme-toggle-label class="text-xs uppercase tracking-[0.2em] text-subtle">{{ $themePreference }}</span>
-                        </button>
-                    </div>
+            <section class="shell-content">
+                <x-shell.header
+                    :application-name="$applicationName"
+                    :active-locale="$activeLocale"
+                    :theme-preference="$themePreference"
+                    :current-user="$currentUser"
+                    :header-brand-text="$headerBranding['text']"
+                    :header-brand-subtext="$headerBranding['subtext']"
+                />
 
-                    <nav class="mt-5 space-y-2 text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
-                        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'nav-link-active' : '' }}">
-                            <x-lucide-layout-dashboard class="h-4 w-4" />
-                            <span>{{ __('Dashboard') }}</span>
-                        </a>
-
-                        @foreach ($visibleSections as $section)
-                            @php
-                                $sectionActive = collect($section['items'])->contains(fn (array $item): bool => $isActive($item['patterns']));
-                                $sectionCollapsed = in_array($section['key'], $collapsedSections, true) && ! $sectionActive;
-                            @endphp
-                            <section class="nav-section" data-nav-section="{{ $section['key'] }}">
-                                <button type="button" class="nav-section-button" data-nav-section-toggle aria-expanded="{{ $sectionCollapsed ? 'false' : 'true' }}" aria-controls="nav-section-{{ $section['key'] }}">
-                                    <span class="flex items-center gap-2">
-                                        <x-dynamic-component :component="'lucide-'.$section['icon']" class="h-4 w-4" />
-                                        {{ $section['label'] }}
-                                    </span>
-                                    <x-lucide-chevron-down class="h-4 w-4 transition" data-nav-chevron />
-                                </button>
-                                <div id="nav-section-{{ $section['key'] }}" class="mt-1 space-y-1 ps-2 {{ $sectionCollapsed ? 'hidden' : '' }}" data-nav-section-panel>
-                                    @foreach ($section['items'] as $item)
-                                        <a href="{{ route($item['route']) }}" class="nav-link nav-link-nested {{ $isActive($item['patterns']) ? 'nav-link-active' : '' }}">
-                                            <x-dynamic-component :component="'lucide-'.$item['icon']" class="h-4 w-4" />
-                                            <span>{{ $item['label'] }}</span>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </section>
-                        @endforeach
-                    </nav>
-
-                    <div class="mt-6 rounded-ui border border-line bg-panel p-4 text-sm text-muted">
-                        <p class="font-medium text-ink">{{ $currentUser?->email }}</p>
-                        <p class="mt-1 uppercase tracking-[0.24em] text-subtle">{{ $currentUser?->role?->value ?? __('user') }}</p>
-                    </div>
-
-                    <form method="POST" action="{{ route('logout') }}" class="mt-auto pt-6">
-                        @csrf
-                        <button type="submit" class="btn-secondary w-full justify-center">
-                            <x-lucide-log-out class="h-4 w-4" />
-                            {{ __('Sign out') }}
-                        </button>
-                    </form>
-
-                    <a href="https://syntekpro.com" target="_blank" rel="noopener noreferrer" class="mt-4 block text-center text-xs font-semibold uppercase tracking-[0.24em] text-subtle transition hover:text-brass">{{ __('Powered by SyntekPro ERP') }}</a>
-                </div>
-            </aside>
-
-            <main class="px-6 py-8 lg:px-10 lg:py-10">
+                <main class="shell-main px-4 py-6 lg:px-8 lg:py-8">
                 @if (session('status'))
                     <div class="mb-6 rounded-ui border border-ledger/30 bg-ledger/10 px-4 py-3 text-sm text-ledger">
                         {{ session('status') }}
@@ -204,7 +158,8 @@
                 @endif
 
                 @yield('content')
-            </main>
+                </main>
+            </section>
         </div>
 
         <div class="command-palette fixed inset-0 z-50 hidden bg-ink/60 p-4 backdrop-blur" data-command-palette aria-hidden="true">

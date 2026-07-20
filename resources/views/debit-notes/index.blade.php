@@ -6,18 +6,18 @@
     <section class="space-y-6">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Purchase Returns</p>
-                <h1 class="mt-3 text-4xl font-semibold text-white">Debit Notes</h1>
-                <p class="mt-3 max-w-2xl text-sm text-stone-300">Purchase returns decrease warehouse stock and create fresh reversal entries against the original supplier bill economics.</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Purchase Returns</p>
+                <h1 class="mt-3 text-4xl font-semibold text-ink">Debit Notes</h1>
+                <p class="mt-3 max-w-2xl text-sm text-muted">Purchase returns decrease warehouse stock and create fresh reversal entries against the original supplier bill economics.</p>
             </div>
 
-            <a href="{{ route('debit-notes.create') }}" class="rounded-2xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Create debit note</a>
+            <a href="{{ route('debit-notes.create') }}" class="btn-primary">Create debit note</a>
         </div>
 
-        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <div class="overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-start text-sm">
-                    <thead class="bg-stone-900/80 text-stone-400">
+        <div class="rounded-ui border border-line bg-surface p-6">
+            <div class="overflow-hidden rounded-ui border border-line table-baseline">
+                <table class="min-w-full text-start text-sm ui-table">
+                    <thead>
                         <tr>
                             <th class="px-4 py-3">Debit note</th>
                             <th class="px-4 py-3">Bill</th>
@@ -29,20 +29,20 @@
                             <th class="px-4 py-3 text-end">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/10 bg-stone-950/40 text-stone-200">
+                    <tbody class="divide-y divide-line text-ink">
                         @forelse ($debitNotes as $debitNote)
                             <tr>
-                                <td class="px-4 py-3 text-white">{{ $debitNote->debit_note_number }}</td>
+                                <td class="px-4 py-3 figure-mono font-medium text-ink">{{ $debitNote->debit_note_number }}</td>
                                 <td class="px-4 py-3">{{ $debitNote->supplierBill?->bill_number ?? ('Bill #'.$debitNote->supplier_bill_id) }}</td>
                                 <td class="px-4 py-3">{{ $debitNote->supplierBill?->supplier?->name }}</td>
-                                <td class="px-4 py-3">{{ $debitNote->note_date?->toDateString() }}</td>
-                                <td class="px-4 py-3">SAR {{ number_format((float) $debitNote->total, 2) }}</td>
-                                <td class="px-4 py-3">SAR {{ number_format((float) $debitNote->applied_to_bill_balance, 2) }}</td>
-                                <td class="px-4 py-3">SAR {{ number_format((float) $debitNote->excess_amount, 2) }}</td>
+                                <td class="px-4 py-3 figure-mono">{{ $debitNote->note_date?->toDateString() }}</td>
+                                <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $debitNote->total, 2) }}</td>
+                                <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $debitNote->applied_to_bill_balance, 2) }}</td>
+                                <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $debitNote->excess_amount, 2) }}</td>
                                 <td class="px-4 py-3 text-end"><x-document-actions type="debit-note" :id="$debitNote->id" /></td>
                             </tr>
                         @empty
-                            <tr><td colspan="8" class="px-4 py-10 text-center text-stone-400">No debit notes posted yet.</td></tr>
+                            <tr><td colspan="8" class="px-4 py-10 text-center text-muted">No debit notes posted yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

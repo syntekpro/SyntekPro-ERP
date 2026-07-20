@@ -341,7 +341,7 @@ class PosSaleSyncController extends Controller
         $sellerName = $shop?->legal_name
             ?: $businessSettings->legal_name
             ?: $shop?->name
-            ?: 'SyntekPro';
+            ?: config('app.name', 'ERP');
         $vatNumber = $shop?->vat_registration_number
             ?: $businessSettings->vat_number
             ?: '000000000000000';

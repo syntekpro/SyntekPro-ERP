@@ -1,4 +1,4 @@
-const dbName = 'syntekpro-pos';
+const dbName = 'erp-pos';
 const dbVersion = 1;
 
 const state = {

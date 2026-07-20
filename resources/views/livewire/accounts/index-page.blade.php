@@ -1,26 +1,26 @@
 <section class="space-y-6">
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-amber-300">Chart of Accounts</p>
-            <h1 class="mt-2 text-4xl font-semibold text-white">Chart of Accounts</h1>
-            <p class="mt-2 text-sm text-stone-300">Shared Back Office chart used by all shops for ledger postings.</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Chart of Accounts</p>
+            <h1 class="mt-2 text-4xl font-semibold text-ink">Chart of Accounts</h1>
+            <p class="mt-2 text-sm text-muted">Shared Back Office chart used by all shops for ledger postings.</p>
         </div>
         @can('create', \App\Models\Account::class)
-            <a href="{{ route('accounts.create') }}" class="rounded-2xl bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300">Add account</a>
+            <a href="{{ route('accounts.create') }}" class="btn-primary">Add account</a>
         @endcan
     </div>
 
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <div class="rounded-ui border border-line bg-surface p-6">
         <input
             wire:model.live.debounce.300ms="search"
             type="text"
             placeholder="Search by account code or name"
-            class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none"
+            class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-ink outline-none"
         />
 
-        <div class="mt-5 overflow-hidden rounded-2xl border border-white/10">
-            <table class="min-w-full divide-y divide-white/10 text-start text-sm">
-                <thead class="bg-stone-900/80 text-stone-400">
+        <div class="mt-5 overflow-hidden rounded-ui border border-line table-baseline">
+            <table class="min-w-full text-start text-sm ui-table">
+                <thead>
                     <tr>
                         <th class="px-4 py-3 font-medium">Code</th>
                         <th class="px-4 py-3 font-medium">Name</th>
@@ -30,28 +30,28 @@
                         <th class="px-4 py-3 font-medium text-end">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-white/10 bg-stone-950/60 text-stone-200">
+                <tbody class="divide-y divide-line text-ink">
                     @forelse ($accounts as $account)
                         <tr>
-                            <td class="px-4 py-4 font-medium text-white">{{ $account->code }}</td>
+                            <td class="px-4 py-4 figure-mono font-medium text-ink">{{ $account->code }}</td>
                             <td class="px-4 py-4">{{ $account->name }}</td>
                             <td class="px-4 py-4">{{ str($account->account_type->value)->title() }}</td>
                             <td class="px-4 py-4">{{ $account->parent?->code }} {{ $account->parent?->name }}</td>
                             <td class="px-4 py-4">
-                                <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $account->is_active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200' }}">{{ $account->is_active ? 'Active' : 'Inactive' }}</span>
+                                <x-status-badge :tone="$account->is_active ? 'success' : 'danger'">{{ $account->is_active ? 'Active' : 'Inactive' }}</x-status-badge>
                             </td>
                             <td class="px-4 py-4 text-end">
                                 <div class="flex justify-end gap-2">
                                     @can('update', $account)
-                                        <a href="{{ route('accounts.edit', $account) }}" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10">Edit</a>
-                                        <button wire:click="setActive({{ $account->id }}, {{ $account->is_active ? 'false' : 'true' }})" wire:confirm="{{ $account->is_active ? 'Deactivate' : 'Activate' }} this account?" class="rounded-xl border border-rose-400/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">{{ $account->is_active ? 'Deactivate' : 'Activate' }}</button>
+                                        <a href="{{ route('accounts.edit', $account) }}" class="btn-secondary btn-size-sm">Edit</a>
+                                        <button wire:click="setActive({{ $account->id }}, {{ $account->is_active ? 'false' : 'true' }})" wire:confirm="{{ $account->is_active ? 'Deactivate' : 'Activate' }} this account?" class="btn-warning btn-size-sm">{{ $account->is_active ? 'Deactivate' : 'Activate' }}</button>
                                     @endcan
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-10 text-center text-stone-400">No accounts found.</td>
+                            <td colspan="6" class="px-4 py-10 text-center text-muted">No accounts found.</td>
                         </tr>
                     @endforelse
                 </tbody>

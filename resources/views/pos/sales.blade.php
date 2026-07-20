@@ -1,5 +1,10 @@
 @php
     $themePreference = $cashier->theme_mode ?? 'system';
+    $brandingService = app(\App\Services\Settings\BusinessSettingsService::class);
+    $applicationName = $brandingService->applicationName();
+    $themeCss = $brandingService->themeStyleAttribute();
+    preg_match('/--brand-primary:([^;]+);/', $themeCss, $primaryMatch);
+    $themeColor = $primaryMatch[1] ?? '#0b1f2a';
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" data-theme="{{ $themePreference }}" data-theme-preference="{{ $themePreference }}">
@@ -8,8 +13,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="user-interface-preferences-url" content="{{ route('user-interface-preferences.update') }}">
-        <meta name="theme-color" content="#1daeff">
-        <title>{{ __('POS') }} | {{ config('app.name', 'SyntekPro ERP') }}</title>
+        <meta name="theme-color" content="{{ $themeColor }}">
+        <title>{{ __('POS') }} | {{ $applicationName }}</title>
         <script>
             (() => {
                 const preference = document.documentElement.dataset.themePreference || 'system';
@@ -21,9 +26,9 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
+        <link rel="icon" type="image/png" href="{{ $brandingService->faviconUrl() }}">
         <link rel="manifest" href="{{ route('manifest') }}">
-        <link rel="apple-touch-icon" href="{{ asset('images/icon-main-192.png') }}">
+        <link rel="apple-touch-icon" href="{{ $brandingService->touchIconUrl() }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
@@ -41,14 +46,14 @@
                         <p class="mt-2 text-sm text-muted">{{ $cashier->name }} · {{ $cashier->email }}</p>
                     </div>
 
-                    <div class="rounded-ui border border-ledger/20 bg-ledger/10 px-4 py-3 text-sm text-ledger">
+                    <div class="rounded-ui border border-ledger/25 bg-ledger/10 px-4 py-3 text-sm text-ledger">
                         <p class="font-medium">{{ __('Shop stock snapshot') }}</p>
                         <p class="mt-1 text-muted">{{ __('This screen stays usable offline after the first online load.') }}</p>
                     </div>
                 </div>
 
                 <div class="mt-6 grid gap-4 lg:grid-cols-[1fr_auto]">
-                    <input id="product-search" type="search" placeholder="{{ __('Search by name, SKU, or barcode') }}" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-sm text-ink outline-none placeholder:text-subtle" />
+                    <input id="product-search" type="search" placeholder="{{ __('Search by name, SKU, or barcode') }}" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none placeholder:text-subtle" />
                     <button id="sync-sales" type="button" class="btn-secondary">{{ __('Sync queued sales') }}</button>
                 </div>
 
@@ -63,10 +68,10 @@
                         <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brass">{{ __('Cart') }}</p>
                         <h2 class="mt-2 text-2xl font-semibold text-ink">{{ __('Current sale') }}</h2>
                     </div>
-                    <button type="button" data-theme-toggle class="rounded-full border border-line px-3 py-1 text-xs font-semibold text-muted"><span data-theme-toggle-label>{{ $themePreference }}</span></button>
+                    <button type="button" data-theme-toggle class="btn-secondary btn-size-sm !rounded-full"><span data-theme-toggle-label>{{ $themePreference }}</span></button>
                 </div>
 
-                <span id="queue-status" class="mt-4 inline-flex rounded-full bg-panel px-3 py-1 text-xs font-semibold text-muted">{{ __('Offline ready') }}</span>
+                <span id="queue-status" class="mt-4 inline-flex rounded-full border border-line bg-panel px-3 py-1 text-xs font-semibold text-muted">{{ __('Offline ready') }}</span>
 
                 <div class="mt-6 space-y-3" id="cart-list"></div>
 
@@ -74,7 +79,7 @@
                     <div class="space-y-3">
                         <div>
                             <label for="payment-method" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-muted">{{ __('Payment method') }}</label>
-                            <select id="payment-method" class="w-full rounded-ui border border-line bg-surface px-4 py-3 text-sm text-ink outline-none">
+                            <select id="payment-method" class="ui-select w-full rounded-ui border border-line bg-surface px-4 py-2.5 text-sm text-ink outline-none">
                                 <option value="cash">{{ __('Cash') }}</option>
                                 <option value="card">{{ __('Card') }}</option>
                                 <option value="credit_account">{{ __('Credit account') }}</option>
@@ -82,7 +87,7 @@
                         </div>
                         <div>
                             <label for="customer-select" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-muted">{{ __('Customer (credit only)') }}</label>
-                            <select id="customer-select" class="w-full rounded-ui border border-line bg-surface px-4 py-3 text-sm text-ink outline-none">
+                            <select id="customer-select" class="ui-select w-full rounded-ui border border-line bg-surface px-4 py-2.5 text-sm text-ink outline-none">
                                 <option value="">{{ __('Select customer') }}</option>
                             </select>
                         </div>

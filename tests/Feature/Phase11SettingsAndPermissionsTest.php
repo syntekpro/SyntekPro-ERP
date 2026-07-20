@@ -139,7 +139,7 @@ class Phase11SettingsAndPermissionsTest extends TestCase
             ->assertOk()
             ->assertSee('/images/logo-full.png', false)
             ->assertSee('/images/icon-main.png', false)
-            ->assertSee('Powered by SyntekPro ERP');
+            ->assertSee('Powered by');
     }
 
     public function test_dynamic_theme_css_overrides_compiled_tailwind_theme_variables(): void

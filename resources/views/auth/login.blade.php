@@ -1,16 +1,27 @@
+@php
+    $brandingService = app(\App\Services\Settings\BusinessSettingsService::class);
+    $brandingSettings = $brandingService->current();
+    $applicationName = $brandingService->applicationName();
+    $footerBranding = $brandingService->footerBranding();
+    $loginBranding = $brandingService->loginBranding();
+    $poweredByLabel = $footerBranding['powered_by_text'];
+    $brandWebsite = $footerBranding['website'];
+    $showPoweredBy = $footerBranding['show_powered_by'];
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" data-theme="system" data-theme-preference="system">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ __('Sign In') }} | {{ config('app.name', 'SyntekPro ERP') }}</title>
+        <title>{{ __('Sign In') }} | {{ $applicationName }}</title>
         <script>
             document.documentElement.dataset.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         </script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="{{ app(\App\Services\Settings\BusinessSettingsService::class)->faviconUrl() }}">
+        <link rel="icon" type="image/png" href="{{ $brandingService->faviconUrl() }}">
+        <link rel="apple-touch-icon" href="{{ $brandingService->touchIconUrl() }}">
         <link rel="manifest" href="{{ route('manifest') }}">
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -27,10 +38,10 @@
                         <option value="ar" @selected(app()->getLocale() === 'ar')>{{ __('Arabic') }}</option>
                     </select>
                 </form>
-                <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="SyntekPro ERP" class="h-auto w-full max-w-[16rem]" />
-                <p class="mt-3 text-sm uppercase tracking-[0.3em] text-brass">SyntekPro ERP</p>
-                <h1 class="mt-4 text-3xl font-semibold">{{ __('Back Office sign in') }}</h1>
-                <p class="mt-2 text-sm text-muted">{{ __('Use the seeded super-admin account or your assigned shop credentials.') }}</p>
+                <img src="{{ $brandingService->logoUrl() }}" alt="{{ $applicationName }}" class="h-auto w-full max-w-[16rem]" />
+                <p class="mt-3 text-sm uppercase tracking-[0.3em] text-brass">{{ $applicationName }}</p>
+                <h1 class="mt-4 text-3xl font-semibold">{{ $loginBranding['title'] }}</h1>
+                <p class="mt-2 text-sm text-muted">{{ $loginBranding['subtitle'] }}</p>
 
                 <form method="POST" action="{{ route('login.store') }}" class="mt-8 space-y-5">
                     @csrf
@@ -58,7 +69,9 @@
                     </button>
                 </form>
             </section>
-            <a href="https://syntekpro.com" target="_blank" rel="noopener noreferrer" class="fixed bottom-5 start-0 end-0 text-center text-xs font-semibold uppercase tracking-[0.24em] text-subtle transition hover:text-brass">{{ __('Powered by SyntekPro ERP') }}</a>
+            @if ($showPoweredBy)
+                <a href="{{ $brandWebsite }}" target="_blank" rel="noopener noreferrer" class="fixed bottom-5 start-0 end-0 text-center text-xs font-semibold uppercase tracking-[0.24em] text-subtle transition hover:text-brass">{{ $poweredByLabel }}</a>
+            @endif
         </main>
     </body>
 </html>

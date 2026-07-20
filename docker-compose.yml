@@ -25,17 +25,17 @@ services:
   db:
     image: mariadb:11.4
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-syntekpro}
-      MYSQL_USER: ${DB_USERNAME:-syntekpro}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-syntekpro}
+      MYSQL_DATABASE: ${DB_DATABASE:-erp}
+      MYSQL_USER: ${DB_USERNAME:-erp}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-erp}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
     volumes:
-      - syntekpro-db:/var/lib/mysql
+      - erp-db:/var/lib/mysql
 
   redis:
     image: redis:7-alpine
     volumes:
-      - syntekpro-redis:/data
+      - erp-redis:/data
 
   composer:
     image: composer:2
@@ -54,5 +54,5 @@ services:
     entrypoint: ["npm"]
 
 volumes:
-  syntekpro-db:
-  syntekpro-redis:
+  erp-db:
+  erp-redis:

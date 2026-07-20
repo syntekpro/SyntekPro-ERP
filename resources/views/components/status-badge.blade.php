@@ -3,11 +3,12 @@
 ])
 
 @php
-    $classes = match ($tone) {
-        'success', 'paid', 'credit' => 'status-pill status-pill-success',
-        'danger', 'overdue', 'debit', 'failed' => 'status-pill status-pill-danger',
-        default => 'status-pill status-pill-neutral',
+    $resolvedTone = match ($tone) {
+        'success', 'paid', 'credit', 'active', 'balanced' => 'success',
+        'danger', 'overdue', 'debit', 'failed', 'inactive', 'void', 'cancelled' => 'danger',
+        'warning', 'pending', 'draft', 'submitted', 'open', 'in_transit' => 'warning',
+        default => 'neutral',
     };
 @endphp
 
-<span {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</span>
+<x-badge :tone="$resolvedTone" {{ $attributes }}>{{ $slot }}</x-badge>

@@ -1,9 +1,14 @@
 <section class="space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Back Office module</p>
-            <h1 class="mt-3 text-4xl font-semibold text-ink">Products</h1>
-            <p class="mt-3 max-w-2xl text-sm text-muted">Manage the shared catalog, unit setup, and pricing defaults used across every shop.</p>
+        <div class="flex items-start gap-3">
+            <x-icon-tile color="brass" size="lg">
+                <x-lucide-tag class="h-7 w-7" />
+            </x-icon-tile>
+            <div>
+                <p class="text-xs font-medium text-brass">Back office module</p>
+                <h1 class="mt-1 text-3xl font-semibold text-ink">Products</h1>
+                <p class="mt-2 max-w-2xl text-sm text-muted">Manage the shared catalog, unit setup, and pricing defaults used across every shop.</p>
+            </div>
         </div>
 
         @can('create', \App\Models\Product::class)
@@ -14,7 +19,7 @@
         @endcan
     </div>
 
-    <div class="rounded-ui border border-line bg-surface p-6 shadow-sm">
+    <x-card surface="surface">
         @if (session('status'))
             <div class="mb-5 rounded-ui border border-line bg-panel px-4 py-3 text-sm text-ink">{{ session('status') }}</div>
         @endif
@@ -25,7 +30,7 @@
                     <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Search</label>
                     <div class="relative">
                         <x-lucide-search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-                        <input wire:model.live.debounce.300ms="search" type="search" placeholder="Name, SKU, or barcode" class="w-full rounded-ui border border-line bg-panel py-2.5 ps-9 pe-3 text-sm text-ink outline-none placeholder:text-subtle" />
+                        <x-input wire:model.live.debounce.300ms="search" type="search" placeholder="Name, SKU, or barcode" class="ps-9" />
                     </div>
                 </div>
 
@@ -104,9 +109,8 @@
         @if ($products->isEmpty())
             <x-empty-state class="mt-6" icon="package-search" title="No products found" message="Adjust the filters or create the first catalog item." :action-label="auth()->user()->can('create', \App\Models\Product::class) ? 'Create New' : null" :action-href="auth()->user()->can('create', \App\Models\Product::class) ? route('products.create') : null" />
         @else
-            <div class="mt-6 overflow-x-auto rounded-ui border border-line table-baseline">
-                <table class="min-w-full text-start text-sm">
-                    <thead class="text-muted">
+            <x-table class="mt-6">
+                <thead class="text-muted">
                         <tr>
                             <th class="w-12 px-4 py-3 font-medium">
                                 <span class="sr-only">Select</span>
@@ -187,12 +191,11 @@
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
-            </div>
+                </x-table>
 
             <div class="mt-5">
                 {{ $products->links() }}
             </div>
         @endif
-    </div>
+    </x-card>
 </section>

@@ -1,0 +1,306 @@
+diff --git a/resources/css/app.css b/resources/css/app.css
+index 5b20e59..caf247d 100644
+--- a/resources/css/app.css
++++ b/resources/css/app.css
+@@ -12,17 +12,17 @@ @theme {
+ 
+     --radius-ui: 0.625rem;
+ 
+-    --color-ink-navy: #102033;
+-    --color-brass: #b8872f;
+-    --color-brass-contrast: #2b1b05;
+-    --color-ledger: #24745a;
+-    --color-rust: #a8482f;
+-    --color-paper: #f7f1e4;
+-    --color-surface: #fffaf0;
+-    --color-panel: #fff7e8;
+-    --color-line: #ded1bb;
+-    --color-muted: #5f6b77;
+-    --color-subtle: #83909b;
++    --color-ink-navy: #12151a;
++    --color-brass: #d97706;
++    --color-brass-contrast: #7c3d02;
++    --color-ledger: #0f9e93;
++    --color-rust: #dc2626;
++    --color-paper: #f6f7f9;
++    --color-surface: #ffffff;
++    --color-panel: #f6f7f9;
++    --color-line: #e7e9ee;
++    --color-muted: #6b7280;
++    --color-subtle: #9ca3af;
+ 
+     --color-ink: var(--color-ink-navy);
+     --color-amber-100: #f4dfbd;
+@@ -744,6 +744,51 @@ @layer components {
+         body.shell-drawer-collapsed [data-shell-drawer] [data-nav-chevron] {
+             display: none;
+         }
++
++        /* Hover-to-peek: when collapsed, hovering the rail temporarily expands it
++           as an overlay (fixed position) without shifting the grid layout. */
++        body.shell-drawer-collapsed .shell-drawer:hover {
++            position: fixed;
++            top: 0;
++            width: 18rem;
++            z-index: 55;
++            box-shadow: 0 20px 45px color-mix(in srgb, var(--color-ink-navy) 18%, transparent);
++        }
++
++        body.shell-drawer-collapsed .shell-drawer:hover .drawer-copy {
++            display: block;
++        }
++
++        body.shell-drawer-collapsed .shell-drawer:hover .drawer-icon-only {
++            display: none;
++        }
++
++        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] .nav-link,
++        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] .nav-section-button {
++            justify-content: flex-start;
++            padding-inline: 0.75rem;
++        }
++
++        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] [data-nav-section-panel] {
++            display: block;
++        }
++
++        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] [data-nav-chevron] {
++            display: block;
++        }
++    }
++
++    [data-shell-drawer] nav::-webkit-scrollbar {
++        width: 6px;
++    }
++
++    [data-shell-drawer] nav::-webkit-scrollbar-thumb {
++        background: var(--app-line);
++        border-radius: 8px;
++    }
++
++    [data-shell-drawer] nav::-webkit-scrollbar-track {
++        background: transparent;
+     }
+ 
+     @media (prefers-reduced-motion: reduce) {
+diff --git a/resources/views/components/icon-tile.blade.php b/resources/views/components/icon-tile.blade.php
+new file mode 100644
+index 0000000..0a042c0
+--- /dev/null
++++ b/resources/views/components/icon-tile.blade.php
+@@ -0,0 +1,28 @@
++@props([
++    'color' => 'brass',
++    'size' => 'md',
++])
++
++@php
++    $sizes = [
++        'sm' => 'h-8 w-8',
++        'md' => 'h-11 w-11',
++        'lg' => 'h-14 w-14',
++    ];
++
++    $sizeClasses = $sizes[$size] ?? $sizes['md'];
++@endphp
++
++<div
++    {{ $attributes->merge(['class' => "icon-tile {$sizeClasses} shrink-0 rounded-xl flex items-center justify-center"]) }}
++    style="
++        background: linear-gradient(155deg, color-mix(in srgb, var(--color-{{ $color }}) 16%, white), color-mix(in srgb, var(--color-{{ $color }}) 8%, white));
++        box-shadow:
++            inset 0 1px 0 rgba(255, 255, 255, 0.6),
++            inset 0 -1px 2px color-mix(in srgb, var(--color-{{ $color }}) 25%, transparent),
++            0 1px 2px color-mix(in srgb, var(--color-ink-navy) 8%, transparent);
++        color: color-mix(in srgb, var(--color-{{ $color }}) 70%, black);
++    "
++>
++    {{ $slot }}
++</div>
+diff --git a/resources/views/components/shell/drawer.blade.php b/resources/views/components/shell/drawer.blade.php
+index 28c9733..d32b043 100644
+--- a/resources/views/components/shell/drawer.blade.php
++++ b/resources/views/components/shell/drawer.blade.php
+@@ -27,7 +27,7 @@
+             </button>
+         </div>
+ 
+-        <nav class="mt-5 space-y-2 text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
++        <nav class="mt-5 min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden pe-1 text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
+             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'nav-link-active' : '' }}" aria-label="{{ __('Dashboard') }}">
+                 <x-lucide-layout-dashboard class="h-4 w-4 shrink-0" />
+                 <span class="drawer-copy">{{ __('Dashboard') }}</span>
+diff --git a/resources/views/components/shell/header.blade.php b/resources/views/components/shell/header.blade.php
+index 93dd72a..297a18e 100644
+--- a/resources/views/components/shell/header.blade.php
++++ b/resources/views/components/shell/header.blade.php
+@@ -18,35 +18,32 @@
+                 <button
+                     type="button"
+                     data-shell-drawer-toggle
+-                    class="inline-flex h-10 w-10 items-center justify-center rounded-ui border border-line text-ink transition hover:border-brass/60 hover:bg-panel"
++                    class="inline-flex h-9 w-9 items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink"
+                     aria-label="{{ __('Toggle navigation drawer') }}"
+                 >
+-                    <x-lucide-panel-left class="h-4 w-4" />
++                    <x-lucide-panel-left class="h-[18px] w-[18px]" />
+                 </button>
+-                <kbd class="hidden rounded border border-line px-2 py-1 font-mono text-[0.65rem] text-subtle lg:inline">Ctrl B</kbd>
+ 
+-                <div class="header-brand flex min-w-0 items-center gap-3 rounded-ui border border-line bg-panel px-3 py-2">
++                <div class="header-brand flex min-w-0 items-center gap-2.5 px-1">
+                     <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="{{ $applicationName }}" class="h-7 w-auto" />
+-                    <div class="min-w-0">
++                    <div class="min-w-0 hidden sm:block">
+                         <p class="truncate text-sm font-semibold text-ink">{{ $applicationName }}</p>
+-                        <p class="truncate text-[0.7rem] uppercase tracking-[0.2em] text-subtle">{{ $headerBrandSubtext ?: __('Operations Hub') }}</p>
++                        <p class="truncate text-[0.65rem] text-subtle">{{ $headerBrandSubtext ?: __('Operations Hub') }}</p>
+                     </div>
+                 </div>
+             </div>
+ 
+-            <div class="flex items-center gap-2 text-xs">
+-                <span class="rounded-ui border border-line bg-panel px-2 py-1 uppercase tracking-[0.18em] text-subtle" data-header-date>{{ now()->translatedFormat('D, d M Y') }}</span>
+-                <span class="figure-mono rounded-ui border border-line bg-panel px-2 py-1 text-ink" data-header-time>{{ now()->format('H:i:ss') }}</span>
++            <div class="hidden items-center gap-2 text-xs text-subtle lg:flex">
++                <span data-header-date>{{ now()->translatedFormat('D, d M Y') }}</span>
++                <span class="figure-mono" data-header-time>{{ now()->format('H:i:ss') }}</span>
+             </div>
+         </div>
+ 
+         <div class="shell-header-row mt-3">
+-            <div class="flex min-w-0 items-center gap-2">
++            <div class="flex min-w-0 items-center gap-1">
+                 <details class="header-menu relative hidden sm:block">
+-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
+-                        <x-lucide-layout-dashboard class="h-4 w-4" />
+-                        <span class="max-w-[12rem] truncate">{{ $headerBrandText ?: $workspaceLabel }}</span>
+-                        <x-lucide-chevron-down class="h-3.5 w-3.5 text-subtle" />
++                    <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Workspace selector') }}">
++                        <x-lucide-layout-dashboard class="h-[18px] w-[18px]" />
+                     </summary>
+                     <div class="header-menu-panel absolute start-0 z-40 mt-2 w-72 rounded-ui border border-line bg-surface p-3 shadow-xl">
+                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Workspace selector') }}</p>
+@@ -66,10 +63,8 @@ class="inline-flex h-10 w-10 items-center justify-center rounded-ui border borde
+                 </details>
+ 
+                 <details class="header-menu relative">
+-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
+-                        <x-lucide-zap class="h-4 w-4" />
+-                        <span class="hidden md:inline">{{ __('Quick actions') }}</span>
+-                        <x-lucide-chevron-down class="h-3.5 w-3.5 text-subtle" />
++                    <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick actions') }}">
++                        <x-lucide-zap class="h-[18px] w-[18px]" />
+                     </summary>
+                     <div class="header-menu-panel absolute start-0 z-40 mt-2 w-72 rounded-ui border border-line bg-surface p-3 shadow-xl">
+                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Quick actions') }}</p>
+@@ -91,7 +86,7 @@ class="inline-flex h-10 w-10 items-center justify-center rounded-ui border borde
+             <button
+                 type="button"
+                 data-command-open
+-                class="shell-search-trigger flex min-w-0 items-center gap-2 rounded-ui border border-line bg-panel px-3 py-2 text-start text-sm text-muted transition hover:border-brass/60 hover:text-ink"
++                class="shell-search-trigger flex min-w-0 items-center gap-2 rounded-ui border border-line bg-surface px-3 py-2 text-start text-sm text-muted shadow-sm transition hover:border-brass/50 hover:text-ink"
+                 aria-label="{{ __('Open global search') }}"
+             >
+                 <x-lucide-search class="h-4 w-4 shrink-0" />
+@@ -99,12 +94,11 @@ class="shell-search-trigger flex min-w-0 items-center gap-2 rounded-ui border bo
+                 <kbd class="ms-auto hidden font-mono text-[0.65rem] text-subtle sm:inline">Ctrl K</kbd>
+             </button>
+ 
+-            <div class="flex items-center justify-end gap-2">
++            <div class="flex items-center justify-end gap-1">
+                 <details class="header-menu relative">
+-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
+-                        <x-lucide-bell class="h-4 w-4" />
+-                        <span class="hidden md:inline">{{ __('Notifications') }}</span>
+-                        <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brass/20 px-1.5 text-[0.65rem] font-semibold text-brass">3</span>
++                    <summary class="relative flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Notifications') }}">
++                        <x-lucide-bell class="h-[18px] w-[18px]" />
++                        <span class="absolute -end-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rust px-1 text-[0.6rem] font-semibold text-white">3</span>
+                     </summary>
+                     <div class="header-menu-panel absolute end-0 z-40 mt-2 w-80 rounded-ui border border-line bg-surface p-3 shadow-xl">
+                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Notifications') }}</p>
+@@ -123,27 +117,29 @@ class="shell-search-trigger flex min-w-0 items-center gap-2 rounded-ui border bo
+                         id="header-locale-switch"
+                         name="locale"
+                         onchange="this.form.submit()"
+-                        class="h-10 rounded-ui border border-line bg-panel px-3 text-sm font-semibold text-ink outline-none"
++                        class="h-9 rounded-ui border-0 bg-transparent px-2 text-sm font-medium text-subtle outline-none transition hover:bg-panel hover:text-ink"
+                     >
+-                        <option value="en" @selected($activeLocale === 'en')>{{ __('English') }}</option>
+-                        <option value="ar" @selected($activeLocale === 'ar')>{{ __('Arabic') }}</option>
++                        <option value="en" @selected($activeLocale === 'en')>{{ __('EN') }}</option>
++                        <option value="ar" @selected($activeLocale === 'ar')>{{ __('AR') }}</option>
+                     </select>
+                 </form>
+ 
+                 <button
+                     type="button"
+                     data-theme-toggle
+-                    class="inline-flex h-10 items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm font-semibold text-ink transition hover:border-brass/60"
++                    class="inline-flex h-9 w-9 items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink"
++                    aria-label="{{ __('Toggle theme') }}"
+                 >
+-                    <x-lucide-sun-moon class="h-4 w-4" />
+-                    <span data-theme-toggle-label class="text-xs uppercase tracking-[0.2em] text-subtle">{{ $themePreference }}</span>
++                    <x-lucide-sun-moon class="h-[18px] w-[18px]" />
+                 </button>
+ 
+                 <details class="profile-menu relative">
+-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
+-                        <x-lucide-circle-user-round class="h-4 w-4" />
+-                        <span class="hidden md:block max-w-[12rem] truncate">{{ $currentUser?->email }}</span>
+-                        <x-lucide-chevron-down class="h-3.5 w-3.5 text-subtle" />
++                    <summary class="flex h-9 cursor-pointer list-none items-center gap-2 rounded-ui px-1.5 text-sm text-ink transition hover:bg-panel">
++                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-panel text-xs font-medium text-subtle">
++                            {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($currentUser?->email ?? 'U', 0, 2)) }}
++                        </span>
++                        <span class="hidden lg:block max-w-[12rem] truncate">{{ $currentUser?->email }}</span>
++                        <x-lucide-chevron-down class="hidden lg:block h-3.5 w-3.5 text-subtle" />
+                     </summary>
+                     <div class="profile-menu-panel absolute end-0 z-40 mt-2 w-64 rounded-ui border border-line bg-surface p-3 shadow-xl">
+                         <p class="truncate text-sm font-semibold text-ink">{{ $currentUser?->email }}</p>
+diff --git a/resources/views/dashboard.blade.php b/resources/views/dashboard.blade.php
+index 2db0168..f0efd2f 100644
+--- a/resources/views/dashboard.blade.php
++++ b/resources/views/dashboard.blade.php
+@@ -138,23 +138,30 @@
+             </div>
+         </x-card>
+ 
+-        <div class="grid gap-4 md:grid-cols-3">
++        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
++            @php
++                $toneColor = ['success' => 'ledger', 'warning' => 'brass', 'danger' => 'rust', 'info' => 'ledger'];
++            @endphp
+             @foreach ($kpiCards as $card)
+                 <x-card class="relative overflow-hidden" surface="surface">
+-                    <div class="pointer-events-none absolute -end-8 -top-8 h-28 w-28 rounded-full bg-brass/10 blur-xl"></div>
+-                    <div class="relative">
+-                        <div class="flex items-center justify-between gap-3">
+-                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ $card['label'] }}</p>
+-                            <x-status-badge :tone="$card['tone']">{{ __('Live') }}</x-status-badge>
++                    <div class="relative flex items-start gap-3">
++                        <x-icon-tile :color="$toneColor[$card['tone']] ?? 'brass'">
++                            <x-dynamic-component :component="'lucide-'.$card['icon']" class="h-6 w-6" />
++                        </x-icon-tile>
++                        <div class="min-w-0 flex-1">
++                            <div class="flex items-center justify-between gap-2">
++                                <p class="text-4xl font-semibold leading-none text-ink">{{ $card['value'] }}</p>
++                                <x-status-badge :tone="$card['tone']">{{ __('Live') }}</x-status-badge>
++                            </div>
++                            <p class="mt-2 text-sm font-medium text-ink">{{ $card['label'] }}</p>
++                            <p class="mt-0.5 text-xs text-muted">{{ $card['context'] }}</p>
+                         </div>
+-                        <p class="mt-4 text-4xl font-semibold text-ink">{{ $card['value'] }}</p>
+-                        <p class="mt-2 text-sm text-muted">{{ $card['context'] }}</p>
+-                        <x-dynamic-component :component="'lucide-'.$card['icon']" class="mt-4 h-5 w-5 text-brass" />
+                     </div>
+                 </x-card>
+             @endforeach
+         </div>
+ 
++
+         <div class="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
+             <x-card surface="surface">
+                 <x-slot:header>

@@ -1,0 +1,314 @@
+diff --git a/resources/views/livewire/products/index-page.blade.php b/resources/views/livewire/products/index-page.blade.php
+index 01f656b..2177a2b 100644
+--- a/resources/views/livewire/products/index-page.blade.php
++++ b/resources/views/livewire/products/index-page.blade.php
+@@ -1,9 +1,14 @@
+ <section class="space-y-6">
+     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+-        <div>
+-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Back Office module</p>
+-            <h1 class="mt-3 text-4xl font-semibold text-ink">Products</h1>
+-            <p class="mt-3 max-w-2xl text-sm text-muted">Manage the shared catalog, unit setup, and pricing defaults used across every shop.</p>
++        <div class="flex items-start gap-3">
++            <x-icon-tile color="brass" size="lg">
++                <x-lucide-tag class="h-7 w-7" />
++            </x-icon-tile>
++            <div>
++                <p class="text-xs font-medium text-brass">Back office module</p>
++                <h1 class="mt-1 text-3xl font-semibold text-ink">Products</h1>
++                <p class="mt-2 max-w-2xl text-sm text-muted">Manage the shared catalog, unit setup, and pricing defaults used across every shop.</p>
++            </div>
+         </div>
+ 
+         @can('create', \App\Models\Product::class)
+@@ -14,7 +19,7 @@
+         @endcan
+     </div>
+ 
+-    <div class="rounded-ui border border-line bg-surface p-6 shadow-sm">
++    <x-card surface="surface">
+         @if (session('status'))
+             <div class="mb-5 rounded-ui border border-line bg-panel px-4 py-3 text-sm text-ink">{{ session('status') }}</div>
+         @endif
+@@ -25,7 +30,7 @@
+                     <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Search</label>
+                     <div class="relative">
+                         <x-lucide-search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+-                        <input wire:model.live.debounce.300ms="search" type="search" placeholder="Name, SKU, or barcode" class="w-full rounded-ui border border-line bg-panel py-2.5 ps-9 pe-3 text-sm text-ink outline-none placeholder:text-subtle" />
++                        <x-input wire:model.live.debounce.300ms="search" type="search" placeholder="Name, SKU, or barcode" class="ps-9" />
+                     </div>
+                 </div>
+ 
+@@ -104,9 +109,8 @@
+         @if ($products->isEmpty())
+             <x-empty-state class="mt-6" icon="package-search" title="No products found" message="Adjust the filters or create the first catalog item." :action-label="auth()->user()->can('create', \App\Models\Product::class) ? 'Create New' : null" :action-href="auth()->user()->can('create', \App\Models\Product::class) ? route('products.create') : null" />
+         @else
+-            <div class="mt-6 overflow-x-auto rounded-ui border border-line table-baseline">
+-                <table class="min-w-full text-start text-sm">
+-                    <thead class="text-muted">
++            <x-table class="mt-6">
++                <thead class="text-muted">
+                         <tr>
+                             <th class="w-12 px-4 py-3 font-medium">
+                                 <span class="sr-only">Select</span>
+@@ -187,12 +191,11 @@
+                             </tr>
+                         @endforeach
+                     </tbody>
+-                </table>
+-            </div>
++                </x-table>
+ 
+             <div class="mt-5">
+                 {{ $products->links() }}
+             </div>
+         @endif
+-    </div>
++    </x-card>
+ </section>
+diff --git a/resources/views/livewire/stock-transfers/index-page.blade.php b/resources/views/livewire/stock-transfers/index-page.blade.php
+index ab4f07b..2e930ba 100644
+--- a/resources/views/livewire/stock-transfers/index-page.blade.php
++++ b/resources/views/livewire/stock-transfers/index-page.blade.php
+@@ -1,9 +1,18 @@
++@php
++    $canCreateTransfer = auth()->user()?->can('create', \App\Models\StockTransfer::class) ?? false;
++@endphp
++
+ <section class="space-y-6">
+     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+-        <div>
+-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Inventory Transfers</p>
+-            <h1 class="mt-3 text-4xl font-semibold text-ink">Stock transfers</h1>
+-            <p class="mt-3 max-w-2xl text-sm text-muted">Create warehouse-to-shop transfers, dispatch them, and receive them into shop stock with audited status transitions.</p>
++        <div class="flex items-start gap-3">
++            <x-icon-tile color="ledger" size="lg">
++                <x-lucide-arrow-left-right class="h-7 w-7" />
++            </x-icon-tile>
++            <div>
++                <p class="text-xs font-medium text-ledger">Inventory transfers</p>
++                <h1 class="mt-1 text-3xl font-semibold text-ink">Stock transfers</h1>
++                <p class="mt-2 max-w-2xl text-sm text-muted">Create warehouse-to-shop transfers, dispatch them, and receive them into shop stock with audited status transitions.</p>
++            </div>
+         </div>
+ 
+         @can('create', \App\Models\StockTransfer::class)
+@@ -11,45 +20,50 @@
+         @endcan
+     </div>
+ 
+-    <div class="rounded-ui border border-line bg-surface p-6">
+-        <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+-            <div>
+-                <h2 class="text-lg font-semibold text-ink">Transfer queue</h2>
+-                <p class="mt-1 text-sm text-muted">Track pending, in-transit, and received stock movements.</p>
++    <x-card surface="surface">
++        <x-slot:header>
++            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
++                <div>
++                    <h2 class="text-lg font-semibold text-ink">Transfer queue</h2>
++                    <p class="mt-1 text-sm text-muted">Track pending, in-transit, and received stock movements.</p>
++                </div>
++                <div class="relative w-full lg:max-w-sm">
++                    <x-lucide-search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
++                    <x-input type="search" wire:model.live.debounce.300ms="search" placeholder="Search by warehouse or shop" class="ps-9" />
++                </div>
+             </div>
+-            <input type="search" wire:model.live.debounce.300ms="search" placeholder="Search by warehouse or shop" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none placeholder:text-subtle lg:max-w-sm" />
+-        </div>
++        </x-slot:header>
+ 
+-        <div class="space-y-4">
+-            @forelse ($transfers as $transfer)
+-                <article class="rounded-ui border border-line bg-panel p-5">
+-                    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+-                        <div>
+-                            <div class="flex flex-wrap items-center gap-3">
+-                                <h3 class="text-lg font-semibold text-ink">{{ $transfer->warehouse->name }} to {{ $transfer->destinationShop->name }}</h3>
+-                                @php
+-                                    $transferTone = $transfer->status->value === 'pending'
+-                                        ? 'warning'
+-                                        : ($transfer->status->value === 'in_transit' ? 'info' : 'success');
+-                                @endphp
+-                                <x-status-badge :tone="$transferTone">{{ str($transfer->status->value)->replace('_', ' ')->title() }}</x-status-badge>
++        @if ($transfers->count())
++            <div class="space-y-4">
++                @foreach ($transfers as $transfer)
++                    <article class="rounded-ui border border-line bg-panel p-5">
++                        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
++                            <div>
++                                <div class="flex flex-wrap items-center gap-3">
++                                    <h3 class="text-lg font-semibold text-ink">{{ $transfer->warehouse->name }} to {{ $transfer->destinationShop->name }}</h3>
++                                    @php
++                                        $transferTone = $transfer->status->value === 'pending'
++                                            ? 'warning'
++                                            : ($transfer->status->value === 'in_transit' ? 'info' : 'success');
++                                    @endphp
++                                    <x-status-badge :tone="$transferTone">{{ str($transfer->status->value)->replace('_', ' ')->title() }}</x-status-badge>
++                                </div>
++                                <p class="mt-2 text-sm text-muted">{{ $transfer->notes ?: 'No notes attached.' }}</p>
++                                <p class="mt-3 text-xs text-subtle">Created {{ $transfer->created_at->diffForHumans() }}</p>
+                             </div>
+-                            <p class="mt-2 text-sm text-muted">{{ $transfer->notes ?: 'No notes attached.' }}</p>
+-                            <p class="mt-3 text-xs uppercase tracking-[0.28em] text-subtle">Created {{ $transfer->created_at->diffForHumans() }}</p>
+-                        </div>
+ 
+-                        <div class="flex gap-2">
+-                            @can('markInTransit', $transfer)
+-                                <button wire:click="markInTransit({{ $transfer->id }})" wire:confirm="Mark this transfer in transit?" class="btn-secondary btn-size-sm">Dispatch</button>
+-                            @endcan
+-                            @can('receive', $transfer)
+-                                <button wire:click="receive({{ $transfer->id }})" wire:confirm="Receive this transfer and move stock?" class="btn-success btn-size-sm">Receive</button>
+-                            @endcan
++                            <div class="flex gap-2">
++                                @can('markInTransit', $transfer)
++                                    <button wire:click="markInTransit({{ $transfer->id }})" wire:confirm="Mark this transfer in transit?" class="btn-secondary btn-size-sm">Dispatch</button>
++                                @endcan
++                                @can('receive', $transfer)
++                                    <button wire:click="receive({{ $transfer->id }})" wire:confirm="Receive this transfer and move stock?" class="btn-success btn-size-sm">Receive</button>
++                                @endcan
++                            </div>
+                         </div>
+-                    </div>
+ 
+-                    <div class="mt-4 overflow-hidden rounded-ui border border-line table-baseline">
+-                        <table class="min-w-full text-start text-sm ui-table">
++                        <x-table dense class="mt-4">
+                             <thead>
+                                 <tr>
+                                     <th class="px-4 py-3 font-medium">Product</th>
+@@ -64,14 +78,20 @@
+                                     </tr>
+                                 @endforeach
+                             </tbody>
+-                        </table>
+-                    </div>
+-                </article>
+-            @empty
+-                <div class="rounded-ui border border-line bg-panel px-4 py-10 text-center text-muted">No transfers match the current filter.</div>
+-            @endforelse
+-        </div>
++                        </x-table>
++                    </article>
++                @endforeach
++            </div>
+ 
+-        <div class="mt-5">{{ $transfers->links() }}</div>
+-    </div>
++            <div class="mt-5">{{ $transfers->links() }}</div>
++        @else
++            <x-empty-state
++                icon="arrow-left-right"
++                :title="$search !== '' ? 'No transfers match this search' : 'No transfers yet'"
++                :message="$search !== '' ? 'Try a different warehouse or shop name.' : 'Create your first stock transfer to move inventory into a shop.'"
++                :actionLabel="$search === '' && $canCreateTransfer ? 'Create transfer' : null"
++                :actionHref="$search === '' && $canCreateTransfer ? route('stock-transfers.create') : null"
++            />
++        @endif
++    </x-card>
+ </section>
+\ No newline at end of file
+diff --git a/resources/views/livewire/warehouses/index-page.blade.php b/resources/views/livewire/warehouses/index-page.blade.php
+index b154c89..24557bf 100644
+--- a/resources/views/livewire/warehouses/index-page.blade.php
++++ b/resources/views/livewire/warehouses/index-page.blade.php
+@@ -1,9 +1,18 @@
++@php
++    $canCreateWarehouse = auth()->user()?->can('create', \App\Models\Warehouse::class) ?? false;
++@endphp
++
+ <section class="space-y-6">
+     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+-        <div>
+-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Back Office module</p>
+-            <h1 class="mt-3 text-4xl font-semibold text-ink">Warehouses</h1>
+-            <p class="mt-3 max-w-2xl text-sm text-muted">Maintain central stock locations that will dispatch inventory into shop-owned stock.</p>
++        <div class="flex items-start gap-3">
++            <x-icon-tile color="ledger" size="lg">
++                <x-lucide-warehouse class="h-7 w-7" />
++            </x-icon-tile>
++            <div>
++                <p class="text-xs font-medium text-ledger">Back office module</p>
++                <h1 class="mt-1 text-3xl font-semibold text-ink">Warehouses</h1>
++                <p class="mt-2 max-w-2xl text-sm text-muted">Maintain central stock locations that will dispatch inventory into shop-owned stock.</p>
++            </div>
+         </div>
+ 
+         @can('create', \App\Models\Warehouse::class)
+@@ -11,18 +20,23 @@
+         @endcan
+     </div>
+ 
+-    <div class="rounded-ui border border-line bg-surface p-6">
+-        <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+-            <div>
+-                <h2 class="text-lg font-semibold text-ink">Central locations</h2>
+-                <p class="mt-1 text-sm text-muted">Search warehouse codes and active fulfillment points.</p>
+-            </div>
++    <x-card surface="surface">
++        <x-slot:header>
++            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
++                <div>
++                    <h2 class="text-lg font-semibold text-ink">Central locations</h2>
++                    <p class="mt-1 text-sm text-muted">Search warehouse codes and active fulfillment points.</p>
++                </div>
+ 
+-            <input wire:model.live.debounce.300ms="search" type="search" placeholder="Search by name or code" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none placeholder:text-subtle lg:max-w-sm" />
+-        </div>
++                <div class="relative w-full lg:max-w-sm">
++                    <x-lucide-search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
++                    <x-input wire:model.live.debounce.300ms="search" type="search" placeholder="Search by name or code" class="ps-9" />
++                </div>
++            </div>
++        </x-slot:header>
+ 
+-        <div class="overflow-hidden rounded-ui border border-line table-baseline">
+-            <table class="min-w-full text-start text-sm ui-table">
++        @if ($warehouses->count())
++            <x-table>
+                 <thead>
+                     <tr>
+                         <th class="px-4 py-3 font-medium">Name</th>
+@@ -32,7 +46,7 @@
+                     </tr>
+                 </thead>
+                 <tbody class="divide-y divide-line text-ink">
+-                    @forelse ($warehouses as $warehouse)
++                    @foreach ($warehouses as $warehouse)
+                         <tr>
+                             <td class="px-4 py-4 font-medium text-ink">{{ $warehouse->name }}</td>
+                             <td class="px-4 py-4 figure-mono">{{ $warehouse->code }}</td>
+@@ -50,17 +64,21 @@
+                                 </div>
+                             </td>
+                         </tr>
+-                    @empty
+-                        <tr>
+-                            <td colspan="4" class="px-4 py-10 text-center text-muted">No warehouses match the current filter.</td>
+-                        </tr>
+-                    @endforelse
++                    @endforeach
+                 </tbody>
+-            </table>
+-        </div>
++            </x-table>
+ 
+-        <div class="mt-5">
+-            {{ $warehouses->links() }}
+-        </div>
+-    </div>
++            <div class="mt-5">
++                {{ $warehouses->links() }}
++            </div>
++        @else
++            <x-empty-state
++                icon="warehouse"
++                :title="$search !== '' ? 'No warehouses match this search' : 'No warehouses yet'"
++                :message="$search !== '' ? 'Try a different name or code.' : 'Create your first warehouse to start dispatching stock.'"
++                :actionLabel="$search === '' && $canCreateWarehouse ? 'Create warehouse' : null"
++                :actionHref="$search === '' && $canCreateWarehouse ? route('warehouses.create') : null"
++            />
++        @endif
++    </x-card>
+ </section>
+\ No newline at end of file

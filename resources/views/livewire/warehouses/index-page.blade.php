@@ -1,9 +1,18 @@
+@php
+    $canCreateWarehouse = auth()->user()?->can('create', \App\Models\Warehouse::class) ?? false;
+@endphp
+
 <section class="space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Back Office module</p>
-            <h1 class="mt-3 text-4xl font-semibold text-ink">Warehouses</h1>
-            <p class="mt-3 max-w-2xl text-sm text-muted">Maintain central stock locations that will dispatch inventory into shop-owned stock.</p>
+        <div class="flex items-start gap-3">
+            <x-icon-tile color="ledger" size="lg">
+                <x-lucide-warehouse class="h-7 w-7" />
+            </x-icon-tile>
+            <div>
+                <p class="text-xs font-medium text-ledger">Back office module</p>
+                <h1 class="mt-1 text-3xl font-semibold text-ink">Warehouses</h1>
+                <p class="mt-2 max-w-2xl text-sm text-muted">Maintain central stock locations that will dispatch inventory into shop-owned stock.</p>
+            </div>
         </div>
 
         @can('create', \App\Models\Warehouse::class)
@@ -11,18 +20,23 @@
         @endcan
     </div>
 
-    <div class="rounded-ui border border-line bg-surface p-6">
-        <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <h2 class="text-lg font-semibold text-ink">Central locations</h2>
-                <p class="mt-1 text-sm text-muted">Search warehouse codes and active fulfillment points.</p>
+    <x-card surface="surface">
+        <x-slot:header>
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-ink">Central locations</h2>
+                    <p class="mt-1 text-sm text-muted">Search warehouse codes and active fulfillment points.</p>
+                </div>
+
+                <div class="relative w-full lg:max-w-sm">
+                    <x-lucide-search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+                    <x-input wire:model.live.debounce.300ms="search" type="search" placeholder="Search by name or code" class="ps-9" />
+                </div>
             </div>
+        </x-slot:header>
 
-            <input wire:model.live.debounce.300ms="search" type="search" placeholder="Search by name or code" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none placeholder:text-subtle lg:max-w-sm" />
-        </div>
-
-        <div class="overflow-hidden rounded-ui border border-line table-baseline">
-            <table class="min-w-full text-start text-sm ui-table">
+        @if ($warehouses->count())
+            <x-table>
                 <thead>
                     <tr>
                         <th class="px-4 py-3 font-medium">Name</th>
@@ -32,7 +46,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line text-ink">
-                    @forelse ($warehouses as $warehouse)
+                    @foreach ($warehouses as $warehouse)
                         <tr>
                             <td class="px-4 py-4 font-medium text-ink">{{ $warehouse->name }}</td>
                             <td class="px-4 py-4 figure-mono">{{ $warehouse->code }}</td>
@@ -50,17 +64,21 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-4 py-10 text-center text-muted">No warehouses match the current filter.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
-            </table>
-        </div>
+            </x-table>
 
-        <div class="mt-5">
-            {{ $warehouses->links() }}
-        </div>
-    </div>
+            <div class="mt-5">
+                {{ $warehouses->links() }}
+            </div>
+        @else
+            <x-empty-state
+                icon="warehouse"
+                :title="$search !== '' ? 'No warehouses match this search' : 'No warehouses yet'"
+                :message="$search !== '' ? 'Try a different name or code.' : 'Create your first warehouse to start dispatching stock.'"
+                :actionLabel="$search === '' && $canCreateWarehouse ? 'Create warehouse' : null"
+                :actionHref="$search === '' && $canCreateWarehouse ? route('warehouses.create') : null"
+            />
+        @endif
+    </x-card>
 </section>

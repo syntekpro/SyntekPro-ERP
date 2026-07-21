@@ -1,0 +1,104 @@
+diff --git a/resources/views/livewire/shops/index-page.blade.php b/resources/views/livewire/shops/index-page.blade.php
+index 367404e..342325a 100644
+--- a/resources/views/livewire/shops/index-page.blade.php
++++ b/resources/views/livewire/shops/index-page.blade.php
+@@ -1,9 +1,18 @@
++@php
++    $canCreateShop = auth()->user()?->can('create', \App\Models\Shop::class) ?? false;
++@endphp
++
+ <section class="space-y-6">
+     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+-        <div>
+-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Back Office module</p>
+-            <h1 class="mt-3 text-4xl font-semibold text-ink">Shops</h1>
+-            <p class="mt-3 max-w-2xl text-sm text-muted">Manage branch identities and path-based shop contexts for the POS side of the platform.</p>
++        <div class="flex items-start gap-3">
++            <x-icon-tile color="ledger" size="lg">
++                <x-lucide-store class="h-7 w-7" />
++            </x-icon-tile>
++            <div>
++                <p class="text-xs font-medium text-ledger">Back office module</p>
++                <h1 class="mt-1 text-3xl font-semibold text-ink">Shops</h1>
++                <p class="mt-2 max-w-2xl text-sm text-muted">Manage branch identities and path-based shop contexts for the POS side of the platform.</p>
++            </div>
+         </div>
+ 
+         @can('create', \App\Models\Shop::class)
+@@ -11,18 +20,23 @@
+         @endcan
+     </div>
+ 
+-    <div class="rounded-ui border border-line bg-surface p-6">
+-        <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+-            <div>
+-                <h2 class="text-lg font-semibold text-ink">Directory</h2>
+-                <p class="mt-1 text-sm text-muted">Search and maintain the list of active shops.</p>
+-            </div>
++    <x-card surface="surface">
++        <x-slot:header>
++            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
++                <div>
++                    <h2 class="text-lg font-semibold text-ink">Directory</h2>
++                    <p class="mt-1 text-sm text-muted">Search and maintain the list of active shops.</p>
++                </div>
+ 
+-            <input type="search" wire:model.live.debounce.300ms="search" placeholder="Search by name or slug" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none placeholder:text-subtle lg:max-w-sm" />
+-        </div>
++                <div class="relative w-full lg:max-w-sm">
++                    <x-lucide-search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
++                    <x-input type="search" wire:model.live.debounce.300ms="search" placeholder="Search by name or slug" class="ps-9" />
++                </div>
++            </div>
++        </x-slot:header>
+ 
+-        <div class="overflow-hidden rounded-ui border border-line table-baseline">
+-            <table class="min-w-full text-start text-sm ui-table">
++        @if ($shops->count())
++            <x-table>
+                 <thead>
+                     <tr>
+                         <th class="px-4 py-3 font-medium">Name</th>
+@@ -32,7 +46,7 @@
+                     </tr>
+                 </thead>
+                 <tbody class="divide-y divide-line text-ink">
+-                    @forelse ($shops as $shop)
++                    @foreach ($shops as $shop)
+                         <tr>
+                             <td class="px-4 py-4 font-medium text-ink">{{ $shop->name }}</td>
+                             <td class="px-4 py-4 figure-mono">/{{ $shop->slug }}</td>
+@@ -50,17 +64,21 @@
+                                 </div>
+                             </td>
+                         </tr>
+-                    @empty
+-                        <tr>
+-                            <td colspan="4" class="px-4 py-10 text-center text-muted">No shops match the current filter.</td>
+-                        </tr>
+-                    @endforelse
++                    @endforeach
+                 </tbody>
+-            </table>
+-        </div>
++            </x-table>
+ 
+-        <div class="mt-5">
+-            {{ $shops->links() }}
+-        </div>
+-    </div>
++            <div class="mt-5">
++                {{ $shops->links() }}
++            </div>
++        @else
++            <x-empty-state
++                icon="store"
++                :title="$search !== '' ? 'No shops match this search' : 'No shops yet'"
++                :message="$search !== '' ? 'Try a different name or slug.' : 'Create your first shop to start operating from it.'"
++                :actionLabel="$search === '' && $canCreateShop ? 'Create shop' : null"
++                :actionHref="$search === '' && $canCreateShop ? route('shops.create') : null"
++            />
++        @endif
++    </x-card>
+ </section>
+\ No newline at end of file

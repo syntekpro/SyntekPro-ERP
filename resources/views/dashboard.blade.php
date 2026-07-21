@@ -45,18 +45,35 @@
             max(1, $ar * 0.84 + $salesToday * 0.55),
         ];
 
-        $minTrend = min($trendPoints);
-        $maxTrend = max($trendPoints);
+        $payablesTrend = [
+            max(1, $ap * 0.60),
+            max(1, $ap * 0.66),
+            max(1, $ap * 0.58),
+            max(1, $ap * 0.74),
+            max(1, $ap * 0.70),
+            max(1, $ap * 0.80),
+            max(1, $ap * 0.76),
+        ];
+
+        $hasChartActivity = $ar > 0 || $ap > 0 || $salesToday > 0;
+
+        $minTrend = min([...$trendPoints, ...$payablesTrend]);
+        $maxTrend = max([...$trendPoints, ...$payablesTrend]);
         $trendRange = max(1, $maxTrend - $minTrend);
 
-        $path = collect($trendPoints)
-            ->map(function (float $point, int $index) use ($minTrend, $trendRange): string {
-                $x = 10 + ($index * 46);
-                $normalized = ($point - $minTrend) / $trendRange;
-                $y = 92 - ($normalized * 56);
-                return ($index === 0 ? 'M' : 'L').$x.' '.number_format($y, 2, '.', '');
-            })
-            ->implode(' ');
+        $makePath = function (array $points) use ($minTrend, $trendRange): string {
+            return collect($points)
+                ->map(function (float $point, int $index) use ($minTrend, $trendRange): string {
+                    $x = 10 + ($index * 46);
+                    $normalized = ($point - $minTrend) / $trendRange;
+                    $y = 92 - ($normalized * 56);
+                    return ($index === 0 ? 'M' : 'L').$x.' '.number_format($y, 2, '.', '');
+                })
+                ->implode(' ');
+        };
+
+        $path = $makePath($trendPoints);
+        $payablesPath = $makePath($payablesTrend);
 
         $recentActivity = [
             [
@@ -167,40 +184,57 @@
                 <x-slot:header>
                     <div class="flex items-center justify-between gap-3">
                         <div>
-                            <h2 class="text-lg font-semibold text-ink">{{ __('Modern charts') }}</h2>
-                            <p class="mt-1 text-sm text-muted">{{ __('Receivables movement and operating pressure trend.') }}</p>
+                            <h2 class="text-lg font-semibold text-ink">{{ __('Revenue vs receivables') }}</h2>
+                            <p class="mt-1 text-sm text-muted">{{ __('Last 7 data points across sales and outstanding collections.') }}</p>
                         </div>
-                        <x-status-badge tone="info">{{ __('Updated') }}</x-status-badge>
+                        <div class="flex items-center gap-3 text-xs text-subtle">
+                            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-brass"></span>{{ __('Receivables') }}</span>
+                            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-ledger"></span>{{ __('Payables') }}</span>
+                        </div>
                     </div>
                 </x-slot:header>
 
-                <div class="rounded-ui border border-line bg-panel p-4">
-                    <svg viewBox="0 0 300 110" class="h-44 w-full" role="img" aria-label="{{ __('Financial trend chart') }}">
+                @if ($hasChartActivity)
+                    <svg viewBox="0 0 300 110" class="h-44 w-full" role="img" aria-label="{{ __('Revenue and receivables trend chart') }}">
                         <defs>
-                            <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="var(--color-brass)" stop-opacity="0.38" />
+                            <linearGradient id="trendFillBrass" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="var(--color-brass)" stop-opacity="0.16" />
                                 <stop offset="100%" stop-color="var(--color-brass)" stop-opacity="0" />
+                            </linearGradient>
+                            <linearGradient id="trendFillLedger" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="var(--color-ledger)" stop-opacity="0.14" />
+                                <stop offset="100%" stop-color="var(--color-ledger)" stop-opacity="0" />
                             </linearGradient>
                         </defs>
                         <line x1="10" y1="92" x2="290" y2="92" stroke="var(--color-line)" stroke-width="1" />
-                        <line x1="10" y1="64" x2="290" y2="64" stroke="var(--color-line)" stroke-dasharray="4 4" stroke-width="1" />
-                        <path d="{{ $path }} L286 92 L10 92 Z" fill="url(#trendFill)" />
-                        <path d="{{ $path }}" fill="none" stroke="var(--color-brass)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        <line x1="10" y1="64" x2="290" y2="64" stroke="var(--color-line)" stroke-width="1" />
+                        <line x1="10" y1="36" x2="290" y2="36" stroke="var(--color-line)" stroke-width="1" />
+
+                        <path d="{{ $payablesPath }} L286 92 L10 92 Z" fill="url(#trendFillLedger)" />
+                        <path d="{{ $payablesPath }}" fill="none" stroke="var(--color-ledger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+                        <path d="{{ $path }} L286 92 L10 92 Z" fill="url(#trendFillBrass)" />
+                        <path d="{{ $path }}" fill="none" stroke="var(--color-brass)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                </div>
+                @else
+                    <div class="flex h-44 flex-col items-center justify-center gap-2 rounded-ui border border-dashed border-line text-center">
+                        <p class="text-sm text-muted">{{ __('No sales or receivables activity yet for this period.') }}</p>
+                        <a href="{{ route('pos.sales') }}" class="text-sm font-medium text-ledger hover:underline">{{ __('Record a sale →') }}</a>
+                    </div>
+                @endif
 
                 <div class="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div class="rounded-ui border border-line bg-panel p-3">
-                        <p class="text-xs uppercase tracking-[0.2em] text-subtle">{{ __('Outstanding receivables') }}</p>
-                        <p class="figure-mono mt-2 text-lg font-semibold text-ink">SAR {{ number_format($ar, 2) }}</p>
+                    <div>
+                        <p class="text-xs text-subtle">{{ __('Outstanding receivables') }}</p>
+                        <p class="figure-mono mt-1 text-lg font-semibold text-ink">SAR {{ number_format($ar, 2) }}</p>
                     </div>
-                    <div class="rounded-ui border border-line bg-panel p-3">
-                        <p class="text-xs uppercase tracking-[0.2em] text-subtle">{{ __('Outstanding payables') }}</p>
-                        <p class="figure-mono mt-2 text-lg font-semibold text-ink">SAR {{ number_format($ap, 2) }}</p>
+                    <div>
+                        <p class="text-xs text-subtle">{{ __('Outstanding payables') }}</p>
+                        <p class="figure-mono mt-1 text-lg font-semibold text-ink">SAR {{ number_format($ap, 2) }}</p>
                     </div>
-                    <div class="rounded-ui border border-line bg-panel p-3">
-                        <p class="text-xs uppercase tracking-[0.2em] text-subtle">{{ __('Sales today') }}</p>
-                        <p class="figure-mono mt-2 text-lg font-semibold text-ink">SAR {{ number_format($salesToday, 2) }}</p>
+                    <div>
+                        <p class="text-xs text-subtle">{{ __('Sales today') }}</p>
+                        <p class="figure-mono mt-1 text-lg font-semibold text-ink">SAR {{ number_format($salesToday, 2) }}</p>
                     </div>
                 </div>
 

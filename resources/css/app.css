@@ -12,17 +12,17 @@
 
     --radius-ui: 0.625rem;
 
-    --color-ink-navy: #102033;
-    --color-brass: #b8872f;
-    --color-brass-contrast: #2b1b05;
-    --color-ledger: #24745a;
-    --color-rust: #a8482f;
-    --color-paper: #f7f1e4;
-    --color-surface: #fffaf0;
-    --color-panel: #fff7e8;
-    --color-line: #ded1bb;
-    --color-muted: #5f6b77;
-    --color-subtle: #83909b;
+    --color-ink-navy: #12151a;
+    --color-brass: #d97706;
+    --color-brass-contrast: #7c3d02;
+    --color-ledger: #0f9e93;
+    --color-rust: #dc2626;
+    --color-paper: #f6f7f9;
+    --color-surface: #ffffff;
+    --color-panel: #f6f7f9;
+    --color-line: #e7e9ee;
+    --color-muted: #6b7280;
+    --color-subtle: #9ca3af;
 
     --color-ink: var(--color-ink-navy);
     --color-amber-100: #f4dfbd;
@@ -744,6 +744,51 @@
         body.shell-drawer-collapsed [data-shell-drawer] [data-nav-chevron] {
             display: none;
         }
+
+        /* Hover-to-peek: when collapsed, hovering the rail temporarily expands it
+           as an overlay (fixed position) without shifting the grid layout. */
+        body.shell-drawer-collapsed .shell-drawer:hover {
+            position: fixed;
+            top: 0;
+            width: 18rem;
+            z-index: 55;
+            box-shadow: 0 20px 45px color-mix(in srgb, var(--color-ink-navy) 18%, transparent);
+        }
+
+        body.shell-drawer-collapsed .shell-drawer:hover .drawer-copy {
+            display: block;
+        }
+
+        body.shell-drawer-collapsed .shell-drawer:hover .drawer-icon-only {
+            display: none;
+        }
+
+        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] .nav-link,
+        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] .nav-section-button {
+            justify-content: flex-start;
+            padding-inline: 0.75rem;
+        }
+
+        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] [data-nav-section-panel] {
+            display: block;
+        }
+
+        body.shell-drawer-collapsed .shell-drawer:hover [data-shell-drawer] [data-nav-chevron] {
+            display: block;
+        }
+    }
+
+    [data-shell-drawer] nav::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    [data-shell-drawer] nav::-webkit-scrollbar-thumb {
+        background: var(--app-line);
+        border-radius: 8px;
+    }
+
+    [data-shell-drawer] nav::-webkit-scrollbar-track {
+        background: transparent;
     }
 
     @media (prefers-reduced-motion: reduce) {

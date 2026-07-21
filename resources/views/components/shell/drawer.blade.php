@@ -27,7 +27,7 @@
             </button>
         </div>
 
-        <nav class="mt-5 space-y-2 text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
+        <nav class="mt-5 min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden pe-1 text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'nav-link-active' : '' }}" aria-label="{{ __('Dashboard') }}">
                 <x-lucide-layout-dashboard class="h-4 w-4 shrink-0" />
                 <span class="drawer-copy">{{ __('Dashboard') }}</span>

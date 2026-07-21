@@ -18,35 +18,32 @@
                 <button
                     type="button"
                     data-shell-drawer-toggle
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-ui border border-line text-ink transition hover:border-brass/60 hover:bg-panel"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink"
                     aria-label="{{ __('Toggle navigation drawer') }}"
                 >
-                    <x-lucide-panel-left class="h-4 w-4" />
+                    <x-lucide-panel-left class="h-[18px] w-[18px]" />
                 </button>
-                <kbd class="hidden rounded border border-line px-2 py-1 font-mono text-[0.65rem] text-subtle lg:inline">Ctrl B</kbd>
 
-                <div class="header-brand flex min-w-0 items-center gap-3 rounded-ui border border-line bg-panel px-3 py-2">
+                <div class="header-brand flex min-w-0 items-center gap-2.5 px-1">
                     <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="{{ $applicationName }}" class="h-7 w-auto" />
-                    <div class="min-w-0">
+                    <div class="min-w-0 hidden sm:block">
                         <p class="truncate text-sm font-semibold text-ink">{{ $applicationName }}</p>
-                        <p class="truncate text-[0.7rem] uppercase tracking-[0.2em] text-subtle">{{ $headerBrandSubtext ?: __('Operations Hub') }}</p>
+                        <p class="truncate text-[0.65rem] text-subtle">{{ $headerBrandSubtext ?: __('Operations Hub') }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 text-xs">
-                <span class="rounded-ui border border-line bg-panel px-2 py-1 uppercase tracking-[0.18em] text-subtle" data-header-date>{{ now()->translatedFormat('D, d M Y') }}</span>
-                <span class="figure-mono rounded-ui border border-line bg-panel px-2 py-1 text-ink" data-header-time>{{ now()->format('H:i:ss') }}</span>
+            <div class="hidden items-center gap-2 text-xs text-subtle lg:flex">
+                <span data-header-date>{{ now()->translatedFormat('D, d M Y') }}</span>
+                <span class="figure-mono" data-header-time>{{ now()->format('H:i:ss') }}</span>
             </div>
         </div>
 
         <div class="shell-header-row mt-3">
-            <div class="flex min-w-0 items-center gap-2">
+            <div class="flex min-w-0 items-center gap-1">
                 <details class="header-menu relative hidden sm:block">
-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
-                        <x-lucide-layout-dashboard class="h-4 w-4" />
-                        <span class="max-w-[12rem] truncate">{{ $headerBrandText ?: $workspaceLabel }}</span>
-                        <x-lucide-chevron-down class="h-3.5 w-3.5 text-subtle" />
+                    <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Workspace selector') }}">
+                        <x-lucide-layout-dashboard class="h-[18px] w-[18px]" />
                     </summary>
                     <div class="header-menu-panel absolute start-0 z-40 mt-2 w-72 rounded-ui border border-line bg-surface p-3 shadow-xl">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Workspace selector') }}</p>
@@ -66,10 +63,8 @@
                 </details>
 
                 <details class="header-menu relative">
-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
-                        <x-lucide-zap class="h-4 w-4" />
-                        <span class="hidden md:inline">{{ __('Quick actions') }}</span>
-                        <x-lucide-chevron-down class="h-3.5 w-3.5 text-subtle" />
+                    <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick actions') }}">
+                        <x-lucide-zap class="h-[18px] w-[18px]" />
                     </summary>
                     <div class="header-menu-panel absolute start-0 z-40 mt-2 w-72 rounded-ui border border-line bg-surface p-3 shadow-xl">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Quick actions') }}</p>
@@ -91,7 +86,7 @@
             <button
                 type="button"
                 data-command-open
-                class="shell-search-trigger flex min-w-0 items-center gap-2 rounded-ui border border-line bg-panel px-3 py-2 text-start text-sm text-muted transition hover:border-brass/60 hover:text-ink"
+                class="shell-search-trigger flex min-w-0 items-center gap-2 rounded-ui border border-line bg-surface px-3 py-2 text-start text-sm text-muted shadow-sm transition hover:border-brass/50 hover:text-ink"
                 aria-label="{{ __('Open global search') }}"
             >
                 <x-lucide-search class="h-4 w-4 shrink-0" />
@@ -99,12 +94,11 @@
                 <kbd class="ms-auto hidden font-mono text-[0.65rem] text-subtle sm:inline">Ctrl K</kbd>
             </button>
 
-            <div class="flex items-center justify-end gap-2">
+            <div class="flex items-center justify-end gap-1">
                 <details class="header-menu relative">
-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
-                        <x-lucide-bell class="h-4 w-4" />
-                        <span class="hidden md:inline">{{ __('Notifications') }}</span>
-                        <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brass/20 px-1.5 text-[0.65rem] font-semibold text-brass">3</span>
+                    <summary class="relative flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Notifications') }}">
+                        <x-lucide-bell class="h-[18px] w-[18px]" />
+                        <span class="absolute -end-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rust px-1 text-[0.6rem] font-semibold text-white">3</span>
                     </summary>
                     <div class="header-menu-panel absolute end-0 z-40 mt-2 w-80 rounded-ui border border-line bg-surface p-3 shadow-xl">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Notifications') }}</p>
@@ -123,27 +117,29 @@
                         id="header-locale-switch"
                         name="locale"
                         onchange="this.form.submit()"
-                        class="h-10 rounded-ui border border-line bg-panel px-3 text-sm font-semibold text-ink outline-none"
+                        class="h-9 rounded-ui border-0 bg-transparent px-2 text-sm font-medium text-subtle outline-none transition hover:bg-panel hover:text-ink"
                     >
-                        <option value="en" @selected($activeLocale === 'en')>{{ __('English') }}</option>
-                        <option value="ar" @selected($activeLocale === 'ar')>{{ __('Arabic') }}</option>
+                        <option value="en" @selected($activeLocale === 'en')>{{ __('EN') }}</option>
+                        <option value="ar" @selected($activeLocale === 'ar')>{{ __('AR') }}</option>
                     </select>
                 </form>
 
                 <button
                     type="button"
                     data-theme-toggle
-                    class="inline-flex h-10 items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm font-semibold text-ink transition hover:border-brass/60"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink"
+                    aria-label="{{ __('Toggle theme') }}"
                 >
-                    <x-lucide-sun-moon class="h-4 w-4" />
-                    <span data-theme-toggle-label class="text-xs uppercase tracking-[0.2em] text-subtle">{{ $themePreference }}</span>
+                    <x-lucide-sun-moon class="h-[18px] w-[18px]" />
                 </button>
 
                 <details class="profile-menu relative">
-                    <summary class="flex h-10 cursor-pointer list-none items-center gap-2 rounded-ui border border-line bg-panel px-3 text-sm text-ink transition hover:border-brass/60">
-                        <x-lucide-circle-user-round class="h-4 w-4" />
-                        <span class="hidden md:block max-w-[12rem] truncate">{{ $currentUser?->email }}</span>
-                        <x-lucide-chevron-down class="h-3.5 w-3.5 text-subtle" />
+                    <summary class="flex h-9 cursor-pointer list-none items-center gap-2 rounded-ui px-1.5 text-sm text-ink transition hover:bg-panel">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-panel text-xs font-medium text-subtle">
+                            {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($currentUser?->email ?? 'U', 0, 2)) }}
+                        </span>
+                        <span class="hidden lg:block max-w-[12rem] truncate">{{ $currentUser?->email }}</span>
+                        <x-lucide-chevron-down class="hidden lg:block h-3.5 w-3.5 text-subtle" />
                     </summary>
                     <div class="profile-menu-panel absolute end-0 z-40 mt-2 w-64 rounded-ui border border-line bg-surface p-3 shadow-xl">
                         <p class="truncate text-sm font-semibold text-ink">{{ $currentUser?->email }}</p>

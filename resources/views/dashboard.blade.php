@@ -138,22 +138,29 @@
             </div>
         </x-card>
 
-        <div class="grid gap-4 md:grid-cols-3">
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            @php
+                $toneColor = ['success' => 'ledger', 'warning' => 'brass', 'danger' => 'rust', 'info' => 'ledger'];
+            @endphp
             @foreach ($kpiCards as $card)
                 <x-card class="relative overflow-hidden" surface="surface">
-                    <div class="pointer-events-none absolute -end-8 -top-8 h-28 w-28 rounded-full bg-brass/10 blur-xl"></div>
-                    <div class="relative">
-                        <div class="flex items-center justify-between gap-3">
-                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ $card['label'] }}</p>
-                            <x-status-badge :tone="$card['tone']">{{ __('Live') }}</x-status-badge>
+                    <div class="relative flex items-start gap-3">
+                        <x-icon-tile :color="$toneColor[$card['tone']] ?? 'brass'">
+                            <x-dynamic-component :component="'lucide-'.$card['icon']" class="h-6 w-6" />
+                        </x-icon-tile>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-4xl font-semibold leading-none text-ink">{{ $card['value'] }}</p>
+                                <x-status-badge :tone="$card['tone']">{{ __('Live') }}</x-status-badge>
+                            </div>
+                            <p class="mt-2 text-sm font-medium text-ink">{{ $card['label'] }}</p>
+                            <p class="mt-0.5 text-xs text-muted">{{ $card['context'] }}</p>
                         </div>
-                        <p class="mt-4 text-4xl font-semibold text-ink">{{ $card['value'] }}</p>
-                        <p class="mt-2 text-sm text-muted">{{ $card['context'] }}</p>
-                        <x-dynamic-component :component="'lucide-'.$card['icon']" class="mt-4 h-5 w-5 text-brass" />
                     </div>
                 </x-card>
             @endforeach
         </div>
+
 
         <div class="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
             <x-card surface="surface">

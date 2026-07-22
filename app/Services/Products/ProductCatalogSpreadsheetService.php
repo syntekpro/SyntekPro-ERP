@@ -254,7 +254,7 @@ class ProductCatalogSpreadsheetService
                 'name' => $name,
                 'description' => ($row['description'] ?? '') === '' ? null : (string) $row['description'],
                 'base_unit_id' => $baseUnitId,
-                'price' => $row['price'] === '' ? 0 : (float) $row['price'],
+                'price' => ($row['price'] ?? '') === '' ? 0 : (float) $row['price'],
                 'cost_price' => ($row['purchase price'] ?? '') === '' ? 0 : (float) $row['purchase price'],
                 'vat_rate' => ($row['VAT rate'] ?? '') === '' ? 0 : (float) $row['VAT rate'],
                 'is_excise_applicable' => $this->booleanValue($row['is_excise_applicable'] ?? false),

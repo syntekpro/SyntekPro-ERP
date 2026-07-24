@@ -30,6 +30,8 @@ class FormPage extends Component
         ['product_id' => null, 'unit_id' => null, 'quantity_ordered' => '1.000', 'unit_cost' => '0.00', 'vat_rate' => '15.00'],
     ];
 
+    public array $productSearch = [];
+
     public function mount(?PurchaseOrder $purchaseOrder = null): void
     {
         $this->purchaseOrder = $purchaseOrder?->exists ? $purchaseOrder->load('items') : null;
@@ -47,26 +49,79 @@ class FormPage extends Component
                 'unit_cost' => number_format((float) $item->unit_cost, 2, '.', ''),
                 'vat_rate' => number_format((float) $item->vat_rate, 2, '.', ''),
             ])->all();
+            $this->syncProductSearchFromItems();
 
             return;
         }
 
         $this->authorize('create', PurchaseOrder::class);
+        $this->syncProductSearchFromItems();
     }
 
     public function addItem(): void
     {
         $this->items[] = ['product_id' => null, 'unit_id' => null, 'quantity_ordered' => '1.000', 'unit_cost' => '0.00', 'vat_rate' => '15.00'];
+        $this->productSearch[] = '';
     }
 
     public function removeItem(int $index): void
     {
         unset($this->items[$index]);
+        unset($this->productSearch[$index]);
         $this->items = array_values($this->items);
+        $this->productSearch = array_values($this->productSearch);
 
         if ($this->items === []) {
             $this->addItem();
         }
+    }
+
+    public function selectProduct(int $index, int $productId): void
+    {
+        $product = Product::query()
+            ->where('is_active', true)
+            ->select(['id', 'name'])
+            ->findOrFail($productId);
+
+        $this->items[$index]['product_id'] = $product->id;
+        $this->items[$index]['unit_id'] = null;
+        $this->productSearch[$index] = $product->name;
+    }
+
+    public function productResults(int $index)
+    {
+        $search = trim((string) ($this->productSearch[$index] ?? ''));
+
+        if ($search === '') {
+            return collect();
+        }
+
+        $term = '%'.$search.'%';
+
+        return Product::query()
+            ->where('is_active', true)
+            ->where(function ($query) use ($term): void {
+                $query
+                    ->where('name', 'like', $term)
+                    ->orWhere('sku', 'like', $term)
+                    ->orWhere('barcode', 'like', $term);
+            })
+            ->orderBy('name')
+            ->limit(20)
+            ->get(['id', 'name', 'sku', 'barcode']);
+    }
+
+    public function selectedProduct(int $index): ?Product
+    {
+        $productId = (int) ($this->items[$index]['product_id'] ?? 0);
+
+        if ($productId <= 0) {
+            return null;
+        }
+
+        return Product::query()
+            ->with(['baseUnit', 'unitConversions.unit'])
+            ->find($productId);
     }
 
     public function save(DocumentNumberService $documentNumberService, UnitConversionService $unitConversionService)
@@ -135,13 +190,27 @@ class FormPage extends Component
         return Warehouse::query()->where('is_active', true)->orderBy('name')->get();
     }
 
-    public function getProductOptionsProperty()
-    {
-        return Product::query()->with(['baseUnit', 'unitConversions.unit'])->where('is_active', true)->orderBy('name')->get();
-    }
-
     public function render()
     {
         return view('livewire.purchase-orders.form-page');
+    }
+
+    protected function syncProductSearchFromItems(): void
+    {
+        $productIds = collect($this->items)
+            ->pluck('product_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        $productNames = Product::query()
+            ->whereIn('id', $productIds)
+            ->pluck('name', 'id');
+
+        foreach ($this->items as $index => $item) {
+            $productId = (int) ($item['product_id'] ?? 0);
+            $this->productSearch[$index] = $productId > 0 ? (string) ($productNames[$productId] ?? '') : '';
+        }
     }
 }

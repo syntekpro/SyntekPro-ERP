@@ -29,24 +29,78 @@ class FormPage extends Component
         ['product_id' => null, 'unit_id' => null, 'quantity' => '1.000'],
     ];
 
+    public array $productSearch = [];
+
     public function mount(): void
     {
         $this->authorize('create', StockTransfer::class);
+        $this->syncProductSearchFromItems();
     }
 
     public function addItem(): void
     {
         $this->items[] = ['product_id' => null, 'unit_id' => null, 'quantity' => '1.000'];
+        $this->productSearch[] = '';
     }
 
     public function removeItem(int $index): void
     {
         unset($this->items[$index]);
+        unset($this->productSearch[$index]);
         $this->items = array_values($this->items);
+        $this->productSearch = array_values($this->productSearch);
 
         if ($this->items === []) {
             $this->addItem();
         }
+    }
+
+    public function selectProduct(int $index, int $productId): void
+    {
+        $product = Product::query()
+            ->where('is_active', true)
+            ->select(['id', 'name'])
+            ->findOrFail($productId);
+
+        $this->items[$index]['product_id'] = $product->id;
+        $this->items[$index]['unit_id'] = null;
+        $this->productSearch[$index] = $product->name;
+    }
+
+    public function productResults(int $index)
+    {
+        $search = trim((string) ($this->productSearch[$index] ?? ''));
+
+        if ($search === '') {
+            return collect();
+        }
+
+        $term = '%'.$search.'%';
+
+        return Product::query()
+            ->where('is_active', true)
+            ->where(function ($query) use ($term): void {
+                $query
+                    ->where('name', 'like', $term)
+                    ->orWhere('sku', 'like', $term)
+                    ->orWhere('barcode', 'like', $term);
+            })
+            ->orderBy('name')
+            ->limit(20)
+            ->get(['id', 'name', 'sku', 'barcode']);
+    }
+
+    public function selectedProduct(int $index): ?Product
+    {
+        $productId = (int) ($this->items[$index]['product_id'] ?? 0);
+
+        if ($productId <= 0) {
+            return null;
+        }
+
+        return Product::query()
+            ->with(['baseUnit', 'unitConversions.unit'])
+            ->find($productId);
     }
 
     public function save(UnitConversionService $unitConversionService)
@@ -111,11 +165,6 @@ class FormPage extends Component
         return Shop::query()->where('is_active', true)->orderBy('name')->get();
     }
 
-    public function getProductOptionsProperty()
-    {
-        return Product::query()->with(['baseUnit', 'unitConversions.unit'])->where('is_active', true)->orderBy('name')->get();
-    }
-
     protected function prepareItems(array $items, UnitConversionService $unitConversionService): array
     {
         return collect($items)->map(function (array $item) use ($unitConversionService): array {
@@ -175,5 +224,24 @@ class FormPage extends Component
     public function render()
     {
         return view('livewire.stock-transfers.form-page');
+    }
+
+    protected function syncProductSearchFromItems(): void
+    {
+        $productIds = collect($this->items)
+            ->pluck('product_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        $productNames = Product::query()
+            ->whereIn('id', $productIds)
+            ->pluck('name', 'id');
+
+        foreach ($this->items as $index => $item) {
+            $productId = (int) ($item['product_id'] ?? 0);
+            $this->productSearch[$index] = $productId > 0 ? (string) ($productNames[$productId] ?? '') : '';
+        }
     }
 }

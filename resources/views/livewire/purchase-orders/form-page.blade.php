@@ -44,12 +44,25 @@
                 <div class="grid gap-4 rounded-2xl border border-white/10 bg-stone-950/50 p-4 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-stone-200">Product</label>
-                        <select wire:model="items.{{ $index }}.product_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
-                            <option value="">Select a product</option>
-                            @foreach ($this->productOptions as $product)
-                                <option value="{{ $product->id }}">{{ $product->name }} ({{ $product->sku }})</option>
-                            @endforeach
-                        </select>
+                        <div x-data="{ open: false }" class="relative">
+                            <input wire:model.live.debounce.300ms="productSearch.{{ $index }}" type="text" placeholder="Search by name, SKU, or barcode" x-on:focus="open = true" x-on:input="open = true" x-on:click.outside="open = false" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none" />
+                            <input wire:model="items.{{ $index }}.product_id" type="hidden" />
+                            @if (trim((string) ($productSearch[$index] ?? '')) !== '')
+                                @php($results = $this->productResults($index))
+                                <div x-show="open" x-transition class="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-white/10 bg-stone-900 shadow-xl">
+                                    @if ($results->isEmpty())
+                                        <p class="px-4 py-3 text-sm text-stone-300">No products found.</p>
+                                    @else
+                                        @foreach ($results as $product)
+                                            <button type="button" wire:click="selectProduct({{ $index }}, {{ $product->id }})" x-on:click="open = false" class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm text-stone-100 transition hover:bg-white/10">
+                                                <span>{{ $product->name }}</span>
+                                                <span class="text-xs text-stone-400">{{ $product->sku ?: ($product->barcode ?: 'No code') }}</span>
+                                            </button>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
                     </div>
                     <div>
                         <label class="mb-2 block text-sm font-medium text-stone-200">Qty</label>
@@ -57,12 +70,13 @@
                     </div>
                     <div>
                         <label class="mb-2 block text-sm font-medium text-stone-200">Unit</label>
+                        @php($selectedProduct = $this->selectedProduct($index))
                         <select wire:model="items.{{ $index }}.unit_id" class="w-full rounded-2xl border border-white/10 bg-stone-900 px-4 py-3 text-stone-100 outline-none">
                             <option value="">Base unit</option>
-                            @foreach ($this->productOptions->firstWhere('id', (int) ($item['product_id'] ?? 0))?->unitConversions ?? [] as $conversion)
+                            @foreach ($selectedProduct?->unitConversions ?? [] as $conversion)
                                 <option value="{{ $conversion->unit_id }}">{{ $conversion->unit?->code }} - {{ $conversion->unit?->name }}</option>
                             @endforeach
-                            @if ($selectedProduct = $this->productOptions->firstWhere('id', (int) ($item['product_id'] ?? 0)))
+                            @if ($selectedProduct)
                                 <option value="{{ $selectedProduct->base_unit_id }}">{{ $selectedProduct->baseUnit?->code ?? 'PCS' }} - {{ $selectedProduct->baseUnit?->name ?? 'Piece' }}</option>
                             @endif
                         </select>

@@ -25,7 +25,7 @@
         @endif
 
         <div class="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-end">
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
                 <div class="md:col-span-2 xl:col-span-2">
                     <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Search</label>
                     <div class="relative">
@@ -49,6 +49,26 @@
                         <option value="">All units</option>
                         @foreach ($unitOptions as $unitOption)
                             <option value="{{ $unitOption->id }}">{{ $unitOption->code }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Category</label>
+                    <select wire:model.live="categoryFilter" class="w-full rounded-ui border border-line bg-panel px-3 py-2.5 text-sm text-ink outline-none">
+                        <option value="">All categories</option>
+                        @foreach ($categoryOptions as $categoryOption)
+                            <option value="{{ $categoryOption->id }}">{{ $categoryOption->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-subtle">Brand</label>
+                    <select wire:model.live="brandFilter" class="w-full rounded-ui border border-line bg-panel px-3 py-2.5 text-sm text-ink outline-none">
+                        <option value="">All brands</option>
+                        @foreach ($brandOptions as $brandOption)
+                            <option value="{{ $brandOption->id }}">{{ $brandOption->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -137,6 +157,9 @@
                                     </button>
                                 </th>
                             @endforeach
+                            <th class="px-4 py-3 font-medium">Category</th>
+                            <th class="px-4 py-3 font-medium">Brand</th>
+                            <th class="px-4 py-3 font-medium">Reorder point</th>
                             <th class="px-4 py-3 font-medium">VAT</th>
                             <th class="px-4 py-3 font-medium">Status</th>
                             <th class="px-4 py-3 font-medium text-end">Actions</th>
@@ -156,6 +179,9 @@
                                 <td class="px-4 py-4 figure-mono">SAR {{ number_format((float) $product->price, 2) }}</td>
                                 <td class="px-4 py-4 figure-mono">SAR {{ number_format((float) $product->cost_price, 2) }}</td>
                                 <td class="px-4 py-4">{{ $product->baseUnit?->code ?? 'PCS' }}</td>
+                                <td class="px-4 py-4">{{ $product->category?->name ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $product->brand?->name ?? '-' }}</td>
+                                <td class="px-4 py-4 figure-mono">{{ $product->stock_reorder_point !== null ? number_format((float) $product->stock_reorder_point, 3) : '-' }}</td>
                                 <td class="px-4 py-4 figure-mono">{{ number_format((float) $product->vat_rate, 2) }}%</td>
                                 <td class="px-4 py-4">
                                     <x-status-badge :tone="$product->is_active ? 'success' : 'danger'">{{ $product->is_active ? 'Active' : 'Inactive' }}</x-status-badge>

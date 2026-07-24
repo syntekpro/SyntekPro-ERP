@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Products;
 
+use App\Models\Brand;
 use App\Models\PriceCategory;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Unit;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
@@ -19,6 +21,10 @@ class IndexPage extends Component
     public string $statusFilter = 'all';
 
     public string $unitFilter = '';
+
+    public string $categoryFilter = '';
+
+    public string $brandFilter = '';
 
     public string $priceCategoryFilter = '';
 
@@ -63,6 +69,16 @@ class IndexPage extends Component
         $this->resetPageAndSelection();
     }
 
+    public function updatedCategoryFilter(): void
+    {
+        $this->resetPageAndSelection();
+    }
+
+    public function updatedBrandFilter(): void
+    {
+        $this->resetPageAndSelection();
+    }
+
     public function updatedVatRateFilter(): void
     {
         $this->resetPageAndSelection();
@@ -86,7 +102,7 @@ class IndexPage extends Component
 
     public function clearFilters(): void
     {
-        $this->reset(['search', 'statusFilter', 'unitFilter', 'priceCategoryFilter', 'vatRateFilter', 'selectedProductIds']);
+        $this->reset(['search', 'statusFilter', 'unitFilter', 'categoryFilter', 'brandFilter', 'priceCategoryFilter', 'vatRateFilter', 'selectedProductIds']);
         $this->resetPage();
     }
 
@@ -137,7 +153,7 @@ class IndexPage extends Component
     public function render()
     {
         $products = Product::query()
-            ->with(['baseUnit', 'prices.priceCategory', 'unitConversions.unit'])
+            ->with(['baseUnit', 'category', 'brand', 'prices.priceCategory', 'unitConversions.unit'])
             ->when($this->search !== '', function ($query): void {
                 $query->where(function ($inner): void {
                     $inner
@@ -152,6 +168,12 @@ class IndexPage extends Component
             ->when($this->unitFilter !== '', function ($query): void {
                 $query->where('base_unit_id', (int) $this->unitFilter);
             })
+            ->when($this->categoryFilter !== '', function ($query): void {
+                $query->where('product_category_id', (int) $this->categoryFilter);
+            })
+            ->when($this->brandFilter !== '', function ($query): void {
+                $query->where('brand_id', (int) $this->brandFilter);
+            })
             ->when($this->priceCategoryFilter !== '', function ($query): void {
                 $query->whereHas('prices', fn ($priceQuery) => $priceQuery->where('price_category_id', (int) $this->priceCategoryFilter));
             })
@@ -164,6 +186,8 @@ class IndexPage extends Component
         return view('livewire.products.index-page', [
             'products' => $products,
             'unitOptions' => Unit::query()->where('is_active', true)->orderBy('code')->get(),
+            'categoryOptions' => ProductCategory::query()->where('is_active', true)->orderBy('name')->get(),
+            'brandOptions' => Brand::query()->where('is_active', true)->orderBy('name')->get(),
             'priceCategoryOptions' => PriceCategory::query()->where('is_active', true)->orderBy('name')->get(),
             'vatRateOptions' => Product::query()->select('vat_rate')->distinct()->orderBy('vat_rate')->pluck('vat_rate'),
         ]);

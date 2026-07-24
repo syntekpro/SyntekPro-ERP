@@ -98,6 +98,8 @@
                     ['label' => __('Users'), 'route' => 'users.index', 'patterns' => 'users.*', 'icon' => 'user-cog', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\User::class)],
                     ['label' => __('Units'), 'route' => 'units.index', 'patterns' => 'units.*', 'icon' => 'ruler', 'visible' => $canSettings],
                     ['label' => __('Price Categories'), 'route' => 'price-categories.index', 'patterns' => 'price-categories.*', 'icon' => 'tags', 'visible' => $canSettings],
+                    ['label' => __('Product Categories'), 'route' => 'product-categories.index', 'patterns' => 'product-categories.*', 'icon' => 'folder-tree', 'visible' => $canSettings],
+                    ['label' => __('Brands'), 'route' => 'brands.index', 'patterns' => 'brands.*', 'icon' => 'award', 'visible' => $canSettings],
                     ['label' => __('Settings / Roles / Branding'), 'route' => 'settings.index', 'patterns' => 'settings.*', 'icon' => 'sliders-horizontal', 'visible' => $canSettings],
                 ]],
             ];

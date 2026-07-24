@@ -2,8 +2,10 @@
 
 namespace App\Services\Products;
 
+use App\Models\Brand;
 use App\Models\PriceCategory;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\ProductPrice;
 use App\Models\ProductUnitConversion;
 use App\Models\Unit;
@@ -19,8 +21,11 @@ class ProductCatalogSpreadsheetService
         $headings = [
             'SKU/code',
             'name',
+            'barcode',
             'description',
             'base unit',
+            'product category',
+            'brand',
             'price',
             'purchase price',
             'VAT rate',
@@ -28,6 +33,7 @@ class ProductCatalogSpreadsheetService
             'excise_rate',
             'is_active',
             'stock_min',
+            'stock_reorder_point',
             'stock_max',
         ];
 
@@ -53,15 +59,18 @@ class ProductCatalogSpreadsheetService
         $rows = [$headings];
 
         Product::query()
-            ->with(['baseUnit', 'unitConversions.unit', 'prices.priceCategory'])
+            ->with(['baseUnit', 'category', 'brand', 'unitConversions.unit', 'prices.priceCategory'])
             ->orderBy('sku')
             ->get()
             ->each(function (Product $product) use (&$rows, $headings): void {
                 $row = array_fill_keys($headings, '');
                 $row['SKU/code'] = $product->sku;
                 $row['name'] = $product->name;
+                $row['barcode'] = (string) ($product->barcode ?? '');
                 $row['description'] = (string) ($product->description ?? '');
                 $row['base unit'] = $product->baseUnit?->code ?? 'PCS';
+                $row['product category'] = $product->category?->name ?? '';
+                $row['brand'] = $product->brand?->name ?? '';
                 $row['price'] = number_format((float) $product->price, 2, '.', '');
                 $row['purchase price'] = number_format((float) $product->cost_price, 2, '.', '');
                 $row['VAT rate'] = number_format((float) $product->vat_rate, 2, '.', '');
@@ -69,6 +78,7 @@ class ProductCatalogSpreadsheetService
                 $row['excise_rate'] = $product->excise_rate !== null ? number_format((float) $product->excise_rate, 2, '.', '') : '';
                 $row['is_active'] = $product->is_active ? '1' : '0';
                 $row['stock_min'] = $product->stock_min !== null ? number_format((float) $product->stock_min, 3, '.', '') : '';
+                $row['stock_reorder_point'] = $product->stock_reorder_point !== null ? number_format((float) $product->stock_reorder_point, 3, '.', '') : '';
                 $row['stock_max'] = $product->stock_max !== null ? number_format((float) $product->stock_max, 3, '.', '') : '';
 
                 foreach ($product->unitConversions as $conversion) {
@@ -131,6 +141,7 @@ class ProductCatalogSpreadsheetService
         }
 
         $headings = array_map(fn ($heading) => trim((string) $heading), array_shift($rows));
+        $headingLookup = $this->buildHeadingLookup($headings);
         $previewRows = [];
         $errors = [];
         $created = 0;
@@ -144,7 +155,7 @@ class ProductCatalogSpreadsheetService
             }
 
             $row = array_combine($headings, array_pad($rowValues, count($headings), '')) ?: [];
-            $result = $this->validateRow($row, $rowNumber);
+            $result = $this->validateRow($row, $headingLookup, $rowNumber);
             $previewRows[] = $result;
 
             if ($result['valid']) {
@@ -169,7 +180,26 @@ class ProductCatalogSpreadsheetService
                 }
 
                 $payload = $row['payload'];
-                $product = Product::query()->updateOrCreate(['sku' => $payload['sku']], $payload['product']);
+                $productData = $payload['product'];
+
+                $productCategoryName = trim((string) ($payload['product_category_name'] ?? ''));
+                $brandName = trim((string) ($payload['brand_name'] ?? ''));
+
+                $productData['product_category_id'] = $productCategoryName === ''
+                    ? null
+                    : ProductCategory::query()->firstOrCreate(
+                        ['name' => $productCategoryName],
+                        ['is_active' => true]
+                    )->id;
+
+                $productData['brand_id'] = $brandName === ''
+                    ? null
+                    : Brand::query()->firstOrCreate(
+                        ['name' => $brandName],
+                        ['is_active' => true]
+                    )->id;
+
+                $product = Product::query()->updateOrCreate(['sku' => $payload['sku']], $productData);
                 $this->syncUnitConversions($product, $payload['unit_conversions']);
                 $this->syncCategoryPrices($product, $payload['category_prices']);
                 $committed++;
@@ -184,12 +214,15 @@ class ProductCatalogSpreadsheetService
         return array_map(fn (array $row) => array_map(fn ($value) => is_string($value) ? trim($value) : $value, $row), $rows);
     }
 
-    protected function validateRow(array $row, int $rowNumber): array
+    protected function validateRow(array $row, array $headingLookup, int $rowNumber): array
     {
         $errors = [];
-        $sku = trim((string) ($row['SKU/code'] ?? ''));
-        $name = trim((string) ($row['name'] ?? ''));
-        $baseUnitCode = Str::upper(trim((string) ($row['base unit'] ?? '')));
+        $sku = trim((string) $this->valueByHeading($row, $headingLookup, 'SKU/code'));
+        $name = trim((string) $this->valueByHeading($row, $headingLookup, 'name'));
+        $barcode = trim((string) $this->valueByHeading($row, $headingLookup, 'barcode'));
+        $baseUnitCode = Str::upper(trim((string) $this->valueByHeading($row, $headingLookup, 'base unit')));
+        $productCategoryName = trim((string) $this->valueByHeading($row, $headingLookup, 'product category'));
+        $brandName = trim((string) $this->valueByHeading($row, $headingLookup, 'brand'));
         $baseUnitId = $baseUnitCode !== '' ? Unit::query()->where('code', $baseUnitCode)->value('id') : null;
 
         if ($sku === '') {
@@ -204,8 +237,8 @@ class ProductCatalogSpreadsheetService
             $errors[] = "row {$rowNumber}: unknown unit code '{$baseUnitCode}'";
         }
 
-        foreach (['price', 'purchase price', 'VAT rate', 'excise_rate', 'stock_min', 'stock_max'] as $numericColumn) {
-            $value = $row[$numericColumn] ?? '';
+        foreach (['price', 'purchase price', 'VAT rate', 'excise_rate', 'stock_min', 'stock_reorder_point', 'stock_max'] as $numericColumn) {
+            $value = $this->valueByHeading($row, $headingLookup, $numericColumn);
             if ($value !== '' && (! is_numeric($value) || (float) $value < 0)) {
                 $errors[] = "row {$rowNumber}: {$numericColumn} must be a non-negative number";
             }
@@ -220,8 +253,10 @@ class ProductCatalogSpreadsheetService
                 continue;
             }
 
-            if (Str::startsWith($heading, 'Unit: ')) {
-                $unitCode = Str::upper(trim(Str::before(Str::after($heading, 'Unit: '), ' - factor')));
+            $normalizedHeading = $this->normalizeHeading((string) $heading);
+
+            if (Str::startsWith($normalizedHeading, 'unit:')) {
+                $unitCode = Str::upper(trim(Str::before(Str::after((string) $heading, ':'), ' - factor')));
                 $unitId = Unit::query()->where('code', $unitCode)->value('id');
 
                 if (! $unitId) {
@@ -233,12 +268,12 @@ class ProductCatalogSpreadsheetService
                 }
             }
 
-            if (Str::startsWith($heading, 'Price: ')) {
-                $categoryName = trim(Str::after($heading, 'Price: '));
-                $categoryId = PriceCategory::query()->where('name', $categoryName)->value('id');
+            if (Str::startsWith($normalizedHeading, 'price:')) {
+                $priceCategoryName = trim(Str::after((string) $heading, ':'));
+                $categoryId = PriceCategory::query()->where('name', $priceCategoryName)->value('id');
 
                 if (! $categoryId) {
-                    $errors[] = "row {$rowNumber}: unknown price category '{$categoryName}'";
+                    $errors[] = "row {$rowNumber}: unknown price category '{$priceCategoryName}'";
                 } elseif (! is_numeric($value) || (float) $value < 0) {
                     $errors[] = "row {$rowNumber}: {$heading} must be a non-negative number";
                 } else {
@@ -252,17 +287,21 @@ class ProductCatalogSpreadsheetService
             'sku' => $sku,
             'product' => [
                 'name' => $name,
-                'description' => ($row['description'] ?? '') === '' ? null : (string) $row['description'],
+                'description' => $this->valueByHeading($row, $headingLookup, 'description') === '' ? null : (string) $this->valueByHeading($row, $headingLookup, 'description'),
+                'barcode' => $barcode === '' ? null : $barcode,
                 'base_unit_id' => $baseUnitId,
-                'price' => ($row['price'] ?? '') === '' ? 0 : (float) $row['price'],
-                'cost_price' => ($row['purchase price'] ?? '') === '' ? 0 : (float) $row['purchase price'],
-                'vat_rate' => ($row['VAT rate'] ?? '') === '' ? 0 : (float) $row['VAT rate'],
-                'is_excise_applicable' => $this->booleanValue($row['is_excise_applicable'] ?? false),
-                'excise_rate' => ($row['excise_rate'] ?? '') === '' ? null : (float) $row['excise_rate'],
-                'is_active' => $this->booleanValue($row['is_active'] ?? true),
-                'stock_min' => ($row['stock_min'] ?? '') === '' ? null : (float) $row['stock_min'],
-                'stock_max' => ($row['stock_max'] ?? '') === '' ? null : (float) $row['stock_max'],
+                'price' => $this->valueByHeading($row, $headingLookup, 'price') === '' ? 0 : (float) $this->valueByHeading($row, $headingLookup, 'price'),
+                'cost_price' => $this->valueByHeading($row, $headingLookup, 'purchase price') === '' ? 0 : (float) $this->valueByHeading($row, $headingLookup, 'purchase price'),
+                'vat_rate' => $this->valueByHeading($row, $headingLookup, 'VAT rate') === '' ? 0 : (float) $this->valueByHeading($row, $headingLookup, 'VAT rate'),
+                'is_excise_applicable' => $this->booleanValue($this->valueByHeading($row, $headingLookup, 'is_excise_applicable', false)),
+                'excise_rate' => $this->valueByHeading($row, $headingLookup, 'excise_rate') === '' ? null : (float) $this->valueByHeading($row, $headingLookup, 'excise_rate'),
+                'is_active' => $this->booleanValue($this->valueByHeading($row, $headingLookup, 'is_active', true)),
+                'stock_min' => $this->valueByHeading($row, $headingLookup, 'stock_min') === '' ? null : (float) $this->valueByHeading($row, $headingLookup, 'stock_min'),
+                'stock_reorder_point' => $this->valueByHeading($row, $headingLookup, 'stock_reorder_point') === '' ? null : (float) $this->valueByHeading($row, $headingLookup, 'stock_reorder_point'),
+                'stock_max' => $this->valueByHeading($row, $headingLookup, 'stock_max') === '' ? null : (float) $this->valueByHeading($row, $headingLookup, 'stock_max'),
             ],
+            'product_category_name' => $productCategoryName,
+            'brand_name' => $brandName,
             'unit_conversions' => $unitConversions,
             'category_prices' => $categoryPrices,
         ];
@@ -315,5 +354,38 @@ class ProductCatalogSpreadsheetService
     protected function rowIsBlank(array $row): bool
     {
         return collect($row)->filter(fn ($value) => trim((string) $value) !== '')->isEmpty();
+    }
+
+    protected function buildHeadingLookup(array $headings): array
+    {
+        $lookup = [];
+
+        foreach ($headings as $heading) {
+            $normalized = $this->normalizeHeading((string) $heading);
+            if ($normalized !== '') {
+                $lookup[$normalized] = (string) $heading;
+            }
+        }
+
+        return $lookup;
+    }
+
+    protected function normalizeHeading(string $heading): string
+    {
+        return Str::of(Str::lower(trim($heading)))
+            ->replace('_', ' ')
+            ->replaceMatches('/\s+/', ' ')
+            ->value();
+    }
+
+    protected function valueByHeading(array $row, array $headingLookup, string $heading, mixed $default = ''): mixed
+    {
+        $key = $headingLookup[$this->normalizeHeading($heading)] ?? null;
+
+        if ($key === null) {
+            return $default;
+        }
+
+        return $row[$key] ?? $default;
     }
 }

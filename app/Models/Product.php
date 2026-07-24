@@ -31,6 +31,8 @@ class Product extends Model
         'barcode',
         'image_path',
         'base_unit_id',
+        'product_category_id',
+        'brand_id',
         'price',
         'cost_price',
         'average_cost',
@@ -38,6 +40,7 @@ class Product extends Model
         'is_excise_applicable',
         'excise_rate',
         'stock_min',
+        'stock_reorder_point',
         'stock_max',
         'is_active',
     ];
@@ -49,10 +52,13 @@ class Product extends Model
             'cost_price' => 'decimal:2',
             'average_cost' => 'decimal:4',
             'base_unit_id' => 'integer',
+            'product_category_id' => 'integer',
+            'brand_id' => 'integer',
             'vat_rate' => 'decimal:2',
             'is_excise_applicable' => 'boolean',
             'excise_rate' => 'decimal:2',
             'stock_min' => 'decimal:3',
+            'stock_reorder_point' => 'decimal:3',
             'stock_max' => 'decimal:3',
             'is_active' => 'boolean',
         ];
@@ -61,6 +67,16 @@ class Product extends Model
     public function baseUnit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'base_unit_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'product_category_id');
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class);
     }
 
     public function unitConversions(): HasMany

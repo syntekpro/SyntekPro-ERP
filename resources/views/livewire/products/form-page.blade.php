@@ -131,11 +131,16 @@
                         <h2 class="text-lg font-semibold text-ink">Stock Thresholds</h2>
                         <p class="mt-1 text-sm text-muted">Thresholds are stored in the product base unit.</p>
                     </div>
-                    <div class="grid gap-5 md:grid-cols-2">
+                    <div class="grid gap-5 md:grid-cols-3">
                         <div>
                             <label class="mb-2 block text-sm font-medium text-ink">Minimum stock</label>
                             <input wire:model.live="stock_min" type="number" step="0.001" min="0" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-ink outline-none" />
                             @error('stock_min') <p class="mt-2 text-sm text-rust">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink">Reorder point</label>
+                            <input wire:model.live="stock_reorder_point" type="number" step="0.001" min="0" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-ink outline-none" />
+                            @error('stock_reorder_point') <p class="mt-2 text-sm text-rust">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="mb-2 block text-sm font-medium text-ink">Maximum stock</label>
@@ -174,17 +179,39 @@
             @if ($tab === 'units')
                 <section class="space-y-5" id="units">
                     <div>
-                        <h2 class="text-lg font-semibold text-ink">Base Unit</h2>
-                        <p class="mt-1 text-sm text-muted">All stock at rest and category prices are stored against this unit.</p>
+                        <h2 class="text-lg font-semibold text-ink">Classification & Base Unit</h2>
+                        <p class="mt-1 text-sm text-muted">Set category and brand, then choose the base unit used for stock and pricing at rest.</p>
                     </div>
-                    <div class="max-w-xl">
-                        <label class="mb-2 block text-sm font-medium text-ink">Base unit</label>
-                        <select wire:model="base_unit_id" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-ink outline-none">
-                            @foreach ($this->unitOptions as $unitOption)
-                                <option value="{{ $unitOption->id }}">{{ $unitOption->code }} - {{ $unitOption->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('base_unit_id') <p class="mt-2 text-sm text-rust">{{ $message }}</p> @enderror
+                    <div class="grid gap-5 md:grid-cols-3">
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink">Product category</label>
+                            <select wire:model="product_category_id" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-ink outline-none">
+                                <option value="">None</option>
+                                @foreach ($this->productCategoryOptions as $productCategoryOption)
+                                    <option value="{{ $productCategoryOption->id }}">{{ $productCategoryOption->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('product_category_id') <p class="mt-2 text-sm text-rust">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink">Brand</label>
+                            <select wire:model="brand_id" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-ink outline-none">
+                                <option value="">None</option>
+                                @foreach ($this->brandOptions as $brandOption)
+                                    <option value="{{ $brandOption->id }}">{{ $brandOption->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('brand_id') <p class="mt-2 text-sm text-rust">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink">Base unit</label>
+                            <select wire:model="base_unit_id" class="w-full rounded-ui border border-line bg-panel px-4 py-3 text-ink outline-none">
+                                @foreach ($this->unitOptions as $unitOption)
+                                    <option value="{{ $unitOption->id }}">{{ $unitOption->code }} - {{ $unitOption->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('base_unit_id') <p class="mt-2 text-sm text-rust">{{ $message }}</p> @enderror
+                        </div>
                     </div>
                 </section>
 

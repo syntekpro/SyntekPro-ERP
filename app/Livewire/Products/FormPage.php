@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Products;
 
+use App\Models\Brand;
 use App\Models\PriceCategory;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Unit;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
@@ -35,6 +37,10 @@ class FormPage extends Component
 
     public ?int $base_unit_id = null;
 
+    public ?int $product_category_id = null;
+
+    public ?int $brand_id = null;
+
     public string $price = '0.00';
 
     public string $cost_price = '0.00';
@@ -46,6 +52,8 @@ class FormPage extends Component
     public string $excise_rate = '';
 
     public string $stock_min = '';
+
+    public string $stock_reorder_point = '';
 
     public string $stock_max = '';
 
@@ -74,12 +82,15 @@ class FormPage extends Component
             $this->barcode = (string) ($this->product->barcode ?? '');
             $this->image_path = $this->product->image_path;
             $this->base_unit_id = $this->product->base_unit_id;
+            $this->product_category_id = $this->product->product_category_id;
+            $this->brand_id = $this->product->brand_id;
             $this->price = number_format((float) $this->product->price, 2, '.', '');
             $this->cost_price = number_format((float) $this->product->cost_price, 2, '.', '');
             $this->vat_rate = number_format((float) $this->product->vat_rate, 2, '.', '');
             $this->is_excise_applicable = $this->product->is_excise_applicable;
             $this->excise_rate = $this->product->excise_rate !== null ? number_format((float) $this->product->excise_rate, 2, '.', '') : '';
             $this->stock_min = $this->product->stock_min !== null ? number_format((float) $this->product->stock_min, 3, '.', '') : '';
+            $this->stock_reorder_point = $this->product->stock_reorder_point !== null ? number_format((float) $this->product->stock_reorder_point, 3, '.', '') : '';
             $this->stock_max = $this->product->stock_max !== null ? number_format((float) $this->product->stock_max, 3, '.', '') : '';
             $this->is_active = $this->product->is_active;
             $this->unit_conversions = $this->product->unitConversions->map(fn ($conversion) => [
@@ -150,12 +161,15 @@ class FormPage extends Component
             ],
             'imageUpload' => ['nullable', 'image', 'max:2048'],
             'base_unit_id' => ['required', 'integer', Rule::exists('units', 'id')],
+            'product_category_id' => ['nullable', 'integer', Rule::exists('product_categories', 'id')],
+            'brand_id' => ['nullable', 'integer', Rule::exists('brands', 'id')],
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'vat_rate' => ['required', 'numeric', 'min:0'],
             'is_excise_applicable' => ['required', 'boolean'],
             'excise_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'stock_min' => ['nullable', 'numeric', 'min:0'],
+            'stock_reorder_point' => ['nullable', 'numeric', 'min:0'],
             'stock_max' => ['nullable', 'numeric', 'min:0', 'gte:stock_min'],
             'is_active' => ['required', 'boolean'],
             'is_sellable' => ['required', 'boolean'],
@@ -171,6 +185,7 @@ class FormPage extends Component
         $validated['description'] = $validated['description'] === '' ? null : $validated['description'];
         $validated['excise_rate'] = $validated['is_excise_applicable'] ? ($validated['excise_rate'] === '' ? null : $validated['excise_rate']) : null;
         $validated['stock_min'] = $validated['stock_min'] === '' ? null : $validated['stock_min'];
+        $validated['stock_reorder_point'] = $validated['stock_reorder_point'] === '' ? null : $validated['stock_reorder_point'];
         $validated['stock_max'] = $validated['stock_max'] === '' ? null : $validated['stock_max'];
 
         if ($this->imageUpload instanceof TemporaryUploadedFile) {
@@ -241,6 +256,16 @@ class FormPage extends Component
     public function getPriceCategoryOptionsProperty()
     {
         return PriceCategory::query()->where('is_active', true)->orderBy('name')->get();
+    }
+
+    public function getProductCategoryOptionsProperty()
+    {
+        return ProductCategory::query()->where('is_active', true)->orderBy('name')->get();
+    }
+
+    public function getBrandOptionsProperty()
+    {
+        return Brand::query()->where('is_active', true)->orderBy('name')->get();
     }
 
     public function render()

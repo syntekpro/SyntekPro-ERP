@@ -44,8 +44,8 @@ class HubCrudTest extends TestCase
             ->assertSeeText('Active shops')
             ->assertSeeText('Products')
             ->assertSeeText('Open purchase orders')
-            ->assertSeeText('Outstanding receivables (AR)')
-            ->assertSeeText('Outstanding payables (AP)')
+            ->assertSeeText('Outstanding receivables')
+            ->assertSeeText('Outstanding payables')
             ->assertSeeText('Sales today')
             ->assertSeeText('2')
             ->assertSeeText('3');

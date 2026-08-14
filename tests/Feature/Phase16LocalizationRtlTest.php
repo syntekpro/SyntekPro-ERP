@@ -34,7 +34,10 @@ class Phase16LocalizationRtlTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('lang="ar"', false)
-            ->assertSee('dir="rtl"', false);
+            ->assertSee('dir="rtl"', false)
+            ->assertSee('العمليات')
+            ->assertSee('المستخدمون')
+            ->assertSee('التسوية البنكية');
     }
 
     public function test_login_screen_respects_business_settings_default_locale_for_guests(): void

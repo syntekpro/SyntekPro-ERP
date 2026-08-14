@@ -77,7 +77,7 @@
                     ['label' => __('Customers'), 'route' => 'customers.index', 'patterns' => 'customers.*', 'icon' => 'users', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Customer::class)],
                     ['label' => __('Customer Receivables'), 'route' => 'customer-receivables.index', 'patterns' => 'customer-receivables.*', 'icon' => 'wallet-cards', 'visible' => $canFinancialReports],
                     ['label' => __('Credit Notes'), 'route' => 'credit-notes.index', 'patterns' => 'credit-notes.*', 'icon' => 'rotate-ccw', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\CreditNote::class)],
-                    ['label' => 'POS', 'route' => 'pos.sales', 'patterns' => 'pos.sales', 'icon' => 'monitor-smartphone', 'visible' => $currentUser?->shop_id !== null],
+                    ['label' => __('POS'), 'route' => 'pos.sales', 'patterns' => 'pos.sales', 'icon' => 'monitor-smartphone', 'visible' => $currentUser?->shop_id !== null],
                 ]],
                 ['key' => 'accounting', 'label' => __('Accounting'), 'icon' => 'landmark', 'items' => [
                     ['label' => __('Accounts'), 'route' => 'accounts.index', 'patterns' => 'accounts.*', 'icon' => 'book-open', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Account::class)],

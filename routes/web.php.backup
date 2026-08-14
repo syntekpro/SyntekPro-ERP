@@ -2,9 +2,6 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\BankAccountController;
-use App\Http\Controllers\BankReconciliationController;
-use App\Http\Controllers\ZatcaComplianceController;
 use App\Http\Controllers\BalanceSheetReportController;
 use App\Http\Controllers\CashFlowReportController;
 use App\Http\Controllers\ChequeController;
@@ -74,12 +71,6 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/document-shares/{share}/revoke', [DocumentOutputController::class, 'revoke'])->name('document-shares.revoke');
     Route::get('/settings', SettingsController::class)->name('settings.index');
     Route::resource('shops', ShopController::class)->only(['index', 'create', 'edit']);
-    Route::resource('bank-accounts', BankAccountController::class)->only(['index', 'create', 'edit']);
-    Route::get('/bank-reconciliation', [BankReconciliationController::class, 'index'])->name('bank-reconciliation.index');
-    Route::get('/bank-reconciliation/{bankAccount}', [BankReconciliationController::class, 'show'])->name('bank-reconciliation.show');
-    Route::get('/zatca-compliance', [ZatcaComplianceController::class, 'index'])->name('zatca-compliance.index');
-    Route::get('/zatca-compliance/{zatcaCertificate}/csr', [ZatcaComplianceController::class, 'downloadCsr'])->name('zatca-compliance.csr.download');
-    Route::get('/zatca-compliance/{zatcaCertificate}/private-key', [ZatcaComplianceController::class, 'downloadPrivateKey'])->name('zatca-compliance.private-key.download');
     Route::resource('warehouses', WarehouseController::class)->only(['index', 'create', 'edit']);
     Route::resource('units', UnitController::class)->only(['index', 'create', 'edit']);
     Route::resource('price-categories', PriceCategoryController::class)->only(['index', 'create', 'edit']);

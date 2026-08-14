@@ -84,8 +84,6 @@
                     ['label' => __('Journal Entries'), 'route' => 'journal-entries.index', 'patterns' => 'journal-entries.*', 'icon' => 'notebook-tabs', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\JournalEntry::class)],
                     ['label' => __('Cheques Register'), 'route' => 'cheques.index', 'patterns' => 'cheques.*', 'icon' => 'scroll-text', 'visible' => $canCheques],
                     ['label' => __('Fiscal Periods'), 'route' => 'fiscal-periods.index', 'patterns' => 'fiscal-periods.*', 'icon' => 'calendar-days', 'visible' => $canFinancialReports],
-                    ['label' => __('Bank Accounts'), 'route' => 'bank-accounts.index', 'patterns' => 'bank-accounts.*', 'icon' => 'landmark', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\BankAccount::class)],
-                    ['label' => __('Bank Reconciliation'), 'route' => 'bank-reconciliation.index', 'patterns' => 'bank-reconciliation.*', 'icon' => 'git-compare-arrows', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\BankAccount::class)],
                 ]],
                 ['key' => 'reports', 'label' => __('Reports'), 'icon' => 'chart-column', 'items' => [
                     ['label' => __('Reports Overview'), 'route' => 'reports.index', 'patterns' => 'reports.index', 'icon' => 'chart-no-axes-combined', 'visible' => $currentUser?->isSuperAdmin() || $currentUser?->isShopManager()],
@@ -103,7 +101,6 @@
                     ['label' => __('Product Categories'), 'route' => 'product-categories.index', 'patterns' => 'product-categories.*', 'icon' => 'folder-tree', 'visible' => $canSettings],
                     ['label' => __('Brands'), 'route' => 'brands.index', 'patterns' => 'brands.*', 'icon' => 'award', 'visible' => $canSettings],
                     ['label' => __('Settings / Roles / Branding'), 'route' => 'settings.index', 'patterns' => 'settings.*', 'icon' => 'sliders-horizontal', 'visible' => $canSettings],
-                    ['label' => __('ZATCA Compliance'), 'route' => 'zatca-compliance.index', 'patterns' => 'zatca-compliance.*', 'icon' => 'shield-check', 'visible' => $canSettings || $canFinancialReports],
                 ]],
             ];
 

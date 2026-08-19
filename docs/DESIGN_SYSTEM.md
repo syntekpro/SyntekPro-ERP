@@ -1,142 +1,196 @@
-# SyntekPro ERP — Design System (v2)
+# SyntekPro ERP — Design System (v3, ViknBooks direction)
 
-This file replaces `docs/DesignInstructions.md`, `docs/BrandingEngine.md`, and `docs/CodingStandards.md`.
-Those three files described the same intent inconsistently and contradicted each other on icon style.
-Delete them once this is merged. `docs/phase-13-design-system.md` stays as historical record of the
-navy/brass "ledger" direction — we are moving away from it toward the direction below.
+This replaces the v2 teal/amber "Linear-style" spec. That direction is preserved historically via the
+`v1.0.0-classic-ui` git tag — do not resurrect it. This document is the single source of truth for the
+v2.0.0 visual redesign; it targets parity with ViknBooks' admin UI conventions while keeping SyntekPro's
+existing architecture (Blade components, `@theme` tokens, Livewire, RTL/Arabic) untouched underneath.
 
-## Direction
+## Non-negotiables carried over from v2
 
-The product should read as a 2026 SaaS product, not an admin template. References: Linear, Stripe
-Dashboard, Notion, Arc. Not references: ERPNext, Odoo, Bootstrap Admin, AdminLTE, Metronic.
+- Keep `resources/css/app.css` `@theme` token block and `--theme-*` / `--app-*` / `--brand-*` variable
+  layers as the mechanism — only token *values* change, never variable names or the white-label override
+  surface (`--brand-*`).
+- Keep the `data-theme` attribute + `data-theme-toggle` mechanism (light / dark / auto).
+- Keep Arabic/RTL font fallback (`:root[lang^='ar']`) as-is.
+- Typography stays **IBM Plex Sans** / **IBM Plex Sans Arabic** (and `IBM Plex Mono` for figures).
+- **RTL is required everywhere.** Use logical CSS properties (`inset-inline-start/end`, `margin-inline`,
+  `padding-inline`, `text-align: start/end`, `ms-*`/`me-*`/`ps-*`/`pe-*` Tailwind utilities) — never
+  hardcode `left`/`right` in new or restyled markup.
+- Restyle existing Blade components in place (`resources/views/components/*.blade.php`); never fork a
+  second card/button/table component.
+- Never hardcode hex colors, brand name, or logo paths directly in Blade — always go through
+  `--theme-*` / `--brand-*` variables and `BusinessSettingsService`.
 
-This is a retune, not a rebuild. Keep the existing architecture as-is:
-- The `@theme` token block and `--theme-*` / `--app-*` / `--brand-*` variable layers in `resources/css/app.css`
-- The `data-theme` attribute mechanism and `data-theme-toggle` control (light / dark / auto — user-selectable,
-  defaults to **light** on first visit if no saved preference)
-- The `--brand-*` variables as the white-label override surface — a tenant deployment changes only these
-- Arabic/RTL font fallback (`:root[lang^='ar']`) — already correct, do not touch
-- Existing Blade components in `resources/views/components/*.blade.php` — restyle in place, never duplicate
-- `x-lucide-*` icon usage — keep Lucide as the icon source, we are changing how icons are *presented*, not
-  replacing the icon set (see Icons section)
+## Color system
 
-Only the token **values** and the **hierarchy** of a handful of components change.
-
-## Token values (`resources/css/app.css`)
-
-Replace the light-mode values in the `@theme` block and `:root` (default/light) section. Keep every
-variable *name* the same so no component needs to change.
+Two distinct palettes: **Admin/back-office** (white + black + gray, pastel accents for data) and
+**POS terminal** (navy blue), kept visually separate on purpose (Phase 6).
 
 ```css
 @theme {
-    --color-ink-navy: #12151A;        /* was #102033 — cooler, less "ledger" navy */
-    --color-brass: #D97706;           /* was #b8872f — the one primary accent */
-    --color-brass-contrast: #7C3D02;
-    --color-ledger: #0F9E93;          /* was #24745a — modern teal, not olive-green */
-    --color-rust: #DC2626;            /* danger stays a clear red */
-    --color-paper: #F6F7F9;           /* was warm ivory #f7f1e4 — neutral cool gray */
-    --color-surface: #FFFFFF;         /* was warm cream #fffaf0 — pure white cards */
-    --color-panel: #F6F7F9;
-    --color-line: #E7E9EE;            /* was warm tan #ded1bb — cool neutral hairline */
+    /* Admin surfaces */
+    --color-page-bg: #F0F1F3;      /* light neutral gray page background */
+    --color-surface: #FFFFFF;      /* white content/table/form cards */
+    --color-ink: #14161A;          /* near-black text, bold headings */
+    --color-line: #E7E9EE;         /* hairline borders */
     --color-muted: #6B7280;
     --color-subtle: #9CA3AF;
+
+    /* Primary actions */
+    --color-action: #14161A;       /* solid black — primary buttons (Create New, Save) */
+    --color-link: #2563EB;         /* blue text-links — Export/Import, Clear, View List, column-customize */
+    --color-danger: #DC2626;       /* red text-link/badge — Delete, negative balances, unpaid */
+    --color-positive: #16A34A;     /* green — paid/positive balances, "New" badge, positive trend */
+
+    /* Pastel stat-card backgrounds (dashboard) */
+    --color-pastel-blue: #EAF2FF;
+    --color-pastel-green: #EAFBEF;
+    --color-pastel-pink: #FDEDF3;
+
+    /* Chart series */
+    --color-chart-sales: #16A34A;          /* Sales */
+    --color-chart-sales-return: #EC4899;   /* Sales Return */
+    --color-chart-purchase: #2563EB;       /* Purchase */
+    --color-chart-purchase-return: #F97316;/* Purchase Return */
+    --color-chart-expense: #DC2626;        /* Expense trend line */
+    --color-chart-income: #16A34A;         /* Income vs Expense bars */
+
+    /* POS terminal only (Phase 6) */
+    --color-pos-navy: #0D3B66;
+    --color-pos-navy-deep: #092A4A;
 }
 ```
 
-Dark mode block (`:root[data-theme='dark']`) keeps its existing `color-mix()` derivation logic —
-just confirm it still derives sensibly from the new light values above; don't hand-author separate
-dark hex values unless contrast testing says otherwise.
+Dark mode keeps its existing `color-mix()` derivation approach from the previous token set — re-derive
+from these new values rather than hand-authoring separate dark hex codes.
 
-Fonts stay as-is: `IBM Plex Sans` / `IBM Plex Mono`. It's a deliberate, distinctive choice already
-wired for financial tabular figures (`.figure-mono`) — don't swap it for Inter or a generic default.
+## [Header] ~64px, white background
 
-## Hierarchy fix (the actual bug in the current screens)
+- Left: logo + two-line bilingual company name (EN on one line, AR on the next) + workspace/company
+  dropdown chevron + a small plan/subscription badge pill.
+- Right, in order: grid-icon **Quick Menu** button, search icon, **EN/AR** language pill toggle, settings
+  gear icon, theme (light/dark) toggle, a dark pill showing live clock + date, user avatar + name +
+  dropdown chevron.
+- All icon buttons are icon-only (no borders at rest); the language pill and clock/date pill are the
+  only two elements with a filled background.
+- File: `resources/views/components/shell/header.blade.php`.
 
-`resources/views/components/shell/header.blade.php` currently styles every control identically:
-workspace switcher, quick actions, search, notifications, locale switch, theme toggle, and profile
-all use `h-10 rounded-ui border border-line bg-panel px-3`. Nothing leads. Fix:
+## [Sidebar] icon rail
 
-- **Search** is the one wide, visually prominent control (`bg-surface`, full border, placeholder text) —
-  everything else in the header is a compact icon-only button (`w-10 h-10`, no visible border until hover)
-- **Notifications, locale, theme toggle, profile** collapse to icon-only with tooltips; only show the
-  text label at `lg:` breakpoint and above for profile email
-- Only ONE element in the header may use the brass/accent fill: none, by default — brass is reserved for
-  primary actions inside page content (buttons like "Save", "Add shop"), not chrome
-- Same fix applies to `drawer.blade.php`: nav sections get a quiet uppercase-11px label used ONCE per
-  section (already close to correct) — don't add borders around individual nav links, only background
-  on hover/active
+- Narrow, ~56–60px wide, full viewport height, dark charcoal background (near-black, not navy).
+- Icon-only, no text labels, no hover-expand — each module gets a distinct color for its icon (not
+  monochrome) so modules are visually distinguishable at a glance.
+- File: `resources/views/components/shell/drawer.blade.php`.
 
-## Icons — soft-dimensional, not flat, not glossy
+## [Quick Menu]
 
-Neither flat single-line icons nor literal glossy/skeuomorphic 3D icons (previous docs asked for both,
-which is why output was inconsistent). The 2026 reference point is Linear/Notion-style icon *tiles*:
-a Lucide icon sitting inside a soft, faintly dimensional colored tile.
+- Floating rounded card, blue-tinted background, drops directly below the header's Quick Menu button.
+- Sized to its content (not full-screen/full-width), positioned as a dropdown/popover.
+- Pencil-edit icon in the top-right corner of the card (for customizing pinned shortcuts, if wired up
+  later — Phase 3 just needs the visual slot).
+- Body: a grid of icon tiles, each with a colored icon + label underneath/beside it; some tiles carry a
+  small green "New" badge.
+- Tiles are grouped into categories with a small header per group.
+- **Source of truth for entries/routes/permissions: the existing `navSections` array in
+  `resources/views/layouts/hub.blade.php`.** The Quick Menu must render from that same data — never
+  hand-duplicate a second route list.
 
-Create one new component, `resources/views/components/icon-tile.blade.php`, and wrap existing
-`x-lucide-*` icons in it wherever an icon currently sits in a stat card, nav item, or quick action —
-do not change the icon library itself.
+## [Page background]
 
-```blade
-@props(['color' => 'brass', 'size' => 'md'])
-@php
-$sizes = ['sm' => 'h-8 w-8', 'md' => 'h-11 w-11', 'lg' => 'h-14 w-14'];
-@endphp
-<div {{ $attributes->merge([
-    'class' => $sizes[$size].' shrink-0 rounded-xl flex items-center justify-center'
-]) }}
-style="
-    background: linear-gradient(155deg, color-mix(in srgb, var(--color-{{ $color }}) 16%, white), color-mix(in srgb, var(--color-{{ $color }}) 8%, white));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 2px color-mix(in srgb, var(--color-{{ $color }}) 25%, transparent), 0 1px 2px rgba(16,24,32,.06);
-    color: color-mix(in srgb, var(--color-{{ $color }}) 70%, black);
-">
-    {{ $slot }}
-</div>
-```
+Light neutral gray (`--color-page-bg`, ~`#F0F1F3`) behind all white content cards, across every
+authenticated screen.
 
-Usage: `<x-icon-tile color="ledger"><x-lucide-store class="h-6 w-6" /></x-icon-tile>`. The gradient +
-double inset shadow is what gives the soft dimensional read without looking like a rendered 3D asset.
-Icon itself stays a normal Lucide outline icon at 24-28px — the tile carries the depth, not the glyph.
+## [Dashboard]
 
-## Charts
+- Stat cards: pastel background (soft blue / green / pink from the palette above), a circular icon
+  badge, a small info (ⓘ) icon, a bold large amount, and a trend line of text below (e.g. "+12% vs last
+  month").
+- List rows for customers/suppliers/accounts: colorful circular avatar showing the entity's initial;
+  balance colored green when positive, red when negative.
+- Charts: Sales / Sales Return use green / pink; Purchase / Purchase Return use blue / orange; Expense
+  trend is a red line; Income vs Expense is green/red bars. Reuse the existing Chart.js setup, only
+  change the series colors and card chrome.
 
-Current dashboard chart panel renders an empty dashed placeholder — replace with real Chart.js
-(already fine to add via npm/Vite, it's a 40kb dependency). Rules:
+## [Tables] (list/index pages)
 
-- Line/area charts: 2px stroke, filled area at 6-8% opacity of the line color, no visible data points
-  except on hover, gridlines only on the Y axis at `var(--color-line)`
-- Every chart gets exactly one primary series color (`--color-ledger` teal) and, if comparing two
-  series, one secondary (`--color-brass`) — never more than two colors in one chart
-- Stat cards get a small inline sparkline (last 7-30 points, no axes, no labels) next to the number,
-  not a separate chart panel
-- Donut/breakdown charts: thick ring (`cutout: 72%`), color from the same two-color system, numeric
-  legend beside it rather than a floating chart legend
-- Empty state (no data yet): show the axes and gridlines with a centered one-line message and a
-  next-action link — never a bare dashed rectangle
+- White card container.
+- Bold black title top-left.
+- Search icon, a "Filter" pill button, blue text-link **Export** / **Import**, red text-link **Delete**.
+- Solid **black** "+ Create New" button (top-right area).
+- Blue pencil icon for column customization near the header row.
+- Column headers: gray, uppercase, small.
+- Status pills: green for paid/positive states, red for unpaid/negative states.
+- Pagination control top-right (not bottom).
 
-## Layout rules (apply everywhere, not just dashboard)
+## [Forms] (create/edit pages)
 
-- Sidebar: icon-only rail at rest, expands on hover to show labels (desktop); becomes a slide-over
-  drawer with backdrop on mobile — this exists in `shell-drawer` already, just needs the hover-expand
-  behavior and its own internal scroll region (`overflow-y: auto` on the nav list, not the whole aside)
-  so it works at any viewport height
-- Grids are fluid at all breakpoints: 1 column mobile → 2 tablet → 3+ desktop for card grids; never a
-  fixed pixel width on the content area
-- One accent color rule holds everywhere: brass for primary actions, teal (ledger) for positive/live
-  data and secondary chart series, red (rust) for danger/overdue, gray for everything else
+- White background, bold page title.
+- Top-right action row: **Clear** (blue text-link), **View List** (blue text-link), **Save** (solid
+  black button).
+- Inputs: minimal borders, labels positioned above the field (not floating/inline).
+- Checkboxes: blue when checked.
+- Section dividers: bold header text, no heavy box/border around the section.
 
-## Rollout order
+## [Settings pages]
 
-1. Token value swap in `app.css` + header/drawer hierarchy fix (this doc, immediate)
-2. `icon-tile` component + wire into dashboard stat cards and quick actions
-3. Dashboard charts (replace placeholder with Chart.js per above)
-4. Shops / Warehouses / Products / Stock Transfers list + form screens
-5. POS terminal screens (separate pass — touch-first rules, not covered here)
-6. Reports screens + final RTL pass on the new visual values (font fallback already correct, just
-   verify layout mirrors properly with the new spacing)
+- Left vertical list of categories (white pill buttons; active item has a blue background).
+- Horizontal sub-tabs under the page title for the selected category.
+- Toggle-switch settings rendered as cards in a responsive grid.
+
+## [Modals]
+
+- White rounded card centered over a dark overlay.
+- Bold title, an optional contextual link, and an X close button in the header row.
+- Body rows can include an icon or status indicator per row.
+- Destructive actions use red warning text.
+
+## [Empty states]
+
+- Centered simple line-art illustration.
+- Bold heading, gray subtext beneath it.
+
+## [Permission matrix pages]
+
+- Same left settings category list as other settings screens.
+- Role dropdown + a "Create User Type" link at the top.
+- Sub-tabs: General / Dashboard / Settings.
+- Matrix table: module names as the left column; toggle columns for View / Save / Edit / Delete /
+  Print-Export, plus contextual extra columns where relevant (Unit Price / Discount / Limit / Purchase
+  Price).
+- Section header rows (grouping modules) are visually distinct from data rows (bold, shaded background).
+
+## [Organization / company settings]
+
+- Single scrolling page (not multiple tabs), with bold section headers in this order:
+  1. **Organization Details**
+  2. **Financial Details** (VAT / CR / Financial Year)
+  3. **Address Details** (bilingual EN/AR toggle)
+  4. **Contact Details** (dynamic add/remove rows for phones, emails, websites, social links)
+
+## [POS terminal] — separate theme
+
+`resources/views/pos/sales.blade.php` uses its own **navy blue** theme (`--color-pos-navy` range), not
+the admin white/black theme described above. Full detail specified in Phase 6; not built in this phase.
+
+## Icons
+
+Keep Lucide (`x-lucide-*`) as the icon source. Icon tiles (colored background + icon) are used in stat
+cards, Quick Menu tiles, and sidebar — color varies per module/context rather than a single accent.
+
+## Rollout order (matches session phases)
+
+1. This document (Phase 1).
+2. Shared components — card, button, badge, status-badge, table, input (Phase 2).
+3. Header, sidebar, Quick Menu (Phase 3).
+4. Dashboard (Phase 4).
+5. Floating quick-action FAB (Phase 5).
+6. POS terminal navy theme (Phase 6).
+7. Functional gap audit, then scoped functional phases (Phase 7+).
 
 ## Workflow rule for Copilot
 
-Before touching any screen: check `resources/views/components/` for an existing component first.
-Extend or restyle it in place. Never create a second card/button/table component. Never hardcode a
-hex color, brand name, or logo path directly in a Blade file — always go through the existing
-`--theme-*` / `--brand-*` variables and `BusinessSettingsService`.
+Before touching any screen: check `resources/views/components/` for an existing component first. Extend
+or restyle it in place. Never create a second card/button/table component. Never hardcode a hex color,
+brand name, or logo path directly in a Blade file — always go through the existing `--theme-*` /
+`--brand-*` variables and `BusinessSettingsService`. Visual-phase commits touch Blade markup and CSS
+only — no PHP logic, Livewire methods/properties, routes, or database changes.

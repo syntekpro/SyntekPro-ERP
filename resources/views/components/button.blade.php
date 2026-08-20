@@ -14,6 +14,8 @@
         'warning' => 'btn-warning',
         'success' => 'btn-success',
         'danger', 'destructive' => 'btn-danger',
+        'link' => 'btn-link',
+        'link-danger' => 'btn-link-danger',
         default => 'btn-primary',
     };
 

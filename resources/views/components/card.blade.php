@@ -1,6 +1,6 @@
 @props([
     'padding' => 'md',
-    'surface' => 'panel',
+    'surface' => 'surface',
 ])
 
 @php

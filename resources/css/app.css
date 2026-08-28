@@ -816,6 +816,23 @@
 
     .header-menu-panel {
         display: none;
+        max-height: calc(100vh - 5rem);
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+    }
+
+    .header-menu-panel::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .header-menu-panel::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--app-line) 80%, transparent);
+        border-radius: 9999px;
+    }
+
+    .header-menu-panel::-webkit-scrollbar-track {
+        background: transparent;
     }
 
     .header-menu[open] .header-menu-panel {

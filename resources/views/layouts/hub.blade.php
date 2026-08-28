@@ -154,7 +154,9 @@
                     $mappedIcon = $quickMenuIcons[$item['label']] ?? ['icon' => 'category', 'color' => 'brass'];
 
                     return [
+                        'key' => $item['route'],
                         'label' => $item['label'],
+                        'section_key' => $section['key'],
                         'section' => $section['label'],
                         'url' => route($item['route']),
                         'icon' => $mappedIcon['icon'],
@@ -164,8 +166,9 @@
             })->values()->all();
 
             $quickMenuSections = collect($visibleSections)->map(fn (array $section): array => [
+                'key' => $section['key'],
                 'label' => $section['label'],
-                'items' => collect($quickMenuItems)->where('section', $section['label'])->values()->all(),
+                'items' => collect($quickMenuItems)->where('section_key', $section['key'])->values()->all(),
             ])->filter(fn (array $section): bool => count($section['items']) > 0)->values()->all();
 
             $commandItems = collect($visibleSections)->flatMap(fn (array $section) => collect($section['items'])->map(fn (array $item) => [

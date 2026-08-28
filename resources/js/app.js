@@ -5,6 +5,7 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 const systemThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
 const desktopDrawerMedia = window.matchMedia('(min-width: 64rem)');
 const drawerStorageKey = 'shell:drawer-collapsed';
+const quickMenuHiddenItemsStorageKey = 'shell:quick-menu-hidden-items';
 
 const resolveTheme = (preference) => {
 	if (preference === 'dark' || preference === 'light') {
@@ -240,6 +241,22 @@ const QUICK_MENU_CLOSE_DELAY = 150;
 document.querySelectorAll('[data-quick-menu]').forEach((menu) => {
 	let openTimer = null;
 	let closeTimer = null;
+	const customizeToggle = menu.querySelector('[data-quick-menu-customize-toggle]');
+	const customizePanel = menu.querySelector('[data-quick-menu-customize-panel]');
+	const customizeClose = menu.querySelector('[data-quick-menu-customize-close]');
+	const customizeReset = menu.querySelector('[data-quick-menu-reset]');
+	const visibilityToggles = [...menu.querySelectorAll('[data-quick-menu-item-toggle]')];
+	const menuItems = [...menu.querySelectorAll('[data-quick-menu-item][data-quick-menu-item-key]')];
+	const menuSections = [...menu.querySelectorAll('[data-quick-menu-section][data-quick-menu-section-key]')];
+	const persistedHiddenItems = (window.localStorage.getItem(quickMenuHiddenItemsStorageKey) || '')
+		.split(',')
+		.map((itemKey) => itemKey.trim())
+		.filter((itemKey) => itemKey.length > 0);
+	let hiddenItemKeys = new Set(
+		persistedHiddenItems.length > 0
+			? persistedHiddenItems
+			: visibilityToggles.filter((toggle) => !toggle.checked).map((toggle) => toggle.value),
+	);
 
 	const clearTimers = () => {
 		if (openTimer) {
@@ -252,6 +269,128 @@ document.querySelectorAll('[data-quick-menu]').forEach((menu) => {
 			closeTimer = null;
 		}
 	};
+
+	const persistQuickMenuState = () => {
+		const hiddenItemsList = [...hiddenItemKeys];
+		window.localStorage.setItem(quickMenuHiddenItemsStorageKey, hiddenItemsList.join(','));
+		persistPreferences({
+			navigation_state: {
+				quick_menu_hidden_items: hiddenItemsList,
+			},
+		});
+	};
+
+	const syncCustomizeToggles = () => {
+		visibilityToggles.forEach((toggle) => {
+			toggle.checked = !hiddenItemKeys.has(toggle.value);
+		});
+	};
+
+	const applyQuickMenuVisibility = () => {
+		menuItems.forEach((menuItem) => {
+			const itemKey = menuItem.getAttribute('data-quick-menu-item-key');
+			if (!itemKey) {
+				return;
+			}
+
+			menuItem.classList.toggle('hidden', hiddenItemKeys.has(itemKey));
+		});
+
+		menuSections.forEach((menuSection) => {
+			const sectionKey = menuSection.getAttribute('data-quick-menu-section-key');
+			if (!sectionKey) {
+				return;
+			}
+
+			const visibleItemsInSection = menuItems.filter((menuItem) => {
+				if (menuItem.classList.contains('hidden')) {
+					return false;
+				}
+
+				return menuItem.getAttribute('data-quick-menu-section-key') === sectionKey;
+			});
+
+			menuSection.classList.toggle('quick-menu-column-empty', visibleItemsInSection.length === 0);
+		});
+	};
+
+	const closeCustomizePanel = () => {
+		if (!customizePanel || !customizeToggle) {
+			return;
+		}
+
+		customizePanel.classList.add('hidden');
+		customizeToggle.setAttribute('aria-expanded', 'false');
+	};
+
+	const openCustomizePanel = () => {
+		if (!customizePanel || !customizeToggle) {
+			return;
+		}
+
+		customizePanel.classList.remove('hidden');
+		customizeToggle.setAttribute('aria-expanded', 'true');
+	};
+
+	const isCustomizePanelOpen = () => customizePanel ? !customizePanel.classList.contains('hidden') : false;
+
+	syncCustomizeToggles();
+	applyQuickMenuVisibility();
+
+	visibilityToggles.forEach((toggle) => {
+		toggle.addEventListener('change', () => {
+			if (toggle.checked) {
+				hiddenItemKeys.delete(toggle.value);
+			} else {
+				hiddenItemKeys.add(toggle.value);
+			}
+
+			applyQuickMenuVisibility();
+			persistQuickMenuState();
+		});
+	});
+
+	customizeReset?.addEventListener('click', () => {
+		hiddenItemKeys = new Set();
+		syncCustomizeToggles();
+		applyQuickMenuVisibility();
+		persistQuickMenuState();
+	});
+
+	customizeClose?.addEventListener('click', closeCustomizePanel);
+
+	customizeToggle?.addEventListener('click', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+
+		if (isCustomizePanelOpen()) {
+			closeCustomizePanel();
+			return;
+		}
+
+		menu.open = true;
+		openCustomizePanel();
+	});
+
+	document.addEventListener('click', (event) => {
+		if (!isCustomizePanelOpen()) {
+			return;
+		}
+
+		if (!(event.target instanceof Node)) {
+			return;
+		}
+
+		if (!menu.contains(event.target)) {
+			closeCustomizePanel();
+		}
+	});
+
+	menu.addEventListener('toggle', () => {
+		if (!menu.open) {
+			closeCustomizePanel();
+		}
+	});
 
 	menu.addEventListener('mouseenter', () => {
 		if (!hoverCapableMedia.matches) {
@@ -271,6 +410,10 @@ document.querySelectorAll('[data-quick-menu]').forEach((menu) => {
 
 		clearTimers();
 		closeTimer = window.setTimeout(() => {
+			if (isCustomizePanelOpen()) {
+				return;
+			}
+
 			menu.open = false;
 		}, QUICK_MENU_CLOSE_DELAY);
 	});
@@ -380,6 +523,8 @@ document.addEventListener('keydown', (event) => {
 	if (event.key === 'Escape') {
 		closeDrawer();
 		closePalette();
+		document.querySelectorAll('[data-quick-menu-customize-panel]').forEach((panel) => panel.classList.add('hidden'));
+		document.querySelectorAll('[data-quick-menu-customize-toggle]').forEach((toggle) => toggle.setAttribute('aria-expanded', 'false'));
 
 		document.querySelectorAll('[data-ui-modal]:not(.hidden)').forEach((modal) => {
 			if (modal.id) {

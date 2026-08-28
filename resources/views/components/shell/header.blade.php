@@ -11,6 +11,10 @@
 
 @php
     $workspaceLabel = $currentUser?->shop_id ? __('Shop Workspace') : __('Back Office Workspace');
+    $hiddenQuickMenuItems = collect($currentUser?->navigation_state['quick_menu_hidden_items'] ?? [])
+        ->filter(fn ($key): bool => is_string($key) && $key !== '')
+        ->values()
+        ->all();
 @endphp
 
 <header class="shell-header border-b border-line bg-surface/90 backdrop-blur">
@@ -64,24 +68,59 @@
                     </div>
                 </details>
 
-                <details class="header-menu quick-menu relative" data-quick-menu>
+                <details class="header-menu quick-menu relative" data-quick-menu data-quick-menu-hidden-items='@json($hiddenQuickMenuItems)'>
                     <summary class="quick-menu-trigger flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-[var(--color-link)] transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick Menu') }}">
                         <x-lucide-grid-2x2 class="h-[18px] w-[18px]" />
                     </summary>
                     <div class="quick-menu-panel header-menu-panel start-0 rounded-2xl p-3 shadow-xl">
-                        <div class="mb-2 flex items-center justify-between gap-2">
+                        <div class="quick-menu-toolbar mb-2 flex items-center justify-between gap-2">
                             <p class="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-subtle">{{ __('Quick Menu') }}</p>
-                            <button type="button" class="quick-menu-customize-btn inline-flex h-8 w-8 items-center justify-center rounded-full transition" aria-label="{{ __('Customize shortcuts') }}">
+                            <button type="button" class="quick-menu-customize-btn inline-flex h-8 w-8 items-center justify-center rounded-full transition" data-quick-menu-customize-toggle aria-expanded="false" aria-controls="quick-menu-customize-panel" aria-label="{{ __('Customize shortcuts') }}">
                                 <x-lucide-pencil-line class="h-3.5 w-3.5" />
                             </button>
+                            <div id="quick-menu-customize-panel" class="quick-menu-customize-popover hidden" data-quick-menu-customize-panel>
+                                <p class="quick-menu-customize-title">{{ __('Customize shortcuts') }}</p>
+                                <p class="quick-menu-customize-copy">{{ __('Choose which shortcuts appear in the Quick Menu.') }}</p>
+                                <div class="quick-menu-customize-list">
+                                    @foreach ($quickMenuSections as $quickMenuSection)
+                                        <div class="quick-menu-customize-section">
+                                            <p class="quick-menu-customize-section-label">{{ $quickMenuSection['label'] }}</p>
+                                            @foreach ($quickMenuSection['items'] as $quickMenuItem)
+                                                @php($quickMenuToggleId = 'quick-menu-toggle-' . str_replace(['.', '/', ':'], '-', $quickMenuItem['key']))
+                                                <label for="{{ $quickMenuToggleId }}" class="quick-menu-customize-option">
+                                                    <input
+                                                        id="{{ $quickMenuToggleId }}"
+                                                        type="checkbox"
+                                                        class="quick-menu-customize-checkbox"
+                                                        data-quick-menu-item-toggle
+                                                        value="{{ $quickMenuItem['key'] }}"
+                                                        @checked(!in_array($quickMenuItem['key'], $hiddenQuickMenuItems, true))
+                                                    />
+                                                    <span>{{ $quickMenuItem['label'] }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="quick-menu-customize-actions">
+                                    <button type="button" class="quick-menu-customize-reset" data-quick-menu-reset>{{ __('Reset') }}</button>
+                                    <button type="button" class="quick-menu-customize-close" data-quick-menu-customize-close>{{ __('Done') }}</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="quick-menu-columns">
                             @foreach ($quickMenuSections as $quickMenuSection)
-                                <div class="quick-menu-column">
+                                <div class="quick-menu-column" data-quick-menu-section data-quick-menu-section-key="{{ $quickMenuSection['key'] }}">
                                     <p class="quick-menu-column-title">{{ $quickMenuSection['label'] }}</p>
                                     <div class="quick-menu-column-items">
                                         @foreach ($quickMenuSection['items'] as $quickMenuItem)
-                                            <a href="{{ $quickMenuItem['url'] }}" class="quick-menu-item">
+                                            <a
+                                                href="{{ $quickMenuItem['url'] }}"
+                                                class="quick-menu-item"
+                                                data-quick-menu-item
+                                                data-quick-menu-item-key="{{ $quickMenuItem['key'] }}"
+                                                data-quick-menu-section-key="{{ $quickMenuSection['key'] }}"
+                                            >
                                                 <x-icon-tile color="{{ $quickMenuItem['color'] ?? 'brass' }}" size="xs" class="quick-menu-item-icon">
                                                     <span class="material-symbols-quick-menu" aria-hidden="true">{{ $quickMenuItem['icon'] }}</span>
                                                 </x-icon-tile>

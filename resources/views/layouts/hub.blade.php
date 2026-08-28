@@ -60,6 +60,26 @@
                 return false;
             };
 
+            $quickMenuIcons = [
+                'Dashboard' => 'layout-dashboard',
+                'Shops' => 'store',
+                'Warehouses' => 'warehouse',
+                'Products' => 'package',
+                'Stock Transfers' => 'arrow-left-right',
+                'Suppliers' => 'truck',
+                'Purchase Orders' => 'clipboard-list',
+                'Supplier Bills' => 'receipt-text',
+                'Customers' => 'users',
+                'Customer Receivables' => 'wallet-cards',
+                'POS' => 'monitor-smartphone',
+                'Accounts' => 'book-open',
+                'Journal Entries' => 'notebook-tabs',
+                'Cheques Register' => 'scroll-text',
+                'Bank Accounts' => 'landmark',
+                'Reports Overview' => 'chart-no-axes-combined',
+                'Settings / Roles / Branding' => 'sliders-horizontal',
+            ];
+
             $navSections = [
                 ['key' => 'operations', 'label' => __('Operations'), 'icon' => 'warehouse', 'items' => [
                     ['label' => __('Shops'), 'route' => 'shops.index', 'patterns' => 'shops.*', 'icon' => 'store', 'visible' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Shop::class)],
@@ -113,6 +133,17 @@
                 return $section;
             })->filter(fn (array $section): bool => count($section['items']) > 0)->values()->all();
 
+            $quickMenuItems = collect($visibleSections)->flatMap(function (array $section) use ($quickMenuIcons) {
+                return collect($section['items'])->map(function (array $item) use ($section, $quickMenuIcons) {
+                    return [
+                        'label' => $item['label'],
+                        'section' => $section['label'],
+                        'url' => route($item['route']),
+                        'icon' => $quickMenuIcons[$item['label']] ?? 'sparkles',
+                    ];
+                });
+            })->values()->all();
+
             $commandItems = collect($visibleSections)->flatMap(fn (array $section) => collect($section['items'])->map(fn (array $item) => [
                 'label' => $item['label'],
                 'section' => $section['label'],
@@ -147,7 +178,12 @@
                     :current-user="$currentUser"
                     :header-brand-text="$headerBranding['text']"
                     :header-brand-subtext="$headerBranding['subtext']"
+                    :quick-menu-items="$quickMenuItems"
                 />
+
+                <button type="button" class="quick-action-fab" aria-label="{{ __('Create new') }}">
+                    <x-lucide-plus class="h-6 w-6" />
+                </button>
 
                 <main class="shell-main px-4 py-6 lg:px-8 lg:py-8">
                 @if (session('status'))

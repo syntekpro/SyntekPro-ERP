@@ -5,6 +5,7 @@
     'currentUser' => null,
     'headerBrandText' => null,
     'headerBrandSubtext' => null,
+    'quickMenuItems' => [],
 ])
 
 @php
@@ -63,21 +64,25 @@
                 </details>
 
                 <details class="header-menu relative">
-                    <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick actions') }}">
-                        <x-lucide-zap class="h-[18px] w-[18px]" />
+                    <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-link)_18%,white),color-mix(in_srgb,var(--color-link)_8%,transparent))] text-[var(--color-link)] transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick Menu') }}">
+                        <x-lucide-grid-2x2 class="h-[18px] w-[18px]" />
                     </summary>
-                    <div class="header-menu-panel absolute start-0 z-40 mt-2 w-72 rounded-ui border border-line bg-surface p-3 shadow-xl">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Quick actions') }}</p>
-                        <div class="mt-2 space-y-2 text-sm">
-                            @can('create', \App\Models\Shop::class)
-                                <a href="{{ route('shops.create') }}" class="flex items-center justify-between rounded-ui border border-line bg-panel px-3 py-2 text-ink transition hover:border-brass/60"><span>{{ __('Add shop') }}</span><x-lucide-arrow-up-right class="h-3.5 w-3.5" /></a>
-                            @endcan
-                            @can('create', \App\Models\Warehouse::class)
-                                <a href="{{ route('warehouses.create') }}" class="flex items-center justify-between rounded-ui border border-line bg-panel px-3 py-2 text-ink transition hover:border-brass/60"><span>{{ __('Add warehouse') }}</span><x-lucide-arrow-up-right class="h-3.5 w-3.5" /></a>
-                            @endcan
-                            @can('create', \App\Models\Product::class)
-                                <a href="{{ route('products.create') }}" class="flex items-center justify-between rounded-ui border border-line bg-panel px-3 py-2 text-ink transition hover:border-brass/60"><span>{{ __('Add product') }}</span><x-lucide-arrow-up-right class="h-3.5 w-3.5" /></a>
-                            @endcan
+                    <div class="header-menu-panel absolute start-0 z-40 mt-2 w-[21rem] rounded-2xl border border-line bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-link)_12%,var(--app-surface)),color-mix(in_srgb,var(--color-link)_6%,var(--app-surface)))] p-3 shadow-xl">
+                        <div class="mb-3 flex items-center justify-between gap-2">
+                            <p class="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-subtle">{{ __('Quick Menu') }}</p>
+                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-[var(--color-link)] transition hover:bg-white/20" aria-label="{{ __('Customize shortcuts') }}">
+                                <x-lucide-pencil-line class="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                        <div class="grid gap-2 sm:grid-cols-2">
+                            @foreach ($quickMenuItems as $quickMenuItem)
+                                <a href="{{ $quickMenuItem['url'] }}" class="quick-menu-item">
+                                    <span class="quick-menu-icon quick-menu-icon-{{ ['store'=>'amber','warehouse'=>'blue','package'=>'green','clipboard-list'=>'violet','users'=>'slate','monitor-smartphone'=>'navy','landmark'=>'stone','chart-no-axes-combined'=>'indigo','sliders-horizontal'=>'pink'][$quickMenuItem['label']] ?? 'neutral' }}">
+                                        <x-dynamic-component :component="'lucide-'.$quickMenuItem['icon']" class="h-4 w-4" />
+                                    </span>
+                                    <span>{{ $quickMenuItem['label'] }}</span>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
                 </details>

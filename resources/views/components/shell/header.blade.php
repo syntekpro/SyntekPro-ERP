@@ -74,13 +74,13 @@
                                 <x-lucide-pencil-line class="h-3.5 w-3.5" />
                             </button>
                         </div>
-                        <div class="grid gap-2 sm:grid-cols-2">
+                        <div class="grid gap-2 sm:grid-cols-2 md:grid-cols-4">
                             @foreach ($quickMenuItems as $quickMenuItem)
                                 <a href="{{ $quickMenuItem['url'] }}" class="quick-menu-item">
-                                    <span class="quick-menu-icon quick-menu-icon-{{ ['store'=>'amber','warehouse'=>'blue','package'=>'green','clipboard-list'=>'violet','users'=>'slate','monitor-smartphone'=>'navy','landmark'=>'stone','chart-no-axes-combined'=>'indigo','sliders-horizontal'=>'pink'][$quickMenuItem['label']] ?? 'neutral' }}">
+                                    <x-icon-tile color="{{ $quickMenuItem['color'] ?? 'brass' }}" size="sm">
                                         <x-dynamic-component :component="'lucide-'.$quickMenuItem['icon']" class="h-4 w-4" />
-                                    </span>
-                                    <span>{{ $quickMenuItem['label'] }}</span>
+                                    </x-icon-tile>
+                                    <span class="text-center text-xs font-medium leading-tight text-ink">{{ $quickMenuItem['label'] }}</span>
                                 </a>
                             @endforeach
                         </div>

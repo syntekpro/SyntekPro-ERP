@@ -61,23 +61,23 @@
             };
 
             $quickMenuIcons = [
-                'Dashboard' => 'layout-dashboard',
-                'Shops' => 'store',
-                'Warehouses' => 'warehouse',
-                'Products' => 'package',
-                'Stock Transfers' => 'arrow-left-right',
-                'Suppliers' => 'truck',
-                'Purchase Orders' => 'clipboard-list',
-                'Supplier Bills' => 'receipt-text',
-                'Customers' => 'users',
-                'Customer Receivables' => 'wallet-cards',
-                'POS' => 'monitor-smartphone',
-                'Accounts' => 'book-open',
-                'Journal Entries' => 'notebook-tabs',
-                'Cheques Register' => 'scroll-text',
-                'Bank Accounts' => 'landmark',
-                'Reports Overview' => 'chart-no-axes-combined',
-                'Settings / Roles / Branding' => 'sliders-horizontal',
+                'Dashboard' => ['icon' => 'layout-dashboard', 'color' => 'ledger'],
+                'Shops' => ['icon' => 'store', 'color' => 'brass'],
+                'Warehouses' => ['icon' => 'warehouse', 'color' => 'ledger'],
+                'Products' => ['icon' => 'package', 'color' => 'brass'],
+                'Stock Transfers' => ['icon' => 'arrow-left-right', 'color' => 'rust'],
+                'Suppliers' => ['icon' => 'truck', 'color' => 'ledger'],
+                'Purchase Orders' => ['icon' => 'shopping-cart', 'color' => 'brass'],
+                'Supplier Bills' => ['icon' => 'receipt-text', 'color' => 'rust'],
+                'Customers' => ['icon' => 'users', 'color' => 'ledger'],
+                'Customer Receivables' => ['icon' => 'wallet-cards', 'color' => 'brass'],
+                'POS' => ['icon' => 'monitor-smartphone', 'color' => 'ledger'],
+                'Accounts' => ['icon' => 'book-open', 'color' => 'brass'],
+                'Journal Entries' => ['icon' => 'notebook-tabs', 'color' => 'ledger'],
+                'Cheques Register' => ['icon' => 'banknote', 'color' => 'rust'],
+                'Bank Accounts' => ['icon' => 'landmark', 'color' => 'ledger'],
+                'Reports Overview' => ['icon' => 'chart-no-axes-combined', 'color' => 'brass'],
+                'Settings / Roles / Branding' => ['icon' => 'sliders-horizontal', 'color' => 'rust'],
             ];
 
             $navSections = [
@@ -135,11 +135,14 @@
 
             $quickMenuItems = collect($visibleSections)->flatMap(function (array $section) use ($quickMenuIcons) {
                 return collect($section['items'])->map(function (array $item) use ($section, $quickMenuIcons) {
+                    $mappedIcon = $quickMenuIcons[$item['label']] ?? ['icon' => 'sparkles', 'color' => 'brass'];
+
                     return [
                         'label' => $item['label'],
                         'section' => $section['label'],
                         'url' => route($item['route']),
-                        'icon' => $quickMenuIcons[$item['label']] ?? 'sparkles',
+                        'icon' => $mappedIcon['icon'],
+                        'color' => $mappedIcon['color'],
                     ];
                 });
             })->values()->all();

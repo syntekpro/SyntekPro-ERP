@@ -61,39 +61,39 @@
             };
 
             $quickMenuIcons = [
-                'Dashboard' => ['icon' => 'layout-dashboard', 'color' => 'ledger'],
-                'Shops' => ['icon' => 'store', 'color' => 'brass'],
+                'Dashboard' => ['icon' => 'dashboard', 'color' => 'ledger'],
+                'Shops' => ['icon' => 'storefront', 'color' => 'brass'],
                 'Warehouses' => ['icon' => 'warehouse', 'color' => 'ledger'],
-                'Products' => ['icon' => 'package-search', 'color' => 'rust'],
-                'Stock Transfers' => ['icon' => 'arrow-left-right', 'color' => 'brass'],
-                'Suppliers' => ['icon' => 'truck', 'color' => 'ledger'],
-                'Purchase Orders' => ['icon' => 'shopping-cart', 'color' => 'brass'],
-                'Supplier Bills' => ['icon' => 'receipt-text', 'color' => 'rust'],
-                'Debit Notes' => ['icon' => 'undo-2', 'color' => 'ledger'],
-                'Customers' => ['icon' => 'users', 'color' => 'ledger'],
-                'Customer Receivables' => ['icon' => 'wallet-cards', 'color' => 'brass'],
-                'Credit Notes' => ['icon' => 'rotate-ccw', 'color' => 'rust'],
-                'POS' => ['icon' => 'monitor-smartphone', 'color' => 'ledger'],
-                'Accounts' => ['icon' => 'book-open', 'color' => 'brass'],
-                'Journal Entries' => ['icon' => 'notebook-tabs', 'color' => 'ledger'],
-                'Cheques Register' => ['icon' => 'banknote', 'color' => 'rust'],
-                'Fiscal Periods' => ['icon' => 'calendar-days', 'color' => 'brass'],
-                'Bank Accounts' => ['icon' => 'landmark', 'color' => 'ledger'],
-                'Bank Reconciliation' => ['icon' => 'git-compare-arrows', 'color' => 'rust'],
-                'Reports Overview' => ['icon' => 'chart-no-axes-combined', 'color' => 'brass'],
-                'Trial Balance' => ['icon' => 'scale', 'color' => 'ledger'],
-                'Balance Sheet' => ['icon' => 'columns-3', 'color' => 'rust'],
-                'Income Statement' => ['icon' => 'chart-line', 'color' => 'brass'],
+                'Products' => ['icon' => 'inventory_2', 'color' => 'rust'],
+                'Stock Transfers' => ['icon' => 'swap_horiz', 'color' => 'brass'],
+                'Suppliers' => ['icon' => 'local_shipping', 'color' => 'ledger'],
+                'Purchase Orders' => ['icon' => 'shopping_cart', 'color' => 'brass'],
+                'Supplier Bills' => ['icon' => 'receipt_long', 'color' => 'rust'],
+                'Debit Notes' => ['icon' => 'assignment_return', 'color' => 'ledger'],
+                'Customers' => ['icon' => 'group', 'color' => 'ledger'],
+                'Customer Receivables' => ['icon' => 'account_balance_wallet', 'color' => 'brass'],
+                'Credit Notes' => ['icon' => 'replay', 'color' => 'rust'],
+                'POS' => ['icon' => 'point_of_sale', 'color' => 'ledger'],
+                'Accounts' => ['icon' => 'menu_book', 'color' => 'brass'],
+                'Journal Entries' => ['icon' => 'description', 'color' => 'ledger'],
+                'Cheques Register' => ['icon' => 'payments', 'color' => 'rust'],
+                'Fiscal Periods' => ['icon' => 'calendar_month', 'color' => 'brass'],
+                'Bank Accounts' => ['icon' => 'account_balance', 'color' => 'ledger'],
+                'Bank Reconciliation' => ['icon' => 'sync_alt', 'color' => 'rust'],
+                'Reports Overview' => ['icon' => 'analytics', 'color' => 'brass'],
+                'Trial Balance' => ['icon' => 'balance', 'color' => 'ledger'],
+                'Balance Sheet' => ['icon' => 'view_column', 'color' => 'rust'],
+                'Income Statement' => ['icon' => 'trending_up', 'color' => 'brass'],
                 'Cash Flow Statement' => ['icon' => 'waves', 'color' => 'ledger'],
-                'AP Aging' => ['icon' => 'hourglass', 'color' => 'rust'],
-                'AR Aging' => ['icon' => 'timer-reset', 'color' => 'brass'],
-                'Users' => ['icon' => 'user-cog', 'color' => 'ledger'],
-                'Units' => ['icon' => 'ruler', 'color' => 'brass'],
-                'Price Categories' => ['icon' => 'tags', 'color' => 'rust'],
-                'Product Categories' => ['icon' => 'folder-tree', 'color' => 'ledger'],
-                'Brands' => ['icon' => 'award', 'color' => 'brass'],
-                'Settings / Roles / Branding' => ['icon' => 'sliders-horizontal', 'color' => 'rust'],
-                'ZATCA Compliance' => ['icon' => 'shield-check', 'color' => 'ledger'],
+                'AP Aging' => ['icon' => 'hourglass_top', 'color' => 'rust'],
+                'AR Aging' => ['icon' => 'hourglass_bottom', 'color' => 'brass'],
+                'Users' => ['icon' => 'manage_accounts', 'color' => 'ledger'],
+                'Units' => ['icon' => 'straighten', 'color' => 'brass'],
+                'Price Categories' => ['icon' => 'sell', 'color' => 'rust'],
+                'Product Categories' => ['icon' => 'category', 'color' => 'ledger'],
+                'Brands' => ['icon' => 'verified', 'color' => 'brass'],
+                'Settings / Roles / Branding' => ['icon' => 'tune', 'color' => 'rust'],
+                'ZATCA Compliance' => ['icon' => 'verified_user', 'color' => 'ledger'],
             ];
 
             $navSections = [
@@ -151,7 +151,7 @@
 
             $quickMenuItems = collect($visibleSections)->flatMap(function (array $section) use ($quickMenuIcons) {
                 return collect($section['items'])->map(function (array $item) use ($section, $quickMenuIcons) {
-                    $mappedIcon = $quickMenuIcons[$item['label']] ?? ['icon' => 'sparkles', 'color' => 'brass'];
+                    $mappedIcon = $quickMenuIcons[$item['label']] ?? ['icon' => 'category', 'color' => 'brass'];
 
                     return [
                         'label' => $item['label'],
@@ -162,6 +162,11 @@
                     ];
                 });
             })->values()->all();
+
+            $quickMenuSections = collect($visibleSections)->map(fn (array $section): array => [
+                'label' => $section['label'],
+                'items' => collect($quickMenuItems)->where('section', $section['label'])->values()->all(),
+            ])->filter(fn (array $section): bool => count($section['items']) > 0)->values()->all();
 
             $commandItems = collect($visibleSections)->flatMap(fn (array $section) => collect($section['items'])->map(fn (array $item) => [
                 'label' => $item['label'],
@@ -198,6 +203,7 @@
                     :header-brand-text="$headerBranding['text']"
                     :header-brand-subtext="$headerBranding['subtext']"
                     :quick-menu-items="$quickMenuItems"
+                    :quick-menu-sections="$quickMenuSections"
                 />
 
                 <button type="button" class="quick-action-fab" aria-label="{{ __('Create new') }}">

@@ -230,6 +230,52 @@ document.querySelectorAll('[data-shell-drawer-close]').forEach((button) => {
 
 document.querySelector('[data-shell-overlay]')?.addEventListener('click', closeDrawer);
 
+// Quick Menu: hover-intent open/close on mouse-capable devices, while leaving
+// native click-to-toggle (touch) and keyboard (focus + Enter/Space via the
+// native <details>/<summary> element) behavior completely untouched.
+const hoverCapableMedia = window.matchMedia('(hover: hover) and (pointer: fine)');
+const QUICK_MENU_OPEN_DELAY = 150;
+const QUICK_MENU_CLOSE_DELAY = 150;
+
+document.querySelectorAll('[data-quick-menu]').forEach((menu) => {
+	let openTimer = null;
+	let closeTimer = null;
+
+	const clearTimers = () => {
+		if (openTimer) {
+			window.clearTimeout(openTimer);
+			openTimer = null;
+		}
+
+		if (closeTimer) {
+			window.clearTimeout(closeTimer);
+			closeTimer = null;
+		}
+	};
+
+	menu.addEventListener('mouseenter', () => {
+		if (!hoverCapableMedia.matches) {
+			return;
+		}
+
+		clearTimers();
+		openTimer = window.setTimeout(() => {
+			menu.open = true;
+		}, QUICK_MENU_OPEN_DELAY);
+	});
+
+	menu.addEventListener('mouseleave', () => {
+		if (!hoverCapableMedia.matches) {
+			return;
+		}
+
+		clearTimers();
+		closeTimer = window.setTimeout(() => {
+			menu.open = false;
+		}, QUICK_MENU_CLOSE_DELAY);
+	});
+});
+
 desktopDrawerMedia.addEventListener('change', () => {
 	applyDrawerState();
 	closeDrawer();

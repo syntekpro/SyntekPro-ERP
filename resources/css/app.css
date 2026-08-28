@@ -783,7 +783,7 @@
     .shell-header {
         position: sticky;
         top: 0;
-        z-index: 30;
+        z-index: 56;
     }
 
     .shell-header-row {

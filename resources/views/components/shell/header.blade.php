@@ -47,7 +47,7 @@
                     <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Workspace selector') }}">
                         <x-lucide-layout-dashboard class="h-[18px] w-[18px]" />
                     </summary>
-                    <div class="header-menu-panel absolute start-0 z-40 mt-2 w-72 rounded-ui border border-line bg-surface p-3 shadow-xl">
+                    <div class="header-menu-panel start-0 w-72 rounded-ui border border-line bg-surface p-3 shadow-xl">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Workspace selector') }}</p>
                         <div class="mt-2 space-y-2 text-sm">
                             <a href="{{ route('dashboard') }}" class="flex items-center justify-between rounded-ui border border-line bg-panel px-3 py-2 text-ink transition hover:border-brass/60">
@@ -68,7 +68,7 @@
                     <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-link)_18%,white),color-mix(in_srgb,var(--color-link)_8%,transparent))] text-[var(--color-link)] transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick Menu') }}">
                         <x-lucide-grid-2x2 class="h-[18px] w-[18px]" />
                     </summary>
-                    <div class="quick-menu-panel header-menu-panel absolute end-0 z-40 mt-2 rounded-2xl border border-line bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-link)_12%,var(--app-surface)),color-mix(in_srgb,var(--color-link)_6%,var(--app-surface)))] p-3 shadow-xl">
+                    <div class="quick-menu-panel header-menu-panel end-0 rounded-2xl border border-line bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-link)_12%,var(--app-surface)),color-mix(in_srgb,var(--color-link)_6%,var(--app-surface)))] p-3 shadow-xl">
                         <div class="mb-2 flex items-center justify-between gap-2">
                             <p class="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-subtle">{{ __('Quick Menu') }}</p>
                             <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-[var(--color-link)] transition hover:bg-white/20" aria-label="{{ __('Customize shortcuts') }}">
@@ -113,7 +113,7 @@
                         <x-lucide-bell class="h-[18px] w-[18px]" />
                         <span class="absolute -end-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rust px-1 text-[0.6rem] font-semibold text-white">3</span>
                     </summary>
-                    <div class="header-menu-panel absolute end-0 z-40 mt-2 w-80 rounded-ui border border-line bg-surface p-3 shadow-xl">
+                    <div class="header-menu-panel end-0 w-80 rounded-ui border border-line bg-surface p-3 shadow-xl">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Notifications') }}</p>
                         <div class="mt-2 space-y-2 text-sm">
                             <div class="rounded-ui border border-line bg-panel px-3 py-2 text-ink">{{ __('Receivables aging requires follow-up.') }}</div>

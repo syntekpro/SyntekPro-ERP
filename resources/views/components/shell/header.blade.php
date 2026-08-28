@@ -65,13 +65,13 @@
                 </details>
 
                 <details class="header-menu quick-menu relative" data-quick-menu>
-                    <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-link)_18%,white),color-mix(in_srgb,var(--color-link)_8%,transparent))] text-[var(--color-link)] transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick Menu') }}">
+                    <summary class="quick-menu-trigger flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-[var(--color-link)] transition hover:bg-panel hover:text-ink" aria-label="{{ __('Quick Menu') }}">
                         <x-lucide-grid-2x2 class="h-[18px] w-[18px]" />
                     </summary>
-                    <div class="quick-menu-panel header-menu-panel start-0 rounded-2xl border border-line bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-link)_12%,var(--app-surface)),color-mix(in_srgb,var(--color-link)_6%,var(--app-surface)))] p-3 shadow-xl">
+                    <div class="quick-menu-panel header-menu-panel start-0 rounded-2xl p-3 shadow-xl">
                         <div class="mb-2 flex items-center justify-between gap-2">
                             <p class="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-subtle">{{ __('Quick Menu') }}</p>
-                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-[var(--color-link)] transition hover:bg-white/20" aria-label="{{ __('Customize shortcuts') }}">
+                            <button type="button" class="quick-menu-customize-btn inline-flex h-8 w-8 items-center justify-center rounded-full transition" aria-label="{{ __('Customize shortcuts') }}">
                                 <x-lucide-pencil-line class="h-3.5 w-3.5" />
                             </button>
                         </div>

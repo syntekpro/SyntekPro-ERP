@@ -18,6 +18,8 @@ class UserInterfacePreferenceController extends Controller
             'navigation_state.collapsed_sections.*' => ['string', 'max:80'],
             'navigation_state.quick_menu_hidden_items' => ['sometimes', 'array'],
             'navigation_state.quick_menu_hidden_items.*' => ['string', 'max:120'],
+            'navigation_state.header_notifications_dismissed' => ['sometimes', 'array'],
+            'navigation_state.header_notifications_dismissed.*' => ['string', 'max:120'],
         ]);
 
         $user = $request->user();

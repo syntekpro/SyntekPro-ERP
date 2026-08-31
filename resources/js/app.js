@@ -6,6 +6,7 @@ const systemThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
 const desktopDrawerMedia = window.matchMedia('(min-width: 64rem)');
 const drawerStorageKey = 'shell:drawer-collapsed';
 const quickMenuHiddenItemsStorageKey = 'shell:quick-menu-hidden-items';
+const headerNotificationsDismissedStorageKey = 'shell:header-notifications-dismissed';
 
 const resolveTheme = (preference) => {
 	if (preference === 'dark' || preference === 'light') {
@@ -277,6 +278,102 @@ document.querySelectorAll('[data-quick-menu]').forEach((menu) => {
 			navigation_state: {
 				quick_menu_hidden_items: hiddenItemsList,
 			},
+		});
+
+		document.querySelectorAll('[data-header-notifications]').forEach((notificationsMenu) => {
+			const badge = notificationsMenu.querySelector('[data-header-notification-badge]');
+			const emptyState = notificationsMenu.querySelector('[data-header-notification-empty]');
+			const markAllButton = notificationsMenu.querySelector('[data-header-notification-mark-all]');
+			const dismissButtons = [...notificationsMenu.querySelectorAll('[data-header-notification-dismiss]')];
+			const initialDismissed = (notificationsMenu.getAttribute('data-header-notification-dismissed') || '')
+				.split(',')
+				.map((notificationId) => notificationId.trim())
+				.filter((notificationId) => notificationId.length > 0);
+			const persistedDismissed = (window.localStorage.getItem(headerNotificationsDismissedStorageKey) || '')
+				.split(',')
+				.map((notificationId) => notificationId.trim())
+				.filter((notificationId) => notificationId.length > 0);
+			let dismissedNotificationIds = new Set(persistedDismissed.length > 0 ? persistedDismissed : initialDismissed);
+
+			const notificationItems = () => [...notificationsMenu.querySelectorAll('[data-header-notification-item]')];
+
+			const persistNotificationsState = () => {
+				const hiddenNotifications = [...dismissedNotificationIds];
+				window.localStorage.setItem(headerNotificationsDismissedStorageKey, hiddenNotifications.join(','));
+				persistPreferences({
+					navigation_state: {
+						header_notifications_dismissed: hiddenNotifications,
+					},
+				});
+			};
+
+			const syncNotifications = () => {
+				const items = notificationItems();
+				let unreadCount = 0;
+
+				items.forEach((item) => {
+					const notificationId = item.getAttribute('data-header-notification-id');
+					if (!notificationId) {
+						return;
+					}
+
+					const isDismissed = dismissedNotificationIds.has(notificationId);
+					item.classList.toggle('hidden', isDismissed);
+					if (!isDismissed) {
+						unreadCount += 1;
+					}
+				});
+
+				if (badge) {
+					if (unreadCount > 0) {
+						badge.textContent = `${unreadCount}`;
+						badge.classList.remove('hidden');
+					} else {
+						badge.classList.add('hidden');
+					}
+				}
+
+				if (emptyState) {
+					emptyState.classList.toggle('hidden', unreadCount > 0);
+				}
+
+				if (markAllButton) {
+					markAllButton.disabled = unreadCount === 0;
+				}
+			};
+
+			dismissButtons.forEach((dismissButton) => {
+				dismissButton.addEventListener('click', (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					const notificationItem = dismissButton.closest('[data-header-notification-item]');
+					const notificationId = notificationItem?.getAttribute('data-header-notification-id');
+					if (!notificationId) {
+						return;
+					}
+
+					dismissedNotificationIds.add(notificationId);
+					syncNotifications();
+					persistNotificationsState();
+				});
+			});
+
+			markAllButton?.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+
+				notificationItems().forEach((notificationItem) => {
+					const notificationId = notificationItem.getAttribute('data-header-notification-id');
+					if (notificationId) {
+						dismissedNotificationIds.add(notificationId);
+					}
+				});
+
+				syncNotifications();
+				persistNotificationsState();
+			});
+
+			syncNotifications();
 		});
 	};
 

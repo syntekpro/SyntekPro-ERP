@@ -15,6 +15,40 @@
         ->filter(fn ($key): bool => is_string($key) && $key !== '')
         ->values()
         ->all();
+    $dismissedHeaderNotifications = collect($currentUser?->navigation_state['header_notifications_dismissed'] ?? [])
+        ->filter(fn ($notificationId): bool => is_string($notificationId) && $notificationId !== '')
+        ->values()
+        ->all();
+    $headerNotifications = [
+        [
+            'id' => 'receivables-follow-up',
+            'title' => __('Receivables follow-up'),
+            'message' => __('Some customer balances require collections follow-up.'),
+            'tone' => 'warning',
+        ],
+        [
+            'id' => 'purchase-orders-pending',
+            'title' => __('Purchase orders pending closure'),
+            'message' => __('Review open purchase orders and close completed records.'),
+            'tone' => 'danger',
+        ],
+        [
+            'id' => 'preferences-synced',
+            'title' => __('Preferences synced'),
+            'message' => __('Theme and language preferences are saved for your account.'),
+            'tone' => 'info',
+        ],
+    ];
+    $notificationToneClasses = [
+        'warning' => 'border-brass/35 bg-brass/10 text-brass-contrast',
+        'danger' => 'border-rust/30 bg-rust/10 text-ink',
+        'info' => 'border-ledger/30 bg-ledger/10 text-ink',
+    ];
+    $visibleHeaderNotifications = collect($headerNotifications)
+        ->reject(fn (array $notification): bool => in_array($notification['id'], $dismissedHeaderNotifications, true))
+        ->values()
+        ->all();
+    $visibleHeaderNotificationCount = count($visibleHeaderNotifications);
 @endphp
 
 <header class="shell-header border-b border-line bg-surface/90 backdrop-blur">
@@ -147,17 +181,64 @@
             </button>
 
             <div class="flex items-center justify-end gap-1">
-                <details class="header-menu relative">
+                <details
+                    class="header-menu relative"
+                    data-header-notifications
+                    data-header-notification-dismissed="{{ implode(',', $dismissedHeaderNotifications) }}"
+                >
                     <summary class="relative flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-ui text-subtle transition hover:bg-panel hover:text-ink" aria-label="{{ __('Notifications') }}">
                         <x-lucide-bell class="h-[18px] w-[18px]" />
-                        <span class="absolute -end-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rust px-1 text-[0.6rem] font-semibold text-white">3</span>
+                        @if ($visibleHeaderNotificationCount > 0)
+                            <span class="absolute -end-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rust px-1 text-[0.6rem] font-semibold text-white" data-header-notification-badge>
+                                {{ $visibleHeaderNotificationCount }}
+                            </span>
+                        @endif
                     </summary>
                     <div class="header-menu-panel end-0 w-80 rounded-ui border border-line bg-surface p-3 shadow-xl">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Notifications') }}</p>
-                        <div class="mt-2 space-y-2 text-sm">
-                            <div class="rounded-ui border border-line bg-panel px-3 py-2 text-ink">{{ __('Receivables aging requires follow-up.') }}</div>
-                            <div class="rounded-ui border border-line bg-panel px-3 py-2 text-ink">{{ __('Open purchase orders are pending closure.') }}</div>
-                            <div class="rounded-ui border border-line bg-panel px-3 py-2 text-ink">{{ __('Theme and locale settings are synced.') }}</div>
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Notifications') }}</p>
+                            <button
+                                type="button"
+                                data-header-notification-mark-all
+                                class="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-link transition hover:opacity-80"
+                                @disabled($visibleHeaderNotificationCount === 0)
+                            >
+                                {{ __('Mark all read') }}
+                            </button>
+                        </div>
+                        <div class="mt-2 space-y-2 text-sm" data-header-notification-list>
+                            @foreach ($headerNotifications as $notification)
+                                @php
+                                    $isDismissed = in_array($notification['id'], $dismissedHeaderNotifications, true);
+                                    $toneClass = $notificationToneClasses[$notification['tone']] ?? 'border-line bg-panel text-ink';
+                                @endphp
+                                <div
+                                    class="rounded-ui border px-3 py-2 {{ $toneClass }} {{ $isDismissed ? 'hidden' : '' }}"
+                                    data-header-notification-item
+                                    data-header-notification-id="{{ $notification['id'] }}"
+                                >
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <p class="truncate text-xs font-semibold uppercase tracking-[0.08em]">{{ $notification['title'] }}</p>
+                                            <p class="mt-1 text-sm">{{ $notification['message'] }}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line/80 bg-surface/70 text-subtle transition hover:border-brass/50 hover:text-ink"
+                                            data-header-notification-dismiss
+                                            aria-label="{{ __('Dismiss notification') }}"
+                                        >
+                                            <x-lucide-x class="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                            <p
+                                class="rounded-ui border border-line bg-panel/70 px-3 py-3 text-center text-sm text-muted {{ $visibleHeaderNotificationCount > 0 ? 'hidden' : '' }}"
+                                data-header-notification-empty
+                            >
+                                {{ __('You are all caught up.') }}
+                            </p>
                         </div>
                     </div>
                 </details>

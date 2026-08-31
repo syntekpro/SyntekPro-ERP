@@ -8,9 +8,9 @@
     'isActive',
 ])
 
-<aside class="shell-drawer border-e border-line bg-surface/95 backdrop-blur" data-shell-drawer>
-    <div class="flex h-full flex-col px-4 py-5">
-        <div class="flex items-start justify-between rounded-ui border border-line bg-panel p-4">
+<aside class="shell-drawer border-e border-black/10 bg-surface/95 backdrop-blur" data-shell-drawer>
+    <div class="flex h-full flex-col px-2 py-3">
+        <div class="flex items-start justify-between rounded-ui border border-line bg-panel p-3">
             <div>
                 <div class="drawer-copy">
                     <img src="{{ app(\App\Services\Settings\BusinessSettingsService::class)->logoUrl() }}" alt="{{ $applicationName }}" class="h-auto w-full max-w-[14rem]" />
@@ -27,7 +27,7 @@
             </button>
         </div>
 
-        <nav class="mt-5 min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden pe-1 text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
+        <nav class="mt-4 min-h-0 flex-1 space-y-1 overflow-y-auto overflow-x-hidden text-sm" aria-label="{{ __('Primary navigation') }}" data-nav-root data-initial-collapsed-sections='@json($collapsedSections)'>
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'nav-link-active' : '' }}" aria-label="{{ __('Dashboard') }}">
                 <x-lucide-layout-dashboard class="h-4 w-4 shrink-0" />
                 <span class="drawer-copy">{{ __('Dashboard') }}</span>

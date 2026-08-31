@@ -120,7 +120,9 @@
                                         <div class="quick-menu-customize-section">
                                             <p class="quick-menu-customize-section-label">{{ $quickMenuSection['label'] }}</p>
                                             @foreach ($quickMenuSection['items'] as $quickMenuItem)
-                                                @php($quickMenuToggleId = 'quick-menu-toggle-' . str_replace(['.', '/', ':'], '-', $quickMenuItem['key']))
+                                                @php
+                                                    $quickMenuToggleId = 'quick-menu-toggle-' . str_replace(['.', '/', ':'], '-', $quickMenuItem['key']);
+                                                @endphp
                                                 <label for="{{ $quickMenuToggleId }}" class="quick-menu-customize-option">
                                                     <input
                                                         id="{{ $quickMenuToggleId }}"

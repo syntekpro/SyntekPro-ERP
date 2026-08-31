@@ -832,6 +832,22 @@
         background: #202020;
     }
 
+    .shell-drawer .nav-link,
+    .shell-drawer .nav-section-button {
+        color: #cbd5e1;
+    }
+
+    .shell-drawer .nav-link:hover,
+    .shell-drawer .nav-section-button:hover {
+        background: #303030;
+        color: white;
+    }
+
+    .shell-drawer .nav-link-active {
+        background: var(--color-link);
+        color: white;
+    }
+
     :root[dir='rtl'] .shell-drawer {
         transform: translateX(100%);
     }
@@ -1085,7 +1101,7 @@
     @media (width >= 64rem) {
         .shell-layout {
             display: grid;
-            grid-template-columns: 4.75rem minmax(0, 1fr);
+            grid-template-columns: 18rem minmax(0, 1fr);
             transition: grid-template-columns 220ms ease;
         }
 
@@ -1094,33 +1110,8 @@
             top: 0;
             height: 100vh;
             transform: none;
-            width: 4.75rem;
-            overflow: visible;
-        }
-
-        .shell-drawer .drawer-copy,
-        .shell-drawer [data-nav-section-panel],
-        .shell-drawer [data-nav-chevron] {
-            display: none !important;
-        }
-
-        .shell-drawer [data-shell-drawer] .nav-link,
-        .shell-drawer [data-shell-drawer] .nav-section-button {
-            justify-content: center;
-            min-height: 2.9rem;
-            padding-inline: 0;
-            color: #cbd5e1;
-        }
-
-        .shell-drawer [data-shell-drawer] .nav-link:hover,
-        .shell-drawer [data-shell-drawer] .nav-section-button:hover {
-            background: #303030;
-            color: white;
-        }
-
-        .shell-drawer [data-shell-drawer] .nav-link-active {
-            background: var(--color-link);
-            color: white;
+            width: 18rem;
+            overflow: hidden;
         }
 
         body.shell-drawer-collapsed .shell-layout {
@@ -1147,6 +1138,22 @@
 
         body.shell-drawer-collapsed [data-shell-drawer] .nav-link {
             min-height: 2.5rem;
+        }
+
+        body.shell-drawer-collapsed [data-shell-drawer] .nav-link,
+        body.shell-drawer-collapsed [data-shell-drawer] .nav-section-button {
+            color: #cbd5e1;
+        }
+
+        body.shell-drawer-collapsed [data-shell-drawer] .nav-link:hover,
+        body.shell-drawer-collapsed [data-shell-drawer] .nav-section-button:hover {
+            background: #303030;
+            color: white;
+        }
+
+        body.shell-drawer-collapsed [data-shell-drawer] .nav-link-active {
+            background: var(--color-link);
+            color: white;
         }
 
         body.shell-drawer-collapsed [data-shell-drawer] [data-nav-section-panel] {

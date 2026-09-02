@@ -11,6 +11,7 @@
     $poweredByLabel = $footerBranding['powered_by_text'];
     $brandWebsite = $footerBranding['website'];
     $showPoweredBy = $footerBranding['show_powered_by'];
+    $poweredByLogo = $brandingService->smallLogoUrl();
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $activeLocale) }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}" data-theme="{{ $themePreference }}" data-theme-preference="{{ $themePreference }}">
@@ -191,6 +192,7 @@
                 :application-name="$applicationName"
                 :brand-website="$brandWebsite"
                 :powered-by-label="$poweredByLabel"
+                :powered-by-logo="$poweredByLogo"
                 :show-powered-by="$showPoweredBy"
                 :visible-sections="$visibleSections"
                 :collapsed-sections="$collapsedSections"

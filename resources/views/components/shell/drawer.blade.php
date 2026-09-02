@@ -2,6 +2,7 @@
     'applicationName',
     'brandWebsite',
     'poweredByLabel',
+    'poweredByLogo' => null,
     'showPoweredBy' => true,
     'visibleSections' => [],
     'collapsedSections' => [],
@@ -59,7 +60,12 @@
         </nav>
 
         @if ($showPoweredBy)
-            <a href="{{ $brandWebsite }}" target="_blank" rel="noopener noreferrer" class="drawer-copy mt-auto pt-6 text-center text-xs font-semibold uppercase tracking-[0.24em] text-subtle transition hover:text-brass">{{ $poweredByLabel }}</a>
+            <a href="{{ $brandWebsite }}" target="_blank" rel="noopener noreferrer" class="mt-auto pt-6 flex flex-col items-center gap-2 text-subtle transition hover:text-brass">
+                @if ($poweredByLogo)
+                    <img src="{{ asset($poweredByLogo) }}" alt="SyntekPro" class="h-6 w-auto opacity-80 transition hover:opacity-100" />
+                @endif
+                <span class="drawer-copy text-center text-xs font-semibold uppercase tracking-[0.24em]">{{ $poweredByLabel }}</span>
+            </a>
         @endif
     </div>
 </aside>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class BusinessSettingsService
 {
     public const DEFAULT_LOGO = '/images/logo-full.png';
+    public const DEFAULT_SMALL_LOGO = '/images/SyntekPro Logo 1.1.avif';
     public const DEFAULT_FAVICON = '/images/icon-main.png';
     public const DEFAULT_TOUCH_ICON = '/images/icon-main-192.png';
 
@@ -63,6 +64,11 @@ class BusinessSettingsService
         return $this->publicUrlOrDefault($this->current()->logo_path, self::DEFAULT_LOGO);
     }
 
+    public function smallLogoUrl(): string
+    {
+        return $this->publicUrlOrDefault($this->current()->small_logo_path, self::DEFAULT_SMALL_LOGO);
+    }
+
     public function faviconUrl(): string
     {
         return $this->publicUrlOrDefault($this->current()->favicon_path, self::DEFAULT_FAVICON);
@@ -94,7 +100,7 @@ class BusinessSettingsService
     {
         $settings = $this->current();
 
-        return $settings->brand_website ?: config('app.url', url('/'));
+        return $settings->brand_website ?: 'https://syntekpro.com';
     }
 
     public function loginBranding(): array
@@ -120,7 +126,7 @@ class BusinessSettingsService
     public function footerBranding(): array
     {
         $settings = $this->current();
-        $defaultPoweredBy = __('Powered by :name', ['name' => $this->applicationName()]);
+        $defaultPoweredBy = __('Powered by SyntekPro');
 
         return [
             'show_powered_by' => $settings->footer_show_powered_by ?? true,

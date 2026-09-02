@@ -18,6 +18,12 @@
 10. [Tutorial 8: ZATCA e-Invoice Setup](#tutorial-8-zatca-e-invoice-setup)
 11. [Tutorial 9: Bank Reconciliation](#tutorial-9-bank-reconciliation)
 12. [Tutorial 10: POS Operations](#tutorial-10-pos-operations)
+13. [Tutorial 11: Sales & Purchase Returns (Credit & Debit Notes)](#tutorial-11-sales--purchase-returns-credit--debit-notes)
+14. [Tutorial 12: Cheque Management (Cheques Register)](#tutorial-12-cheque-management-cheques-register)
+15. [Tutorial 13: Product Catalog CSV Import & Export](#tutorial-13-product-catalog-csv-import--export)
+16. [Tutorial 14: Settings, Dynamic Roles & Custom Branding](#tutorial-14-settings-dynamic-roles--custom-branding)
+17. [Tutorial 15: Document Output, Printing & Public Sharing](#tutorial-15-document-output-printing--public-sharing)
+18. [Role-Based Learning Paths](#-learning-paths)
 
 ---
 
@@ -44,11 +50,11 @@ netstat -an | grep LISTEN  # macOS/Linux
 
 1. **Open browser:** `http://localhost:8080`
 2. **Login with:**
-   - Email: `development@syntekpro.com`
+   - Email: `development@example.com`
    - Password: `password`
-3. **You should see:** Dashboard with key metrics
-4. **First action:** Change your password!
-   - Click profile → Settings → Change Password
+3. **You should see:** Back Office Dashboard with key metrics and Quick Menu
+4. **First action:** Review company settings and user profile!
+   - Navigate to: **Administration** → **Settings / Roles / Branding**
 
 ---
 
@@ -60,7 +66,7 @@ netstat -an | grep LISTEN  # macOS/Linux
 
 #### Step 1: Enter Company Information
 
-1. Navigate: **Settings** → **Business Settings**
+1. Navigate: **Administration** → **Settings / Roles / Branding**
 2. Enter the following:
 
    | Field | Example |
@@ -1858,40 +1864,311 @@ Process sales through the POS interface with offline-first capability.
 
 ---
 
+## Tutorial 11: Sales & Purchase Returns (Credit & Debit Notes)
+
+**Estimated Time:** 25 minutes | **Difficulty:** Intermediate
+
+### Objective
+Process customer sales returns using Credit Notes and vendor purchase returns using Debit Notes with automatic inventory and ledger reconciliation.
+
+### Part A: Customer Sales Return (Credit Note)
+
+#### Step 1: Create a Credit Note
+1. Navigate: **Sales** → **Credit Notes**
+2. Click **Create Credit Note**
+3. Select Customer: `ABC Trading LLC`
+4. Enter Return Details:
+   ```text
+   Return Date:        Today's Date
+   Invoice Ref:        INV-20240115-001
+   Reason:             Defective Item
+   ```
+5. Add Returned Items:
+   ```text
+   Product:            Samsung Galaxy A13
+   Return Qty:         1
+   Unit Price:         1,500.00 SAR
+   VAT Rate:           15% (225.00 SAR)
+   Total Credit:       1,725.00 SAR
+   ```
+6. Click **Save Credit Note**
+
+#### Step 2: Review System Impact
+- **Inventory Impact:** 1 unit returned to shop inventory automatically.
+- **Accounts Receivable:** Customer's outstanding receivable reduced by 1,725.00 SAR.
+- **GL Accounting Impact:**
+  ```text
+  Debit:  4200 - Sales Returns & Allowances     1,500.00 SAR
+  Debit:  2200 - Output VAT Payable               225.00 SAR
+  Credit: 1130 - Accounts Receivable                       1,725.00 SAR
+
+  COGS Reversal:
+  Debit:  1140 - Shop Inventory (at WAC)        1,200.00 SAR
+  Credit: 5100 - Cost of Goods Sold                        1,200.00 SAR
+  ```
+
+---
+
+### Part B: Supplier Purchase Return (Debit Note)
+
+#### Step 1: Create a Debit Note
+1. Navigate: **Purchasing** → **Debit Notes**
+2. Click **Create Debit Note**
+3. Select Supplier: `Tech Distributors Co`
+4. Enter Return Details:
+   ```text
+   Return Date:        Today's Date
+   PO Reference:       PO-20240110-001
+   Warehouse:          Central Warehouse
+   Reason:             Damaged in Transit
+   ```
+5. Add Returned Products:
+   ```text
+   Product:            USB-C Cable
+   Return Qty:         20
+   Unit Cost:          30.00 SAR
+   VAT Rate:           15% (90.00 SAR)
+   Total Debit:        690.00 SAR
+   ```
+6. Click **Save Debit Note**
+
+#### Step 2: Review System Impact
+- **Warehouse Stock:** 20 units decremented from Central Warehouse inventory.
+- **Accounts Payable:** Supplier bill balance decreased by 690.00 SAR.
+- **GL Accounting Impact:**
+  ```text
+  Debit:  2110 - Accounts Payable                 690.00 SAR
+  Credit: 1150 - Warehouse Inventory                       600.00 SAR
+  Credit: 1160 - Input VAT (Reversal)                        90.00 SAR
+  ```
+
+✅ **Checkpoint:** Returns workflow complete!
+
+---
+
+## Tutorial 12: Cheque Management (Cheques Register)
+
+**Estimated Time:** 20 minutes | **Difficulty:** Intermediate
+
+### Objective
+Track post-dated cheques (PDCs) received from clients or issued to vendors through their complete lifecycle: received, deposited, cleared, or bounced.
+
+### Step 1: Record a Received Customer Cheque
+1. Navigate: **Accounting** → **Cheques Register**
+2. Click **Record Cheque**
+3. Fill in cheque details:
+   ```text
+   Cheque Direction:   Received (Incoming)
+   Cheque Number:      CHQ-884920
+   Customer:           ABC Trading LLC
+   Bank Name:          Al Rajhi Bank
+   Amount:             25,000.00 SAR
+   Cheque Due Date:    Next month 15th
+   Status:             Pending / On Hand
+   ```
+4. Click **Save Cheque**
+5. **Initial GL Impact:**
+   ```text
+   Debit:  1125 - Cheques Under Collection       25,000.00 SAR
+   Credit: 1130 - Accounts Receivable                      25,000.00 SAR
+   ```
+
+### Step 2: Present & Deposit Cheque to Bank
+1. On the due date, deliver the physical cheque to your bank branch.
+2. In the Cheques Register, find cheque `CHQ-884920`.
+3. Click **Deposit to Bank** and select your deposit account: `Main Business Bank (IBAN SA44...)`.
+4. Cheque status transitions to `DEPOSITED`.
+
+### Step 3: Clear Cheque upon Settlement
+1. When your bank statement shows the funds cleared:
+2. Click **Clear Cheque**.
+3. Cheque status changes to `CLEARED`.
+4. **Final GL Impact:**
+   ```text
+   Debit:  1120 - Main Business Bank             25,000.00 SAR
+   Credit: 1125 - Cheques Under Collection                 25,000.00 SAR
+   ```
+
+### Step 4: Handling Bounced / Dishonored Cheques
+1. If the drawee bank rejects the cheque (e.g. non-sufficient funds):
+2. Click **Bounce Cheque**.
+3. Cheque status updates to `BOUNCED`.
+4. System automatically reverses the collection and reinstates the customer's open receivable balance:
+   ```text
+   Debit:  1130 - Accounts Receivable            25,000.00 SAR
+   Credit: 1125 - Cheques Under Collection                 25,000.00 SAR
+   ```
+
+✅ **Checkpoint:** Cheque register management complete!
+
+---
+
+## Tutorial 13: Product Catalog CSV Import & Export
+
+**Estimated Time:** 15 minutes | **Difficulty:** Beginner
+
+### Objective
+Export your product master catalog to CSV and perform bulk updates or additions using the guided import preview interface.
+
+### Step 1: Export Current Catalog
+1. Navigate: **Operations** → **Products**
+2. In the top-right action bar, click **Export**
+3. Browser downloads `products-catalog-export.csv` containing:
+   - `sku`, `name`, `barcode`, `unit_price`, `cost_price`, `vat_rate`, `category`, `brand`, `unit`
+
+### Step 2: Prepare the Import CSV File
+Create or modify CSV rows in Excel/Google Sheets:
+```csv
+sku,name,barcode,cost_price,unit_price,vat_rate,category,brand,unit
+SKU-KEY-01,Wireless Keyboard,62810001001,45.00,85.00,15,Accessories,Logi,Pcs
+SKU-MOU-02,Optical Mouse,62810001002,20.00,45.00,15,Accessories,Logi,Pcs
+SKU-PAD-03,Desk Mouse Pad,62810001003,12.00,28.00,15,Accessories,Generic,Pcs
+```
+
+### Step 3: Upload & Review Import Preview
+1. Navigate: **Operations** → **Products** → Click **Import**
+2. Choose your CSV file and click **Upload & Preview**
+3. The system parses rows and validates:
+   - Required columns present
+   - SKU uniqueness & numeric prices
+   - Valid VAT rate percentage (0–100)
+4. Verify table showing matched records, new additions, and valid flags.
+5. Click **Confirm & Import Products**.
+6. System bulk-inserts records and updates catalog instantly.
+
+✅ **Checkpoint:** Product catalog CSV transfer complete!
+
+---
+
+## Tutorial 14: Settings, Dynamic Roles & Custom Branding
+
+**Estimated Time:** 20 minutes | **Difficulty:** Intermediate
+
+### Objective
+Customize company corporate details, update brand logos & touch icons, and configure dynamic user roles with granular permissions.
+
+### Step 1: Manage Legal & Business Info
+1. Navigate: **Administration** → **Settings / Roles / Branding**
+2. Under **Business Settings**, verify:
+   - Legal Entity Name (Arabic & English)
+   - Commercial Registration (CR) Number
+   - 15-digit ZATCA Tax Identification Number (TIN)
+   - Official Address, City, Postal Code, and Support Email
+
+### Step 2: Customize Brand Theme & Logos
+1. Scroll to **Branding Configuration**:
+   - **Primary Logo URL:** Enter URL or path for dark & light mode navbar logos
+   - **Favicon & Touch Icon:** Set icons for browser tabs and mobile PWA home screens
+   - **Powered By Text:** Configure customized white-label footer attribution
+   - **Primary Accent Color:** Pick brass, ledger blue, emerald, or custom hex palette
+2. Click **Save Branding Preferences**
+3. Notice immediate interface update across header, drawer, and document printouts.
+
+### Step 3: Create Custom Role & Permissions
+1. Scroll to **Roles & Permissions Management**
+2. Click **Create New Role**: `Inventory Auditor`
+3. Check allowed permissions:
+   ```text
+   ☑ products.view
+   ☑ stock_transfers.view
+   ☑ warehouses.view
+   ☐ accounts.manage
+   ☐ settings.manage
+   ```
+4. Click **Save Role**
+5. Assign this role to new users in **Administration** → **Users**.
+
+✅ **Checkpoint:** Corporate branding and role controls configured!
+
+---
+
+## Tutorial 15: Document Output, Printing & Public Sharing
+
+**Estimated Time:** 15 minutes | **Difficulty:** Beginner
+
+### Objective
+Generate print-ready invoices, purchase orders, and packing slips, and issue secure tokenized share links for external clients.
+
+### Step 1: Print Document with ZATCA QR Code
+1. Open any completed sale or invoice (e.g. `Customer Receivables` or `POS History`).
+2. Click **Print / Preview**.
+3. View the print-optimized document containing:
+   - Company legal branding header
+   - Customer information & invoice sequential reference
+   - Itemized lines, unit prices, discounts, subtotal, and 15% VAT
+   - Cryptographically encoded ZATCA Phase 1 TLV Base64 QR code
+4. Press `Ctrl + P` to send to thermal POS printer or A4 laser printer.
+
+### Step 2: Create a Secure Public Share Link
+1. In the document view, click **Share Link**.
+2. System generates an encrypted, token-protected public URL:
+   ```text
+   https://erp.syntekpro.com/shared-documents/tok_8f9a2b1c4e7d
+   ```
+3. Set optional expiration time (e.g. 7 days, 30 days).
+4. Copy link and send to customer via WhatsApp or SMS.
+5. Customer can open the URL directly without needing an ERP login.
+
+### Step 3: Manage & Revoke Shared Links
+1. Navigate to: **Administration** → **Document Shares** (or click share icon in top bar).
+2. View table of all active shared document tokens with click counts and expiration dates.
+3. If an invoice link needs to be invalidated:
+   - Find the share entry and click **Revoke Link**.
+   - Immediate status changes to `REVOKED`; external access is immediately terminated.
+
+✅ **Checkpoint:** Document generation and secure sharing complete!
+
+---
+
 ## 🎓 Learning Paths
 
 ### Path 1: Sales Manager
-1. Tutorial 1: Inventory Setup
-2. Tutorial 2: Create First Sale
+1. Tutorial 1: Basic Inventory Setup
+2. Tutorial 2: Creating Your First Sale
 3. Tutorial 4: Customer Payments & AR Aging
 4. Tutorial 10: POS Operations
+5. Tutorial 11: Sales & Purchase Returns (Credit & Debit Notes)
+6. Tutorial 15: Document Output, Printing & Public Sharing
 
-### Path 2: Accounting Manager
+### Path 2: Finance & Accounting Manager
 1. Tutorial 6: Journal Entries & GL
-2. Tutorial 7: Month-End Close
-3. Tutorial 9: Bank Reconciliation
-4. Tutorial 8: ZATCA Setup (if in Saudi Arabia)
+2. Tutorial 7: Month-End Close Process
+3. Tutorial 8: ZATCA e-Invoice Setup
+4. Tutorial 9: Bank Reconciliation
+5. Tutorial 11: Sales & Purchase Returns (Credit & Debit Notes)
+6. Tutorial 12: Cheque Management (Cheques Register)
+7. Tutorial 14: Settings, Dynamic Roles & Custom Branding
 
-### Path 3: Purchasing Manager
-1. Tutorial 1: Inventory Setup
+### Path 3: Purchasing & Warehouse Manager
+1. Tutorial 1: Basic Inventory Setup
 2. Tutorial 3: Purchase Order Workflow
 3. Tutorial 5: Supplier Payments & AP Aging
-4. Tutorial 9: Bank Reconciliation
+4. Tutorial 11: Sales & Purchase Returns (Debit Notes)
+5. Tutorial 13: Product Catalog CSV Import & Export
 
-### Path 4: Store Manager
-1. Tutorial 1: Inventory Setup
-2. Tutorial 10: POS Operations
-3. Tutorial 2: Create First Sale
+### Path 4: Store Cashier & POS Operator
+1. Tutorial 10: POS Operations
+2. Tutorial 2: Creating Your First Sale
+3. Tutorial 11: Sales Returns (Credit Notes)
+
+### Path 5: System Administrator & IT Lead
+1. Initial Setup & Configuration
+2. Tutorial 1: Basic Inventory Setup
+3. Tutorial 8: ZATCA e-Invoice Setup
+4. Tutorial 13: Product Catalog CSV Import & Export
+5. Tutorial 14: Settings, Dynamic Roles & Custom Branding
+6. Tutorial 15: Document Output, Printing & Public Sharing
 
 ---
 
 ## 📚 Additional Resources
 
-- **Video Tutorials**: Available on support portal
-- **API Documentation**: See `/docs/api`
-- **Community Forum**: forum.syntekpro.com
+- **Architecture Guide**: See `ARCHITECTURE.md` and `README_COMPLETE.md`
+- **Design System**: See `docs/DESIGN_SYSTEM.md`
+- **Phase Documentation**: See `docs/phase-*.md`
 - **Support Email**: support@syntekpro.com
 
 ---
 
-**Last Updated:** January 2024
+**Last Updated:** Version 2.0
+

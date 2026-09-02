@@ -45,7 +45,7 @@
                             <x-dynamic-component :component="'lucide-'.$section['icon']" class="h-4 w-4 shrink-0" />
                             <span class="drawer-copy">{{ $section['label'] }}</span>
                         </span>
-                        <x-lucide-chevron-down class="drawer-copy h-4 w-4 transition" data-nav-chevron />
+                        <x-lucide-chevron-down class="drawer-copy h-4 w-4 transition {{ $sectionCollapsed ? '-rotate-90' : '' }}" data-nav-chevron />
                     </button>
                     <div id="nav-section-{{ $section['key'] }}" class="mt-1 space-y-1 ps-2 {{ $sectionCollapsed ? 'hidden' : '' }}" data-nav-section-panel>
                         @foreach ($section['items'] as $item)
@@ -58,6 +58,19 @@
                 </section>
             @endforeach
         </nav>
+        <script>
+            (() => {
+                try {
+                    const nav = document.currentScript ? document.currentScript.previousElementSibling : document.querySelector('[data-nav-root]');
+                    if (nav && nav.hasAttribute('data-nav-root')) {
+                        const savedPos = sessionStorage.getItem('shell:sidebar-scroll-position');
+                        if (savedPos !== null) {
+                            nav.scrollTop = parseInt(savedPos, 10);
+                        }
+                    }
+                } catch (e) {}
+            })();
+        </script>
 
         @if ($showPoweredBy)
             <a href="{{ $brandWebsite }}" target="_blank" rel="noopener noreferrer" class="mt-auto pt-6 flex flex-col items-center gap-2 text-subtle transition hover:text-brass">

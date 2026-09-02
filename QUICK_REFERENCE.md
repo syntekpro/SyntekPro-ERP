@@ -1,60 +1,87 @@
 # 🎯 SyntekPro ERP - Quick Reference & Visual Guide
 
-> Visual diagrams, flowcharts, and quick-reference tables for common operations
+> Visual diagrams, flowcharts, and quick-reference tables for common operations across SyntekPro ERP
 
 ---
 
 ## 📋 Quick Navigation Map
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    DASHBOARD HOME                           │
-│         (First page after login - quick actions)            │
-└────────┬─────────────────────────────────────────┬──────────┘
-         │                                         │
-         └──────────────────┬──────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-    INVENTORY         FINANCIAL            COMMERCE
-    ┌───────────┐    ┌──────────┐         ┌────────────┐
-    │ Products  │    │Accounting│         │ Sales      │
-    │ Stock     │    │GL        │         │ Purchases  │
-    │ Transfers │    │Reports   │         │ Customers  │
-    │           │    │Fiscal    │         │ Suppliers  │
-    └───────────┘    └──────────┘         └────────────┘
-        │                │                     │
-    ┌─────────────┬──────────────┬──────┬────────────────┐
-    │             │              │      │                │
-  Settings    Banking        Compliance POS           Reports
+```text
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                             BACK OFFICE DASHBOARD                                │
+│        (First page after login - Real-time metrics, status pills, Quick Menu)    │
+└───────┬──────────────────────┬──────────────────────┬────────────────────┬───────┘
+        │                      │                      │                    │
+┌───────┴──────┐       ┌───────┴──────┐       ┌───────┴──────┐     ┌───────┴──────┐
+│  OPERATIONS  │       │  PURCHASING  │       │    SALES     │     │  ACCOUNTING  │
+├──────────────┤       ├──────────────┤       ├──────────────┤     ├──────────────┤
+│ • Shops      │       │ • Suppliers  │       │ • Customers  │     │ • Accounts GL│
+│ • Warehouses │       │ • Purchase   │       │ • Receivables│     │ • Journal Ent│
+│ • Products   │       │   Orders     │       │ • Credit     │     │ • Cheques    │
+│ • Transfers  │       │ • Bills (AP) │       │   Notes      │     │ • Fiscal Per │
+│ • CSV Import │       │ • Debit Notes│       │ • POS Cashier│     │ • Bank Accs  │
+│   & Export   │       │              │       │              │     │ • Bank Recon │
+└───────┬──────┘       └───────┬──────┘       └───────┬──────┘     └───────┬──────┘
+        │                      │                      │                    │
+        └──────────────────────┼──────────────────────┴────────────────────┘
+                               │
+                ┌──────────────┴──────────────┐
+                │                             │
+        ┌───────┴──────┐              ┌───────┴──────┐
+        │   REPORTS    │              │ADMINISTRATION│
+        ├──────────────┤              ├──────────────┤
+        │ • Overview   │              │ • Users      │
+        │ • Trial Bal  │              │ • Units      │
+        │ • Balance Sh │              │ • Price Cats │
+        │ • Income Stmt│              │ • Categories │
+        │ • Cash Flow  │              │ • Brands     │
+        │ • AP Aging   │              │ • Settings & │
+        │ • AR Aging   │              │   Branding   │
+        │              │              │ • ZATCA Cert │
+        └──────────────┘              └──────────────┘
 ```
 
 ---
 
 ## 📊 Module Quick Links
 
-| Module | Path | Purpose |
-|--------|------|---------|
-| **Dashboard** | Home | Overview & KPIs |
-| **Inventory** | Inventory → Products | Product catalog |
-| **Stock** | Inventory → Stock | Warehouse/shop stock levels |
-| **Transfers** | Inventory → Stock Transfers | Move stock between locations |
-| **Sales** | Commerce → Sales | Create invoices |
-| **Customers** | Commerce → Customers | Customer master data |
-| **Receivables** | Commerce → Receivables | Track customer payments |
-| **POS** | POS → Checkout | Point of sale |
-| **Purchases** | Purchasing → Purchase Orders | Create POs |
-| **Suppliers** | Purchasing → Suppliers | Supplier master data |
-| **Bills** | Purchasing → Supplier Bills | Track supplier invoices |
-| **Payables** | Purchasing → Payables | Track supplier payments |
-| **GL** | Accounting → Accounts | Chart of accounts |
-| **Entries** | Accounting → Journal Entries | Manual GL postings |
-| **Trial Balance** | Reports → Trial Balance | GL verification |
-| **P&L** | Reports → Income Statement | Profit & loss |
-| **Balance Sheet** | Reports → Balance Sheet | Financial position |
-| **Bank Recon** | Banking → Reconciliation | Bank matching |
-| **Cheques** | Banking → Cheques | Cheque register |
-| **ZATCA** | Compliance → ZATCA | Saudi tax compliance |
+| Module | Navigation Path | Route Name | Purpose |
+|--------|-----------------|------------|---------|
+| **Dashboard** | Home | `dashboard` | Executive KPIs, charts & quick-action FAB |
+| **Shops** | Operations → Shops | `shops.index` | Multi-branch retail locations |
+| **Warehouses** | Operations → Warehouses | `warehouses.index` | Central stock-holding hubs |
+| **Products** | Operations → Products | `products.index` | Central master catalog, barcodes & pricing |
+| **Product Import/Export** | Operations → Products → Import / Export | `products.import` / `products.export` | Bulk CSV transfer with column mapping preview |
+| **Stock Transfers** | Operations → Stock Transfers | `stock-transfers.index` | Inter-branch dispatch, transit & receipt |
+| **Suppliers** | Purchasing → Suppliers | `suppliers.index` | Vendor directory, contacts & terms |
+| **Purchase Orders** | Purchasing → Purchase Orders | `purchase-orders.index` | Procurement lifecycle & receiving |
+| **Supplier Bills** | Purchasing → Supplier Bills | `supplier-bills.index` | AP invoices generated from PO receipts |
+| **Debit Notes** | Purchasing → Debit Notes | `debit-notes.index` | Vendor returns & AP debit memos |
+| **Customers** | Sales → Customers | `customers.index` | Client master records & credit limits |
+| **Customer Receivables** | Sales → Customer Receivables | `customer-receivables.index` | AR tracking, invoice balances & payments |
+| **Credit Notes** | Sales → Credit Notes | `credit-notes.index` | Customer sales returns & refunds |
+| **POS** | Sales → POS | `pos.sales` | Offline-first PWA cashier checkout terminal |
+| **Chart of Accounts** | Accounting → Accounts | `accounts.index` | Standard double-entry account hierarchy |
+| **Journal Entries** | Accounting → Journal Entries | `journal-entries.index` | Manual adjustments with auto-balance check |
+| **Cheques Register** | Accounting → Cheques Register | `cheques.index` | PDC register (Received/Issued, Clear, Bounce) |
+| **Fiscal Periods** | Accounting → Fiscal Periods | `fiscal-periods.index` | Monthly financial period lock & reopen |
+| **Bank Accounts** | Accounting → Bank Accounts | `bank-accounts.index` | Bank accounts & treasury books |
+| **Bank Reconciliation** | Accounting → Bank Reconciliation | `bank-reconciliation.index` | Statement CSV upload & transaction matching |
+| **Reports Overview** | Reports → Reports Overview | `reports.index` | Summary analytics, sales, tax & inventory |
+| **Trial Balance** | Reports → Trial Balance | `reports.trial-balance` | Ledger debits & credits equality report |
+| **Balance Sheet** | Reports → Balance Sheet | `reports.balance-sheet` | Company financial position (Assets/Liab/Equity)|
+| **Income Statement** | Reports → Income Statement | `reports.income-statement` | P&L (Company or Shop-filtered) |
+| **Cash Flow Statement** | Reports → Cash Flow Statement | `reports.cash-flow` | Indirect operating, investing & financing flow |
+| **AP Aging** | Reports → AP Aging | `reports.ap-aging` | Payables overdue buckets (Current, 1-30, 31-60+)|
+| **AR Aging** | Reports → AR Aging | `reports.ar-aging` | Receivables aging buckets |
+| **Users** | Administration → Users | `users.index` | Staff accounts, shop assignment & role controls|
+| **Units** | Administration → Units | `units.index` | Units of measure (pcs, kg, box, carton) |
+| **Price Categories** | Administration → Price Categories | `price-categories.index` | Pricing tiers (Retail, Wholesale, VIP) |
+| **Product Categories**| Administration → Product Categories | `product-categories.index`| Product classification tree |
+| **Brands** | Administration → Brands | `brands.index` | Brand & trademark catalog |
+| **Settings / Branding** | Administration → Settings | `settings.index` | Company info, logos, themes, demo reset & roles|
+| **ZATCA Compliance** | Administration → ZATCA Compliance | `zatca-compliance.index`| Phase 2 e-invoicing CSR, certs & private keys |
+| **Document Shares** | Top Bar / Documents | `document-shares.index` | Manage shared links, token expiry & revocation |
 
 ---
 
@@ -62,605 +89,430 @@
 
 ### Cycle 1: Sales Cycle (Sales → Cash)
 
-```
-┌─────────────────────────────────────────────────┐
-│          SALES CYCLE FLOWCHART                  │
-├─────────────────────────────────────────────────┤
-│                                                 │
-│  1. CREATE CUSTOMER (if new)                    │
-│     └─→ Name, Address, Contact, Terms          │
-│                                                 │
-│  2. CREATE SALES INVOICE                        │
-│     ├─→ Select Customer                         │
-│     ├─→ Add line items (products/qty)           │
-│     ├─→ System calculates VAT                   │
-│     ├─→ Save as "Draft"                         │
-│     └─→ GL entries: AR debit, Revenue credit    │
-│                                                 │
-│  3. SEND INVOICE TO CUSTOMER                    │
-│     ├─→ Print or Email                          │
-│     ├─→ Status: "Sent"                          │
-│     ├─→ Includes ZATCA QR code                  │
-│     └─→ Stock auto-decremented                  │
-│                                                 │
-│  4. RECEIVE PAYMENT                             │
-│     ├─→ Cash / Cheque / Transfer                │
-│     ├─→ Record via "Record Payment"             │
-│     └─→ GL entries: Cash debit, AR credit       │
-│                                                 │
-│  5. RECONCILE                                   │
-│     ├─→ Invoice marked "Paid"                   │
-│     ├─→ AR aging updated                        │
-│     └─→ Revenue realized                        │
-│                                                 │
-│  END: Customer obligation cleared               │
-│       Cash received                             │
-│       Revenue recorded                          │
-│                                                 │
-└─────────────────────────────────────────────────┘
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                   SALES CYCLE FLOWCHART                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. CUSTOMER SELECTION / CREATION                           │
+│     └─→ Search existing customer or create new              │
+│     └─→ Check credit limit & outstanding balance            │
+│                                                             │
+│  2. POS SALE OR BACK-OFFICE INVOICE                         │
+│     ├─→ Scan barcode or pick items from catalog             │
+│     ├─→ System applies Unit & Price Category pricing        │
+│     ├─→ Auto-calculates 15% VAT                             │
+│     └─→ Payment type: Cash, Card, or Credit Account         │
+│                                                             │
+│  3. AUTOMATED POSTING & QR ENCODING                         │
+│     ├─→ Generates ZATCA TLV Base64 QR code                  │
+│     ├─→ Shop inventory decremented immediately              │
+│     ├─→ GL posted: Debit Cash/AR, Credit Revenue, Credit VAT│
+│     └─→ COGS posted: Debit COGS, Credit Inventory (at WAC)  │
+│                                                             │
+│  4. RECEIPT & SHARING                                       │
+│     ├─→ Print POS receipt or PDF invoice                    │
+│     ├─→ Generate secure public share link with token        │
+│     └─→ Optional email dispatch                             │
+│                                                             │
+│  5. AR SETTLEMENT (FOR CREDIT SALES)                        │
+│     ├─→ View in Customer Receivables / AR Aging             │
+│     ├─→ Record partial or full payment (Cash/Bank/Cheque)   │
+│     └─→ GL posted: Debit Cash/Bank, Credit AR               │
+│                                                             │
+│  END: Customer balance updated, books balanced              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Cycle 2: Purchasing Cycle (PO → Payment)
 
-```
-┌────────────────────────────────────────────────┐
-│       PURCHASING CYCLE FLOWCHART               │
-├────────────────────────────────────────────────┤
-│                                                │
-│  1. CREATE SUPPLIER (if new)                   │
-│     └─→ Name, Address, Contact, Terms          │
-│                                                │
-│  2. CREATE PURCHASE ORDER                      │
-│     ├─→ Select Supplier                        │
-│     ├─→ Add line items (products/qty)          │
-│     ├─→ Set delivery date                      │
-│     ├─→ Save as "Draft"                        │
-│     └─→ GL: No entries yet (encumbrance only)  │
-│                                                │
-│  3. SEND PO TO SUPPLIER                        │
-│     ├─→ Print or Email                         │
-│     └─→ Status: "Sent"                         │
-│                                                │
-│  4. RECEIVE GOODS                              │
-│     ├─→ Match to PO                            │
-│     ├─→ Verify quantities                      │
-│     ├─→ Inspect for quality                    │
-│     ├─→ Status: "Received"                     │
-│     └─→ GL: Inventory debit, AP credit         │
-│                                                │
-│  5. RECEIVE SUPPLIER BILL                      │
-│     ├─→ Match to PO and receipt                │
-│     ├─→ Verify amounts                         │
-│     ├─→ Record 3-way match                     │
-│     └─→ Status: "Awaiting Payment"             │
-│                                                │
-│  6. RECORD PAYMENT                             │
-│     ├─→ Cash / Cheque / Transfer               │
-│     ├─→ Record via "Record Payment"            │
-│     └─→ GL: AP debit, Cash credit              │
-│                                                │
-│  END: Goods received & in inventory            │
-│       Bill paid                                │
-│       AP cleared                               │
-│                                                │
-└────────────────────────────────────────────────┘
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                 PURCHASING CYCLE FLOWCHART                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. PURCHASE ORDER CREATION                                 │
+│     ├─→ Select Supplier & Target Central Warehouse          │
+│     ├─→ Add products, quantities & agreed unit cost         │
+│     ├─→ Set expected delivery date                          │
+│     └─→ Status: DRAFT → SUBMITTED                           │
+│                                                             │
+│  2. GOODS RECEIPT (FULL OR PARTIAL)                         │
+│     ├─→ Warehouse verifies physical delivery                │
+│     ├─→ Record received quantities                          │
+│     ├─→ PO status: PARTIALLY_RECEIVED or RECEIVED           │
+│     ├─→ Warehouse inventory atomically increased            │
+│     └─→ Product Weighted Average Cost (WAC) recalculated    │
+│                                                             │
+│  3. SUPPLIER BILL GENERATION (3-WAY MATCH)                  │
+│     ├─→ System auto-generates Supplier Bill from receipt    │
+│     ├─→ Bill status: UNPAID / AWAITING_PAYMENT              │
+│     └─→ GL posted: Debit Inventory, Debit Input VAT,        │
+│                    Credit Accounts Payable (AP)             │
+│                                                             │
+│  4. PAYMENT EXECUTION                                       │
+│     ├─→ View in Supplier Bills / AP Aging                   │
+│     ├─→ Record payment via Bank, Cash, or Issued Cheque     │
+│     └─→ GL posted: Debit AP, Credit Cash/Bank               │
+│                                                             │
+│  END: Stock in warehouse, vendor bill cleared               │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Cycle 3: Inventory Cycle (Stock Movement)
+### Cycle 3: Inventory Transfer Cycle (Warehouse → Shop)
 
-```
-┌──────────────────────────────────────────────────┐
-│      STOCK TRANSFER CYCLE FLOWCHART              │
-├──────────────────────────────────────────────────┤
-│                                                  │
-│  WAREHOUSE (Central Hub) - SHOP (Sales Location)│
-│                                                  │
-│                                                  │
-│  Starting Position:                              │
-│  Warehouse Stock: 500 units Widget A             │
-│  Shop Stock: 50 units Widget A                   │
-│                                                  │
-│                                                  │
-│  1. WAREHOUSE MANAGER: CREATE TRANSFER           │
-│     ├─→ From: Central Warehouse                  │
-│     ├─→ To: Riyadh Shop                          │
-│     ├─→ Items: 100x Widget A                     │
-│     ├─→ Status: PENDING                          │
-│     └─→ Warehouse Stock: 500 (no change yet)     │
-│                                                  │
-│  2. WAREHOUSE STAFF: DISPATCH                    │
-│     ├─→ Pick items from shelf                    │
-│     ├─→ Verify quantity: 100 units ✓            │
-│     ├─→ Pack & prepare shipping                  │
-│     ├─→ Status: IN_TRANSIT                       │
-│     └─→ Warehouse Stock: 500 (reserved, not yet  │
-│         deducted until received)                 │
-│                                                  │
-│  3. COURIER: IN TRANSIT                          │
-│     ├─→ Transport goods to shop                  │
-│     └─→ Status: IN_TRANSIT (no changes)          │
-│                                                  │
-│  4. SHOP MANAGER: RECEIVE                        │
-│     ├─→ Receive shipment at shop dock            │
-│     ├─→ Verify: 100 units received ✓            │
-│     ├─→ Check for damage                         │
-│     ├─→ Status: COMPLETED                        │
-│     │                                            │
-│     └─→ AUTOMATIC UPDATES:                       │
-│         • Warehouse Stock: 400 (-100)            │
-│         • Shop Stock: 150 (+100)                 │
-│         • GL entries: Debit shop stock,          │
-│           Credit warehouse stock                 │
-│                                                  │
-│  END: Stock repositioned                         │
-│       System balanced                            │
-│       Ready for sales at shop                    │
-│                                                  │
-│                                                  │
-│  NOTES:                                          │
-│  • Transfer can be REVERSED at any stage         │
-│  • Stock reserved until received                 │
-│  • Multiple partial receipts allowed             │
-│  • History maintained for audits                 │
-│                                                  │
-└──────────────────────────────────────────────────┘
+```text
+┌─────────────────────────────────────────────────────────────┐
+│              STOCK TRANSFER CYCLE FLOWCHART                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. CREATE STOCK TRANSFER                                   │
+│     ├─→ Source: Central Warehouse                           │
+│     ├─→ Destination: Target Shop (e.g. Riyadh Branch)       │
+│     ├─→ Add items & transfer quantities                     │
+│     ├─→ System validates stock availability & locks row     │
+│     └─→ Status: PENDING                                     │
+│                                                             │
+│  2. DISPATCH SHIPMENT                                       │
+│     ├─→ Warehouse team picks and inspects goods             │
+│     ├─→ Status becomes: IN_TRANSIT                          │
+│     └─→ Warehouse stock reserved / deducted                 │
+│                                                             │
+│  3. SHOP RECEIVE & CONFIRMATION                             │
+│     ├─→ Shop manager inspects delivered physical items      │
+│     ├─→ Confirms received count at shop dock                │
+│     ├─→ Status becomes: COMPLETED                           │
+│     └─→ Shop local inventory atomically incremented         │
+│                                                             │
+│  END: Stock available at shop POS for cashier sales         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Cycle 4: Accounting Cycle (Transactions → Statements)
+### Cycle 4: Returns & Credit/Debit Notes Cycle
 
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                 RETURNS & REFUNDS FLOWCHART                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  A. CUSTOMER RETURN (CREDIT NOTE):                          │
+│     ├─→ Navigate to Sales → Credit Notes → Create           │
+│     ├─→ Select Customer & Return Items/Quantities           │
+│     ├─→ Enter Return Reason (Defective, Wrong Item, etc.)   │
+│     ├─→ Save Credit Note:                                   │
+│     │   • Shop stock incremented (goods returned)           │
+│     │   • GL: Debit Sales Returns & VAT, Credit AR/Cash     │
+│     │   • COGS Reversal: Debit Inventory, Credit COGS       │
+│     └─→ Customer receivable balance decreased or cash refund│
+│                                                             │
+│  B. SUPPLIER RETURN (DEBIT NOTE):                           │
+│     ├─→ Navigate to Purchasing → Debit Notes → Create       │
+│     ├─→ Select Supplier & Original Purchase Reference       │
+│     ├─→ Enter Returned Items & Cost                         │
+│     ├─→ Save Debit Note:                                    │
+│     │   • Warehouse stock decremented (goods returned)      │
+│     │   • GL: Debit Accounts Payable,                       │
+│     │         Credit Inventory, Credit Input VAT            │
+│     └─→ Supplier bill liability reduced                     │
+│                                                             │
+│  END: Inventories accurate, financial statements adjusted   │
+└─────────────────────────────────────────────────────────────┘
 ```
-┌──────────────────────────────────────────────────┐
-│      ACCOUNTING CYCLE FLOWCHART                  │
-├──────────────────────────────────────────────────┤
-│                                                  │
-│  Month: January 2024                             │
-│                                                  │
-│  TRANSACTIONS THROUGHOUT MONTH:                  │
-│  • Sales invoices (auto GL posting)              │
-│  • Customer payments (auto GL posting)           │
-│  • Purchase orders & bills (auto GL posting)     │
-│  • Supplier payments (auto GL posting)           │
-│  • Stock transfers (GL posting)                  │
-│  • Manual journal entries (GL posting)           │
-│  └─→ All posted to GL in real-time               │
-│                                                  │
-│  MONTH-END (Last day of January):                │
-│                                                  │
-│  1. REVIEW TRANSACTIONS                          │
-│     └─→ Verify all month's items entered         │
-│                                                  │
-│  2. BANK RECONCILIATION                          │
-│     ├─→ Import bank statement                    │
-│     ├─→ Match to GL bank account                 │
-│     ├─→ Record fees/interest                     │
-│     └─→ Verify: Bank balance = GL balance       │
-│                                                  │
-│  3. RECORD ACCRUALS                              │
-│     ├─→ Utilities (estimated)                    │
-│     ├─→ Salaries (accrued)                       │
-│     ├─→ Insurance allocations                    │
-│     └─→ Each via journal entry                   │
-│                                                  │
-│  4. VERIFY TRIAL BALANCE                         │
-│     ├─→ Generate Trial Balance report            │
-│     ├─→ Verify: Total Debits = Credits           │
-│     ├─→ Review for unusual balances              │
-│     └─→ Print for records                        │
-│                                                  │
-│  5. GENERATE FINANCIAL STATEMENTS                │
-│     ├─→ Balance Sheet                            │
-│     │   └─→ Assets = Liabilities + Equity       │
-│     ├─→ Income Statement                         │
-│     │   └─→ Revenue - Expenses = Net Income     │
-│     ├─→ Cash Flow Statement                      │
-│     │   └─→ Operating/Investing/Financing       │
-│     └─→ Export to PDF/Excel                      │
-│                                                  │
-│  6. CLOSE FISCAL PERIOD                          │
-│     ├─→ Navigate to Fiscal Periods               │
-│     ├─→ Select January 2024 period               │
-│     ├─→ Click "Close Period"                     │
-│     ├─→ Status: LOCKED (no new entries)          │
-│     └─→ Archive statements for audit             │
-│                                                  │
-│  END OF MONTH: Complete & auditable              │
-│      Next month ready to begin                   │
-│                                                  │
-└──────────────────────────────────────────────────┘
+
+### Cycle 5: Cheques Register Cycle (Post-Dated Cheques)
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│               CHEQUES REGISTER LIFECYCLE                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. RECORD CHEQUE ENTRY                                     │
+│     ├─→ Type: RECEIVED (from Customer) or ISSUED (to Vendor)│
+│     ├─→ Cheque Number, Due Date, Bank, Amount & Payee       │
+│     ├─→ Status: PENDING / ON_HAND                           │
+│     └─→ GL: Posted to "Cheques Under Collection" account    │
+│                                                             │
+│  2. BANK DEPOSIT                                            │
+│     ├─→ Cheque presented to bank on/after due date          │
+│     └─→ Status: DEPOSITED                                   │
+│                                                             │
+│  3A. CLEARED                                                │
+│     ├─→ Bank confirms funds transfer                        │
+│     ├─→ Click "Clear Cheque"                                │
+│     ├─→ Status: CLEARED                                     │
+│     └─→ GL: Debit Main Bank Account,                        │
+│             Credit Cheques Under Collection                 │
+│                                                             │
+│  3B. BOUNCED / DISHONORED                                   │
+│     ├─→ Insufficient funds / signature mismatch             │
+│     ├─→ Click "Bounce Cheque"                               │
+│     ├─→ Status: BOUNCED                                     │
+│     └─→ GL: Reverses collection, restores original AR/AP    │
+│                                                             │
+│  END: Full audit trail of cheque lifecycle preserved        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Cycle 6: Bank Reconciliation Cycle
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│            BANK RECONCILIATION WORKFLOW                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. SELECT BANK ACCOUNT                                     │
+│     └─→ Accounting → Bank Reconciliation → Select Account   │
+│                                                             │
+│  2. IMPORT BANK STATEMENT CSV                               │
+│     ├─→ Upload bank CSV file (Date, Description, Amount)    │
+│     └─→ System parses statement rows into staging table     │
+│                                                             │
+│  3. AUTO-MATCH & MANUAL MATCH                               │
+│     ├─→ System auto-matches identical amounts & dates       │
+│     ├─→ Operator manually matches batch deposits/fees       │
+│     └─→ Identifies unpresented cheques & deposits in transit│
+│                                                             │
+│  4. RECORD ADJUSTMENTS                                      │
+│     ├─→ Post bank service charges & interest journal entries│
+│     └─→ Reconciled Difference = 0.00 SAR                    │
+│                                                             │
+│  5. FINALIZE RECONCILIATION                                 │
+│     └─→ Sign off statement period & lock reconciliation     │
+│                                                             │
+│  END: GL Bank balance matches verified bank statement       │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## 📱 Screen Navigation Trees
 
-### Sales Module
-
-```
-COMMERCE (Top Menu)
-│
-├── Sales
-│   ├── Create Sale
-│   │   └── Select Customer → Add Items → Save → Send → Record Payment
-│   ├── View All Sales
-│   │   └── Search/Filter → Click to view details
-│   ├── Customer Receivables
-│   │   └── View aging → Click customer → Record Payment
-│   └── Sales Reports
-│       └── By period, customer, product
-│
-├── Customers
-│   ├── Add Customer
-│   ├── View All
-│   └── Customer Details
-│       └── Sales history, balance, contact
-│
-├── Returns
-│   ├── Credit Notes (from customers)
-│   └── Debit Notes (to suppliers)
-│
-└── POS
-    ├── Checkout
-    │   └── Add items → Select customer → Payment → Print
-    └── Sales History
-        └── View daily sales
+### 1. Operations Module
+```text
+OPERATIONS (Sidebar)
+├── Shops
+│   ├── All Shops (List & status)
+│   ├── Create Shop (Name, slug, address)
+│   └── Edit Shop (Lifecycle active/inactive)
+├── Warehouses
+│   ├── All Warehouses (List & capacity)
+│   ├── Create Warehouse (Code, location)
+│   └── Edit Warehouse
+├── Products
+│   ├── Catalog List (Search, filter, cost, price)
+│   ├── Create Product (SKU, barcode, unit, VAT, category, brand)
+│   ├── Edit Product
+│   ├── Import Catalog (CSV upload → preview columns → confirm)
+│   └── Export Catalog (Full CSV dump)
+└── Stock Transfers
+    ├── Transfer History (Filter by source/dest/status)
+    ├── Create Transfer (Select warehouse → shop → items)
+    └── Dispatch / Receive Action
 ```
 
-### Purchasing Module
-
-```
-PURCHASING (Top Menu)
-│
-├── Purchase Orders
-│   ├── Create PO
-│   │   └── Select Supplier → Add Items → Save → Send
-│   ├── View All POs
-│   ├── Receive Goods
-│   │   └── Verify items → Confirm receipt
-│   └── PO Reports
-│
+### 2. Purchasing Module
+```text
+PURCHASING (Sidebar)
 ├── Suppliers
-│   ├── Add Supplier
-│   ├── View All
-│   └── Supplier Details
-│       └── POs, Bills, Payments, Balance
-│
+│   ├── Supplier Directory
+│   ├── Create Supplier (Tax number, terms, contact)
+│   └── Edit Supplier
+├── Purchase Orders
+│   ├── PO List (Draft, Submitted, Received, Closed)
+│   ├── Create PO (Vendor, warehouse, items, expected date)
+│   ├── Receive Goods (Confirm quantities & update WAC)
+│   └── Print / Share PO
 ├── Supplier Bills
-│   ├── Create Bill
-│   │   └── Link to PO → Verify → Save
-│   ├── View All Bills
-│   ├── Record Payment
-│   │   └── Enter amount, method, date
-│   └── Bill Reports
-│
-└── Payables
-    ├── View Bills by Supplier
-    └── View AP Aging
+│   ├── AP Bills List (Filter by supplier & payment status)
+│   └── Record Payment (Cash, bank transfer, cheque)
+└── Debit Notes
+    ├── Debit Notes History (Vendor return memos)
+    └── Create Debit Note (Supplier, items, cost deduction)
 ```
 
-### Accounting Module
-
+### 3. Sales Module
+```text
+SALES (Sidebar)
+├── Customers
+│   ├── Customer Directory (Balances, credit limits, terms)
+│   ├── Create Customer
+│   └── Edit Customer
+├── Customer Receivables
+│   ├── Outstanding AR Invoices
+│   └── Record Payment (Allocates to open sale invoices)
+├── Credit Notes
+│   ├── Sales Returns History
+│   └── Create Credit Note (Customer, items, stock restock)
+└── POS
+    └── Cashier Shell (Barcode scan, cart, cash/card/credit, receipt)
 ```
-ACCOUNTING (Top Menu)
-│
-├── Chart of Accounts
-│   ├── View Hierarchy
-│   ├── Add Account
-│   └── Account Details
-│       └── Transactions, balance, history
-│
+
+### 4. Accounting Module
+```text
+ACCOUNTING (Sidebar)
+├── Accounts (Chart of Accounts)
+│   ├── Account Tree (Assets, Liabilities, Equity, Revenue, Expense)
+│   ├── Create Account (Code, name, type, parent)
+│   └── Edit Account
 ├── Journal Entries
-│   ├── Create Entry
-│   │   └── Date → Add lines (Debit/Credit) → Post
-│   ├── View All Entries
-│   └── Entry Reports
-│
+│   ├── Journal History (Audit list)
+│   └── Create Journal Entry (Debits = Credits integer cent validation)
+├── Cheques Register
+│   ├── Register List (PDC filter: Pending, Deposited, Cleared, Bounced)
+│   ├── Record Cheque (Received or Issued)
+│   └── Cheque Action (Deposit, Clear, Bounce)
 ├── Fiscal Periods
-│   ├── Create Period
-│   ├── View All
-│   └── Close/Reopen Period
-│
-├── Banking
-│   ├── Bank Accounts
-│   ├── Cheques Register
-│   │   └── Issue/Clear/Bounce
-│   └── Bank Reconciliation
-│       └── Import statement → Match → Reconcile
-│
-└── Reports
-    ├── Trial Balance
-    ├── Balance Sheet
-    ├── Income Statement
-    └── Cash Flow
+│   ├── Period Calendar (Month-by-month status)
+│   └── Period Actions (Close Period / Reopen Period)
+├── Bank Accounts
+│   ├── Bank Registry (IBAN, bank name, account number)
+│   └── Create / Edit Bank Account
+└── Bank Reconciliation
+    ├── Reconciliation Hub (By bank account)
+    ├── Upload Statement CSV
+    └── Match Transactions & Finalize
+```
+
+### 5. Reports Module
+```text
+REPORTS (Sidebar)
+├── Reports Overview (High-level charts, sales, margins, top SKUs)
+├── Trial Balance (Live GL verification, debits = credits)
+├── Balance Sheet (Company-wide statement of financial position)
+├── Income Statement (Revenue, COGS, gross margin, net income)
+├── Cash Flow Statement (Operating, investing, financing cash flows)
+├── AP Aging (Payables aging buckets: Current, 1-30, 31-60, 61-90, 90+)
+└── AR Aging (Receivables aging buckets: Current, 1-30, 31-60, 61-90, 90+)
+```
+
+### 6. Administration Module
+```text
+ADMINISTRATION (Sidebar)
+├── Users (Staff accounts, branch shop scoping & role assignment)
+├── Units (Unit of measure: Pieces, Kilograms, Cartons, Meters)
+├── Price Categories (Pricing tiers: Retail, Wholesale, VIP, Contractor)
+├── Product Categories (Categorization taxonomy)
+├── Brands (Manufacturer & trademark directories)
+├── Settings / Roles / Branding
+│   ├── Business Settings (Legal company name, VAT number, CR)
+│   ├── Branding Management (Logo URL, Touch Icon, theme colors)
+│   ├── Roles & Permissions (Dynamic role builder & permission checkboxes)
+│   └── Demo Reset (Manual or scheduled demo environment reset)
+└── ZATCA Compliance
+    ├── Compliance Status & Certificate details
+    ├── Generate CSR (Private key & certificate signing request)
+    └── Download CSR & Private Key for ZATCA FATOORA Portal
 ```
 
 ---
 
 ## 🎯 Common Tasks & Time Estimates
 
-| Task | Steps | Time | Difficulty |
-|------|-------|------|------------|
-| Create product | Enter details → Save → Set stock | 5 min | ⭐ |
-| Create sale | Select customer → Add items → Payment | 3 min | ⭐ |
-| Record customer payment | Find invoice → Record payment | 2 min | ⭐ |
-| Create purchase order | Select supplier → Add items → Send | 5 min | ⭐⭐ |
-| Receive goods | Match PO → Confirm receipt | 3 min | ⭐⭐ |
-| Record supplier payment | Find bill → Record payment | 2 min | ⭐⭐ |
-| Journal entry | Add lines → Verify balanced → Post | 5 min | ⭐⭐⭐ |
-| Month-end close | Bank recon → Accruals → Statements → Close | 60 min | ⭐⭐⭐ |
-| Bank reconciliation | Import statement → Match → Reconcile | 15 min | ⭐⭐ |
-| POS sales | Scan items → Select payment → Print | 2 min | ⭐ |
+| Task | Module / Action | Time | Difficulty |
+|------|-----------------|------|------------|
+| **Process POS Sale** | Sales → POS → Scan → Pay | 1 min | ⭐ |
+| **Create New Product** | Operations → Products → Create | 3 min | ⭐ |
+| **Import 500+ Products via CSV** | Operations → Products → Import → Preview → Confirm | 4 min | ⭐⭐ |
+| **Create Stock Transfer** | Operations → Stock Transfers → Create → Dispatch | 3 min | ⭐⭐ |
+| **Receive Transfer at Shop** | Operations → Stock Transfers → Receive | 2 min | ⭐ |
+| **Create Purchase Order** | Purchasing → Purchase Orders → Create | 4 min | ⭐⭐ |
+| **Receive PO & Auto-Bill** | Purchasing → Purchase Orders → Receive | 3 min | ⭐⭐ |
+| **Record Supplier Payment** | Purchasing → Supplier Bills → Record Payment | 2 min | ⭐ |
+| **Process Sales Return** | Sales → Credit Notes → Create | 3 min | ⭐⭐ |
+| **Process Purchase Return** | Purchasing → Debit Notes → Create | 3 min | ⭐⭐ |
+| **Record Received Cheque** | Accounting → Cheques → Record PDC | 2 min | ⭐ |
+| **Clear or Bounce Cheque** | Accounting → Cheques → Action Button | 1 min | ⭐ |
+| **Reconcile Bank Statement** | Accounting → Bank Recon → Upload CSV → Match | 10 min | ⭐⭐⭐ |
+| **Post Manual Journal Entry**| Accounting → Journal Entries → Add Lines → Save | 4 min | ⭐⭐⭐ |
+| **Generate ZATCA Phase 2 CSR**| Administration → ZATCA → Generate CSR & Key | 3 min | ⭐⭐ |
+| **Month-End Period Close** | Accounting → Fiscal Periods → Close Period | 5 min | ⭐⭐ |
+| **Share Invoice Public Link**| View Document → Share → Generate Public Link | 1 min | ⭐ |
 
 ---
 
-## 💡 Tips & Shortcuts
+## 💡 Keyboard Shortcuts & Productivity Features
 
-### Navigation
+### Global Hotkeys
+- `Ctrl + K` / `Cmd + K`: **Command Palette** — jump immediately to any screen, report, or setting.
+- `Ctrl + B` / `Cmd + B`: **Toggle Navigation Drawer** — collapse/expand the sidebar for more screen real estate.
+- `Esc`: **Close active surface** (modal, drawer, command palette, or quick menu customizer).
 
-```
-🔍 Search: Press Ctrl+K to search (global search)
-🔗 Back: Click browser back or use breadcrumb
-📌 Favorites: Star items for quick access
-🔔 Notifications: Bell icon shows alerts
-⚙️ Settings: Avatar menu (top right)
-```
-
-### Data Entry
-
-```
-↹ Tab: Move to next field
-⏎ Enter: Save or confirm
-Esc: Cancel current action
-Ctrl+S: Save form
-Ctrl+P: Print current page
-```
-
-### Filtering & Sorting
-
-```
-Filter: Click filter icon to show/hide criteria
-Sort: Click column header to sort ascending/descending
-Search: Type in search box to filter results
-Date Range: Use calendar picker
-Export: Download as CSV or PDF
-```
+### Top Header & Shell Controls
+- **Quick Menu**: Top bar hover-intent quick launcher. Click the customize icon (sliders) to hide/unhide specific tiles.
+- **Real-Time Clock**: Live synchronized business date and time in the top header.
+- **Theme Switcher**: Instant cycle between Auto (system OS), Light Mode, and Dark Mode.
+- **Language Switcher**: Toggle between English and Arabic (RTL) with immediate interface transformation.
+- **Sidebar Scroll Persistence**: The navigation drawer remembers your exact scroll position between clicks and reloads.
 
 ---
 
-## 📊 Financial Terminology
+## 🔐 User Roles & Permissions Matrix
 
-### Assets (What you own)
-- **Current Assets**: Can be converted to cash within 1 year
-  - Cash, Bank, Accounts Receivable
-- **Fixed Assets**: Long-term ownership
-  - Equipment, Buildings, Vehicles
-
-### Liabilities (What you owe)
-- **Current Liabilities**: Due within 1 year
-  - Accounts Payable, Short-term Loans
-- **Long-term Liabilities**: Due beyond 1 year
-  - Mortgages, Long-term Debt
-
-### Equity (Owner's investment)
-- Capital invested by owner
-- Retained earnings (profits kept in business)
-
-### Income Statement Terms
-- **Revenue/Sales**: Money coming in
-- **Cost of Goods Sold (COGS)**: Cost to make products
-- **Gross Profit**: Revenue - COGS
-- **Expenses**: Operating costs (rent, salaries, utilities)
-- **Net Income**: Revenue - Expenses (Bottom line)
-
-### Key Financial Ratios
-
-```
-Profitability:
-  Net Profit Margin = Net Income / Revenue × 100%
-  (Higher is better - shows % of revenue as profit)
-
-Liquidity:
-  Current Ratio = Current Assets / Current Liabilities
-  (Should be > 1.0 - shows ability to pay debts)
-
-Efficiency:
-  Asset Turnover = Revenue / Total Assets
-  (Higher is better - shows asset productivity)
-
-Solvency:
-  Debt to Equity = Total Liabilities / Total Equity
-  (Lower is better - shows financial stability)
-```
+| Permission Area | Super Admin | Accountant | Shop Manager | Cashier |
+|-----------------|:-----------:|:----------:|:------------:|:-------:|
+| **POS Sales & Checkout** | ✅ | ❌ | ✅ | ✅ |
+| **View Hub Dashboard** | ✅ | ✅ | ✅ (Own Shop) | ❌ |
+| **Product Master Catalog**| ✅ | View Only | View Only | ❌ |
+| **Catalog Import/Export** | ✅ | ❌ | ❌ | ❌ |
+| **Stock Transfers** | ✅ | View Only | ✅ (Own Shop) | ❌ |
+| **Customer Receivables** | ✅ | ✅ | ✅ (Own Shop) | ❌ |
+| **Credit Notes (Returns)**| ✅ | ✅ | ✅ (Own Shop) | ❌ |
+| **Purchase Orders & Bills**| ✅ | ✅ | ❌ | ❌ |
+| **Debit Notes (Returns)** | ✅ | ✅ | ❌ | ❌ |
+| **General Ledger & Entries**| ✅ | ✅ | ❌ | ❌ |
+| **Cheques Register** | ✅ | ✅ | ❌ | ❌ |
+| **Bank Reconciliation** | ✅ | ✅ | ❌ | ❌ |
+| **Financial Statements** | ✅ | ✅ | ❌ | ❌ |
+| **Fiscal Period Lock/Reopen**| ✅ | ✅ | ❌ | ❌ |
+| **User & Role Administration**| ✅ | ❌ | ❌ | ❌ |
+| **Settings & Branding** | ✅ | ❌ | ❌ | ❌ |
+| **ZATCA Certificate & CSR** | ✅ | View Only | ❌ | ❌ |
 
 ---
 
-## 🔐 User Roles Summary
+## 🚨 Common Alerts & Solutions
 
-```
-┌────────────────────────────────────────────────┐
-│             ROLE PERMISSIONS MATRIX             │
-├────────────────────────────────────────────────┤
-│                                                │
-│  SUPER ADMIN: ████████████████████████ (All)  │
-│  Can do EVERYTHING in the system               │
-│                                                │
-│  SHOP MANAGER: ██████████░░░░░░░░░░░░ (50%)   │
-│  Sales, customers, inventory (own shop only)   │
-│                                                │
-│  CASHIER: ████░░░░░░░░░░░░░░░░░░░░░░ (15%)   │
-│  POS checkout, view sales only                 │
-│                                                │
-└────────────────────────────────────────────────┘
+| Alert / Error | Probable Cause | Immediate Solution |
+|---------------|----------------|-------------------|
+| **"Journal entry not balanced"** | Total Debits ≠ Total Credits | Ensure debits and credits sum up to the exact same total in integer halalas. |
+| **"Cannot post to closed fiscal period"** | Transaction date falls inside a locked period | Go to `Accounting → Fiscal Periods` to reopen the period or update entry date. |
+| **"Insufficient warehouse stock for transfer"** | Requested transfer exceeds available central stock | Review warehouse inventory levels or receive pending Purchase Orders first. |
+| **"Customer credit limit exceeded"** | New sale exceeds pre-configured customer credit limit | Record collection payment in `Customer Receivables` or increase customer limit. |
+| **"ZATCA CSR generation failed"** | Missing organization identifiers or VAT number format | Ensure VAT number is 15 digits starting/ending with 3 in `Administration → Settings`. |
+| **"Shared document token expired"** | Document public link reached its expiration date | Re-share the document from the document view screen or re-issue link. |
+| **"Cheque cannot be cleared"** | Cheque is already cleared, cancelled, or missing bank link | Verify cheque current status in `Accounting → Cheques Register`. |
 
-Detailed Permissions:
+---
 
-                        Super Admin  Manager  Cashier
-Create Sales                ✓         ✓
-Record Payment              ✓         ✓         ✓
-Create PO                   ✓
-Create Journal Entry        ✓
-View Reports                ✓         ✓
-Manage Users                ✓
-Close Period                ✓
-POS Checkout                ✓         ✓         ✓
+## 📈 Daily Operational Cadence
+
+```text
+08:00 AM — OPENING & READINESS
+├── Log in to Back Office Dashboard
+├── Review overnight KPI cards, pending transfers & cheques due today
+└── Cashiers log in to POS stations with cash float
+
+09:00 AM – 01:00 PM — MORNING TRADING & STOCK
+├── POS active for customer transactions (Cash/Card/Credit)
+├── Warehouse reviews pending stock transfer requests
+└── Dispatch transfers to shops (status: IN_TRANSIT)
+
+02:00 PM — PURCHASING & RECEIVING
+├── Receive supplier deliveries at Central Warehouse
+├── Match incoming physical stock against Purchase Orders
+└── Auto-generate Supplier Bills & recalculate product costs (WAC)
+
+04:00 PM — TREASURY & ACCOUNTING
+├── Check due Post-Dated Cheques in Cheques Register (deposit/clear)
+├── Import daily bank statement CSV & run Bank Reconciliation
+└── Record customer collections against Customer Receivables
+
+05:30 PM — CLOSING & RECONCILIATION
+├── Close POS cashier shifts & reconcile cash drawer
+├── Verify daily Sales Summary, Margin & VAT reports
+└── Automatic system backup runs nightly
 ```
 
 ---
 
-## 🚨 Common Errors & Solutions
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| "Journal entry not balanced" | Debits ≠ Credits | Verify all debit/credit amounts sum equally |
-| "Stock not available" | Insufficient inventory | Check warehouse stock levels, create transfer |
-| "Cannot post to closed period" | Period is locked | Reopen period or post to current period |
-| "Connection refused on port 8080" | Docker not running | Run `docker compose up -d` |
-| "Database connection failed" | DB container down | Run `docker compose logs db` to diagnose |
-| "Customer limit exceeded" | Credit limit constraint | Verify customer credit limit or record payment |
-| "File too large" | Upload limit | Try smaller file or compress |
-
----
-
-## 📞 Support Contacts
-
-```
-Documentation:     See docs/ folder in repository
-Community Forum:   forum.syntekpro.com
-Email Support:     support@syntekpro.com
-Bug Reports:       issues@syntekpro.com
-Feature Requests:  features@syntekpro.com
-Sales:             sales@syntekpro.com
-
-Office Hours:      Sun-Thu, 9 AM - 5 PM (KSA Time)
-Response Time:     < 24 hours
-Emergency:         +966-XX-XXXX-XXXX
-```
-
----
-
-## ✅ Pre-Launch Checklist
-
-Before going live, ensure:
-
-- [ ] All warehouse stock levels verified
-- [ ] Product pricing reviewed and confirmed
-- [ ] Customer data imported (if migrating from old system)
-- [ ] Supplier data entered
-- [ ] Users created and trained
-- [ ] Bank accounts configured
-- [ ] ZATCA certificate installed (Saudi Arabia)
-- [ ] Email configuration tested
-- [ ] Backup procedures documented
-- [ ] Disaster recovery plan in place
-- [ ] Data entered for opening balances
-- [ ] Trial balance verified before opening
-- [ ] Demo transactions tested end-to-end
-- [ ] Reports generated and reviewed
-- [ ] Staff trained on all modules
-- [ ] Documentation printed and distributed
-
----
-
-## 📈 Typical Daily Schedule
-
-```
-DAILY OPERATIONS:
-
-08:00 AM
-├─ Team arrives
-├─ Check Dashboard for overnight alerts
-└─ Review pending actions
-
-09:00 AM - SALES
-├─ POS stations active
-├─ Process customer sales
-├─ Stock transfers from warehouse
-
-12:00 PM
-├─ Mid-day stock check
-├─ Address customer inquiries
-└─ Confirm afternoon deliveries
-
-02:00 PM - PURCHASING
-├─ Receive supplier deliveries
-├─ Verify goods against PO
-└─ Update inventory
-
-04:00 PM - ACCOUNTING
-├─ Record any journal entries
-├─ Reconcile daily cash
-├─ Process customer payments
-
-05:00 PM - CLOSE OF DAY
-├─ POS Shift Close
-├─ Count cash drawers
-├─ Generate daily sales report
-└─ Flag any discrepancies
-
-06:00 PM
-├─ End-of-day backup (automated)
-├─ Tomorrow's prep
-└─ Team departs
-
-WEEKLY:
-├─ Bank reconciliation
-├─ AP check run
-├─ AR collections review
-
-MONTH-END:
-├─ Full accounting close
-├─ Financial statements
-├─ Period close & lock
-```
-
----
-
-## 🎓 Certification Path
-
-To become a SyntekPro ERP Certified User:
-
-1. **Fundamentals** (2 days)
-   - Module overview
-   - Navigation & basic operations
-   - Quiz: 80% passing
-
-2. **Core Modules** (5 days)
-   - Sales cycle
-   - Purchasing cycle
-   - Inventory management
-   - POS operations
-   - Quiz: 80% passing
-
-3. **Accounting** (3 days)
-   - GL & journal entries
-   - Month-end close
-   - Financial statements
-   - Quiz: 85% passing
-
-4. **Advanced Topics** (2 days)
-   - API & integrations
-   - Custom reports
-   - Troubleshooting
-   - Project: Implement scenario
-
-5. **Final Exam**
-   - Comprehensive test
-   - Practical application
-   - Passing: 85%+
-
-**Duration**: 2 weeks full-time | **Cost**: Contact sales
-
----
-
-## 📚 Recommended Reading Order
-
-1. **README_COMPLETE.md** (Overview & Architecture)
-2. **TUTORIAL_GUIDE.md** (Step-by-step walkthroughs)
-3. **This document** (Reference & quick lookup)
-4. **docs/ folder** (Detailed module documentation)
-5. **API docs** (For integrations)
-
----
-
-**Version**: 1.0.0 | **Last Updated**: January 2024
-
-*Questions? Contact support@syntekpro.com*
+*SyntekPro ERP Quick Reference Guide — Version 2.0*

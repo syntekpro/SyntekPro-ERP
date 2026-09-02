@@ -515,6 +515,52 @@ desktopDrawerMedia.addEventListener('change', () => {
 
 applyDrawerState();
 
+const sidebarScrollStorageKey = 'shell:sidebar-scroll-position';
+
+const syncSidebarScrollState = () => {
+	const navRoot = document.querySelector('[data-nav-root]');
+	if (!navRoot) {
+		return;
+	}
+
+	const savedScrollTop = window.sessionStorage.getItem(sidebarScrollStorageKey);
+
+	if (savedScrollTop !== null) {
+		navRoot.scrollTop = parseInt(savedScrollTop, 10);
+	}
+
+	const activeLink = navRoot.querySelector('.nav-link-active');
+	if (activeLink) {
+		const navRect = navRoot.getBoundingClientRect();
+		const linkRect = activeLink.getBoundingClientRect();
+		const isVisible = linkRect.top >= navRect.top && linkRect.bottom <= navRect.bottom;
+
+		if (savedScrollTop === null || !isVisible) {
+			activeLink.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+			window.sessionStorage.setItem(sidebarScrollStorageKey, String(navRoot.scrollTop));
+		}
+	}
+};
+
+const setupSidebarScrollListeners = () => {
+	const navRoot = document.querySelector('[data-nav-root]');
+	if (!navRoot || navRoot.dataset.scrollListenersInitialized === 'true') {
+		return;
+	}
+
+	navRoot.dataset.scrollListenersInitialized = 'true';
+
+	const saveScrollPosition = () => {
+		window.sessionStorage.setItem(sidebarScrollStorageKey, String(navRoot.scrollTop));
+	};
+
+	navRoot.addEventListener('scroll', saveScrollPosition, { passive: true });
+
+	navRoot.querySelectorAll('a').forEach((link) => {
+		link.addEventListener('click', saveScrollPosition);
+	});
+};
+
 const persistCollapsedSections = () => {
 	const collapsedSections = [...document.querySelectorAll('[data-nav-section]')]
 		.filter((section) => section.querySelector('[data-nav-section-panel]')?.classList.contains('hidden'))
@@ -543,8 +589,16 @@ document.querySelectorAll('[data-nav-section-toggle]').forEach((toggle) => {
 		toggle.setAttribute('aria-expanded', willCollapse ? 'false' : 'true');
 		chevron?.classList.toggle('-rotate-90', willCollapse);
 		persistCollapsedSections();
+
+		const navRoot = document.querySelector('[data-nav-root]');
+		if (navRoot) {
+			window.sessionStorage.setItem(sidebarScrollStorageKey, String(navRoot.scrollTop));
+		}
 	});
 });
+
+syncSidebarScrollState();
+setupSidebarScrollListeners();
 
 const palette = document.querySelector('[data-command-palette]');
 const commandInput = document.querySelector('[data-command-input]');
@@ -671,7 +725,11 @@ const applyDesignSystemBaseline = () => {
 };
 
 applyDesignSystemBaseline();
-document.addEventListener('livewire:navigated', applyDesignSystemBaseline);
+document.addEventListener('livewire:navigated', () => {
+	applyDesignSystemBaseline();
+	syncSidebarScrollState();
+	setupSidebarScrollListeners();
+});
 document.addEventListener('livewire:update', applyDesignSystemBaseline);
 
 if (document.body?.dataset.posShell === 'true') {

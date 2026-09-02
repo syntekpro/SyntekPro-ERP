@@ -4,14 +4,14 @@
 
 ## Phase 1 — Design system documentation
 
-- Rewrote `docs/DESIGN_SYSTEM.md` (v3, ViknBooks direction), replacing the v1.0.0-classic-ui
+- Rewrote `docs/DESIGN_SYSTEM.md` (v3), replacing the v1.0.0-classic-ui
   teal/amber Linear-style spec. Covers header, sidebar, Quick Menu, page background, dashboard,
   tables, forms, settings pages, modals, empty states, permission matrix, org settings, and the
   separate navy POS theme. No app code touched.
 
 ## Phase 2 — Shared components
 
-- Added new ViknBooks-direction tokens to `resources/css/app.css` (`--color-page-bg`,
+- Added new design tokens to `resources/css/app.css` (`--color-page-bg`,
   `--color-action`, `--color-link`, `--color-danger`, `--color-positive`, pastel stat-card colors,
   chart series colors) alongside the existing v2 tokens.
 - `.btn-primary` is now solid black (`--color-action`) instead of brass, matching the "Create

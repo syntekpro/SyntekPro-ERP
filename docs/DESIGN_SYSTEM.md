@@ -1,8 +1,8 @@
-# SyntekPro ERP — Design System (v3, ViknBooks direction)
+# SyntekPro ERP — Design System (v3)
 
 This replaces the v2 teal/amber "Linear-style" spec. That direction is preserved historically via the
 `v1.0.0-classic-ui` git tag — do not resurrect it. This document is the single source of truth for the
-v2.0.0 visual redesign; it targets parity with ViknBooks' admin UI conventions while keeping SyntekPro's
+v2.0.0 visual redesign; it establishes clean, modern admin UI conventions while keeping SyntekPro's
 existing architecture (Blade components, `@theme` tokens, Livewire, RTL/Arabic) untouched underneath.
 
 ## Non-negotiables carried over from v2

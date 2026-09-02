@@ -187,7 +187,7 @@ cards, Quick Menu tiles, and sidebar — color varies per module/context rather 
 6. POS terminal navy theme (Phase 6).
 7. Functional gap audit, then scoped functional phases (Phase 7+).
 
-## Workflow rule for Copilot
+## Frontend Development Rules
 
 Before touching any screen: check `resources/views/components/` for an existing component first. Extend
 or restyle it in place. Never create a second card/button/table component. Never hardcode a hex color,

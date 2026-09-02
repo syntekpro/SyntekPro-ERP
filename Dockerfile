@@ -12,6 +12,7 @@ RUN composer install \
     --ignore-platform-reqs \
     --no-scripts
 
+
 FROM node:20-alpine AS frontend_build
 
 WORKDIR /app
@@ -26,33 +27,36 @@ COPY vite.config.js ./
 
 RUN npm run build
 
+
 FROM php:8.2-fpm-alpine AS runtime
 
 WORKDIR /var/www/html
 
 RUN apk add --no-cache \
-        bash \
-        fcgi \
-        freetype-dev \
-        git \
-        icu-dev \
-        libjpeg-turbo-dev \
-        libpng-dev \
-        libxml2-dev \
-        libzip-dev \
-        oniguruma-dev \
-        unzip \
+    bash \
+    fcgi \
+    freetype-dev \
+    git \
+    icu-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libxml2-dev \
+    libzip-dev \
+    oniguruma-dev \
+    unzip \
+    nginx \
+    supervisor \
     && apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \
-        linux-headers \
+    $PHPIZE_DEPS \
+    linux-headers \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
-        bcmath \
-        gd \
-        intl \
-        pcntl \
-        pdo_mysql \
-        zip \
+    bcmath \
+    gd \
+    intl \
+    pcntl \
+    pdo_mysql \
+    zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apk del .build-deps \
@@ -61,14 +65,21 @@ RUN apk add --no-cache \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 COPY . .
+
 COPY --from=composer_deps /app/vendor ./vendor
+
 COPY --from=frontend_build /app/public/build ./public/build
 
 RUN cp .env.example .env \
     && php artisan key:generate --force \
     && php artisan storage:link || true \
-    && chown -R www-data:www-data storage bootstrap/cache
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && mkdir -p /run/nginx /var/log/supervisor
 
-EXPOSE 9000
+COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 
-CMD ["php-fpm"]
+COPY docker/supervisord.conf /etc/supervisord.conf
+
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

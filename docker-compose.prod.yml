@@ -2,12 +2,11 @@ name: ${COMPOSE_PROJECT_NAME:-erp}
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/syntekpro/syntekpro-erp:${SYNTEK_IMAGE_TAG:-latest}
     working_dir: /var/www/html
     volumes:
-      - ./:/var/www/html
+      - ./.env:/var/www/html/.env:ro
+      - app-storage:/var/www/html/storage
     env_file:
       - .env
     depends_on:
@@ -19,7 +18,7 @@ services:
   web:
     image: nginx:1.27-alpine
     volumes:
-      - ./:/var/www/html
+      - ./public:/var/www/html/public:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
@@ -48,9 +47,25 @@ services:
     networks:
       - internal
 
+  updater:
+    build:
+      context: ./docker/updater
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-erp}-updater
+    environment:
+      UPDATER_API_TOKEN: ${UPDATER_API_TOKEN}
+      SYNTEK_VERSION: ${SYNTEK_VERSION:-unknown}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./:/project:rw
+    networks:
+      - internal
+    restart: unless-stopped
+
 volumes:
   erp-db:
   erp-redis:
+  app-storage:
 
 networks:
   internal:

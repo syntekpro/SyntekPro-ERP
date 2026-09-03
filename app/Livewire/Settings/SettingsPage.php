@@ -10,6 +10,7 @@ use App\Models\RolePermission;
 use App\Models\User;
 use App\Models\UserPermission;
 use App\Services\Settings\BusinessSettingsService;
+use App\Services\Updates\UpdateManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -30,6 +31,17 @@ class SettingsPage extends Component
     public $logoUpload;
     public $faviconUpload;
     public $touchIconUpload;
+
+    public array $updateInfo = [];
+    public bool $updateCheckInProgress = false;
+
+    public bool $confirmingUpdate = false;
+    public bool $updateInProgress = false;
+    public ?string $updateTargetVersion = null;
+    public ?array $updateResult = null;
+    public ?string $updateError = null;
+    public ?array $updateJob = null;
+    public ?string $dismissedUpdateJobId = null;
 
     public function mount(BusinessSettingsService $settingsService): void
     {
@@ -60,6 +72,150 @@ class SettingsPage extends Component
         $this->loadRolePermissions();
         $this->selectedUserId = User::query()->orderBy('email')->value('id');
         $this->loadUserOverrides();
+        $this->loadUpdateInfo();
+    }
+
+    public function checkForUpdates(UpdateManager $manager): void
+    {
+        $this->updateCheckInProgress = true;
+        $manager->latest(forceRefresh: true);
+        $this->loadUpdateInfo();
+        $this->updateCheckInProgress = false;
+    }
+
+    public function promptUpdate(): void
+    {
+        $this->confirmingUpdate = true;
+        $this->updateResult = null;
+        $this->updateError = null;
+    }
+
+    public function cancelUpdate(): void
+    {
+        $this->confirmingUpdate = false;
+    }
+
+    public function startUpdate(UpdateManager $manager): void
+    {
+        $version = $this->updateInfo['latest_version'] ?? null;
+
+        if (! is_string($version) || $version === '') {
+            $this->updateError = __('No target version is available.');
+            $this->confirmingUpdate = false;
+
+            return;
+        }
+
+        $this->confirmingUpdate = false;
+        $this->updateInProgress = true;
+        $this->updateTargetVersion = $version;
+        $this->updateResult = null;
+        $this->updateError = null;
+        $this->dismissedUpdateJobId = null;
+
+        try {
+            $response = $manager->requestUpdate($version);
+
+            if ($response === null) {
+                $this->updateError = __('The update agent did not respond. Please check that the updater service is running.');
+
+                return;
+            }
+
+            $data = $response['data'] ?? [];
+
+            if (($response['status'] ?? 0) >= 200 && ($response['status'] ?? 0) < 300 && ($data['ok'] ?? false)) {
+                $this->syncUpdateJob(is_array($data['job'] ?? null) ? $data['job'] : null);
+            } else {
+                $message = $this->sanitizeError($data['error'] ?? $data['rollback_error'] ?? __('The update failed.'));
+
+                if (! empty($data['rolled_back_to'])) {
+                    $message .= ' ' . __('The system was rolled back to version :version.', ['version' => $data['rolled_back_to']]);
+                }
+
+                $this->updateError = $message;
+            }
+        } catch (\Throwable $exception) {
+            $this->updateError = $this->sanitizeError($exception->getMessage());
+        } finally {
+            $this->updateInProgress = false;
+            $this->loadUpdateInfo();
+        }
+    }
+
+    public function pollUpdateStatus(): void
+    {
+        if (! $this->shouldPollUpdateStatus && $this->updateJob === null) {
+            return;
+        }
+
+        $this->loadUpdateInfo();
+    }
+
+    public function clearUpdateStatus(UpdateManager $manager): void
+    {
+        $this->dismissedUpdateJobId = $this->updateJob['id'] ?? null;
+        $response = $manager->clearUpdateStatus();
+
+        if ($response !== null && ($response['status'] ?? 500) >= 400) {
+            $this->dismissedUpdateJobId = null;
+
+            return;
+        }
+
+        $this->updateJob = null;
+        $this->updateInProgress = false;
+        $this->updateResult = null;
+        $this->updateError = null;
+        $this->updateTargetVersion = null;
+        $this->loadUpdateInfo();
+    }
+
+    public function getUpdateCompletedProperty(): bool
+    {
+        return ($this->updateJob['status'] ?? null) === 'success'
+            && $this->updateInfo['installed_version'] === ($this->updateJob['version'] ?? $this->updateTargetVersion ?? '');
+    }
+
+    public function getShouldPollUpdateStatusProperty(): bool
+    {
+        $status = $this->updateJob['status'] ?? null;
+
+        return in_array($status, ['pending', 'running'], true)
+            || ($status === 'success' && ! $this->updateCompleted);
+    }
+
+    public function getHasUpdateStatusProperty(): bool
+    {
+        return $this->updateAvailable
+            || $this->confirmingUpdate
+            || $this->updateInProgress
+            || $this->updateResult !== null
+            || $this->updateError !== null
+            || $this->updateJob !== null;
+    }
+
+    protected function sanitizeError(mixed $message): string
+    {
+        $text = is_string($message) ? $message : __('An unexpected error occurred.');
+
+        $patterns = [
+            '/token=[^\s&]*/i' => 'token=***',
+            '/Bearer\s+[^\s]*/i' => 'Bearer ***',
+            '/password=[^\s&]*/i' => 'password=***',
+        ];
+
+        foreach ($patterns as $pattern => $replacement) {
+            $text = preg_replace($pattern, $replacement, $text) ?? $text;
+        }
+
+        return $text;
+    }
+
+
+    public function getUpdateAvailableProperty(): bool
+    {
+        return $this->updateInfo['is_available'] ?? false;
     }
 
     public function saveGeneral(): void
@@ -275,5 +431,87 @@ class SettingsPage extends Component
     protected function emptyStringsToNull(array $values): array
     {
         return collect($values)->map(fn ($value) => $value === '' ? null : $value)->all();
+    }
+
+    protected function loadUpdateInfo(): void
+    {
+        $manager = app(UpdateManager::class);
+        $latest = $manager->latest();
+        $agentStatus = $manager->agentStatus();
+        $job = $this->updateJob;
+
+        if ($agentStatus !== null && ($agentStatus['status'] ?? 0) >= 200 && ($agentStatus['status'] ?? 0) < 300) {
+            $job = is_array($agentStatus['data']['job'] ?? null) ? $agentStatus['data']['job'] : null;
+        }
+
+        $this->syncUpdateJob($job);
+
+        $this->updateInfo = [
+            'installed_version' => $manager->installedVersion(),
+            'latest_version' => $latest?->version,
+            'release_name' => $latest?->name,
+            'release_notes' => $latest?->notes,
+            'released_at' => $latest?->released_at?->toDateTimeString(),
+            'checked_at' => $latest?->checked_at?->toDateTimeString()
+                ?? $manager->lastCheckAt()?->toDateTimeString(),
+            'is_available' => $manager->isUpdateAvailable($latest),
+            'agent_reachable' => $agentStatus !== null && ($agentStatus['status'] ?? 0) >= 200 && ($agentStatus['status'] ?? 0) < 300,
+        ];
+    }
+
+    protected function syncUpdateJob(?array $job): void
+    {
+        if (($job['id'] ?? null) !== null && $this->dismissedUpdateJobId === $job['id']) {
+            $job = null;
+        }
+
+        $this->updateJob = $job;
+
+        if ($job === null) {
+            $this->updateInProgress = false;
+            $this->updateResult = null;
+
+            return;
+        }
+
+        $status = $job['status'] ?? null;
+        $this->updateTargetVersion = $job['requested_version'] ?? $job['version'] ?? $this->updateTargetVersion;
+        $this->updateInProgress = in_array($status, ['pending', 'running'], true);
+
+        if ($this->updateInProgress) {
+            $this->updateResult = [
+                'status' => 'queued',
+                'message' => $job['message'] ?? __('Update queued.'),
+            ];
+            $this->updateError = null;
+
+            return;
+        }
+
+        if ($status === 'success') {
+            $this->updateResult = [
+                'status' => 'success',
+                'version' => $job['version'] ?? $this->updateTargetVersion,
+                'message' => $job['message'] ?? __('Update completed successfully.'),
+            ];
+            $this->updateError = null;
+
+            return;
+        }
+
+        if ($status === 'failed') {
+            $message = $this->sanitizeError($job['error'] ?? $job['rollback_error'] ?? __('The update failed.'));
+
+            if (! empty($job['rolled_back_to'])) {
+                $message .= ' ' . __('The system was rolled back to version :version.', ['version' => $job['rolled_back_to']]);
+            }
+
+            if (! empty($job['rollback_error'])) {
+                $message .= ' ' . __('Rollback error: :message', ['message' => $this->sanitizeError($job['rollback_error'])]);
+            }
+
+            $this->updateError = $message;
+            $this->updateResult = null;
+        }
     }
 }

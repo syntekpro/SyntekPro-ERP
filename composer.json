@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "syntekpro/syntekpro-erp",
     "version": "1.0.0",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "SyntekPro ERP - A modern, multi-tenant ERP and Point of Sale platform for the Saudi market.",
+    "keywords": ["erp", "pos", "accounting", "inventory", "saudi", "zatca"],
     "license": "MIT",
     "require": {
         "php": "^8.2",

@@ -7,6 +7,7 @@
     'headerBrandSubtext' => null,
     'quickMenuItems' => [],
     'quickMenuSections' => [],
+    'updateNotification' => null,
 ])
 
 @php
@@ -39,6 +40,10 @@
             'tone' => 'info',
         ],
     ];
+
+    if ($updateNotification !== null) {
+        $headerNotifications[] = $updateNotification;
+    }
     $notificationToneClasses = [
         'warning' => 'border-brass/35 bg-brass/10 text-brass-contrast',
         'danger' => 'border-rust/30 bg-rust/10 text-ink',

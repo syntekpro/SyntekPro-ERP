@@ -11,3 +11,7 @@ Artisan::command('inspire', function () {
 Schedule::command('demo:reset')
     ->dailyAt((string) env('DEMO_RESET_TIME', '03:00'))
     ->when(fn (): bool => (bool) config('app.demo_mode'));
+
+Schedule::command('syntek:check-updates')
+    ->daily()
+    ->withoutOverlapping();

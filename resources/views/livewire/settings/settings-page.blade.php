@@ -6,8 +6,13 @@
     </div>
 
     <div class="flex flex-wrap gap-2">
-        @foreach (['general' => 'General', 'numbering' => 'Numbering', 'permissions' => 'Roles & Permissions', 'branding' => 'Branding'] as $key => $label)
-            <button type="button" wire:click="$set('tab', '{{ $key }}')" class="{{ $tab === $key ? 'btn-primary' : 'btn-secondary' }} btn-size-sm">{{ $label }}</button>
+        @foreach (['general' => 'General', 'numbering' => 'Numbering', 'permissions' => 'Roles & Permissions', 'branding' => 'Branding', 'system' => 'System', 'updates' => 'Updates'] as $key => $label)
+            <button type="button" wire:click="$set('tab', '{{ $key }}')" class="{{ $tab === $key ? 'btn-primary' : 'btn-secondary' }} btn-size-sm">
+                {{ $label }}
+                @if ($key === 'updates' && $this->updateAvailable)
+                    <span class="ml-1.5 inline-flex h-2 w-2 rounded-full bg-rust"></span>
+                @endif
+            </button>
         @endforeach
     </div>
 
@@ -133,5 +138,154 @@
             </div>
             <button type="submit" class="btn-primary mt-8">Save branding</button>
         </form>
+    @endif
+
+    @if ($tab === 'updates')
+        <div class="rounded-ui border border-line bg-surface p-6">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-ink">{{ __('ERP updates') }}</h2>
+                    <p class="mt-2 max-w-2xl text-sm text-muted">{{ __('Check for new SyntekPro ERP releases published on GitHub.') }}</p>
+                </div>
+                <button
+                    type="button"
+                    wire:click="checkForUpdates"
+                    wire:loading.attr="disabled"
+                    wire:target="checkForUpdates"
+                    class="btn-secondary btn-size-sm"
+                    data-check-for-updates
+                >
+                    <span wire:loading.remove wire:target="checkForUpdates">{{ __('Check for updates') }}</span>
+                    <span wire:loading wire:target="checkForUpdates">{{ __('Checking…') }}</span>
+                </button>
+            </div>
+
+            <dl class="mt-6 grid gap-4 md:grid-cols-2">
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Installed version') }}</dt>
+                    <dd class="mt-1 text-sm font-semibold text-ink figure-mono" data-installed-version>{{ $updateInfo['installed_version'] }}</dd>
+                </div>
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Latest available version') }}</dt>
+                    <dd class="mt-1 text-sm font-semibold text-ink figure-mono" data-latest-version>
+                        {{ $updateInfo['latest_version'] ?? __('Unknown') }}
+                        @if ($updateInfo['is_available'])
+                            <span class="ml-2 inline-flex items-center rounded-full bg-rust/10 px-2 py-0.5 text-xs font-medium text-rust">{{ __('Update available') }}</span>
+                        @else
+                            <span class="ml-2 inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500">{{ __('Up to date') }}</span>
+                        @endif
+                    </dd>
+                </div>
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Release date') }}</dt>
+                    <dd class="mt-1 text-sm text-ink">{{ $updateInfo['released_at'] ? \Carbon\Carbon::parse($updateInfo['released_at'])->format('Y-m-d H:i') : '-' }}</dd>
+                </div>
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Last update check') }}</dt>
+                    <dd class="mt-1 text-sm text-ink" data-last-check>{{ $updateInfo['checked_at'] ? \Carbon\Carbon::parse($updateInfo['checked_at'])->format('Y-m-d H:i') : '-' }}</dd>
+                </div>
+            </dl>
+
+            @if ($updateInfo['release_name'])
+                <div class="mt-6 rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Release name') }}</dt>
+                    <dd class="mt-1 text-sm font-medium text-ink">{{ $updateInfo['release_name'] }}</dd>
+                </div>
+            @endif
+
+            @if ($updateInfo['release_notes'])
+                <div class="mt-6 rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Release notes') }}</dt>
+                    <dd class="mt-2 whitespace-pre-wrap text-sm text-ink">{{ $updateInfo['release_notes'] }}</dd>
+                </div>
+            @endif
+
+            @if ($this->hasUpdateStatus)
+                <div
+                    class="mt-6 rounded-ui border border-line bg-panel p-4"
+                    @if ($this->shouldPollUpdateStatus)
+                        wire:poll.5s="pollUpdateStatus"
+                    @endif
+                >
+                    @if ($updateInProgress)
+                        <div class="text-sm text-ink">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-brass border-t-transparent"></span>
+                                <p class="font-semibold">{{ __('Background update in progress') }}</p>
+                            </div>
+                            <p class="mt-2">{{ $updateJob['message'] ?? __('SyntekPro ERP is being updated to :version.', ['version' => $updateTargetVersion]) }}</p>
+                            <p class="mt-1 text-muted">{{ __('You can leave this page and return later. This screen will reconnect and continue polling the update job status.') }}</p>
+                        </div>
+                    @elseif ($this->updateCompleted)
+                        <div class="text-sm text-emerald-600">
+                            <p class="font-semibold">{{ __('Update complete') }}</p>
+                            <p class="mt-1">{{ __('SyntekPro ERP has been updated to :version.', ['version' => $updateInfo['installed_version']]) }}</p>
+                            <button type="button" wire:click="clearUpdateStatus" class="btn-secondary btn-size-sm mt-3">{{ __('Dismiss') }}</button>
+                        </div>
+                    @elseif ($updateResult !== null && ($updateResult['status'] ?? null) === 'success')
+                        <div class="text-sm text-emerald-600">
+                            <p class="font-semibold">{{ __('Update succeeded') }}</p>
+                            <p class="mt-1">{{ $updateResult['message'] ?? '' }}</p>
+                            <p class="mt-1">{{ __('Waiting for the application to report the new version…') }}</p>
+                        </div>
+                    @elseif ($updateError)
+                        <div class="text-sm text-rust">
+                            <p class="font-semibold">{{ __('Update failed') }}</p>
+                            <p class="mt-1">{{ $updateError }}</p>
+                            <button type="button" wire:click="clearUpdateStatus" class="btn-secondary btn-size-sm mt-3">{{ __('Dismiss') }}</button>
+                        </div>
+                    @elseif ($confirmingUpdate)
+                        <div class="text-sm text-ink">
+                            <p class="font-semibold">{{ __('Confirm update') }}</p>
+                            <p class="mt-1 text-muted">{{ __('Are you sure you want to update SyntekPro ERP from :installed to :target? The update runs in the background, maintenance mode will be enabled during deployment, and both the database and public assets are backed up automatically for rollback.', ['installed' => $updateInfo['installed_version'], 'target' => $updateInfo['latest_version']]) }}</p>
+                            <div class="mt-3 flex flex-wrap gap-3">
+                                <button type="button" wire:click="cancelUpdate" class="btn-secondary btn-size-sm">{{ __('Cancel') }}</button>
+                                <button type="button" wire:click="startUpdate" wire:loading.attr="disabled" wire:target="startUpdate" class="btn-primary btn-size-sm">{{ __('Yes, update now') }}</button>
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="text-sm text-ink">
+                                <p class="font-semibold">{{ __('A new version is available') }}</p>
+                                <p class="mt-1 text-muted">{{ __('Update SyntekPro ERP to :version with one click.', ['version' => $updateInfo['latest_version']]) }}</p>
+                            </div>
+                            <button type="button" wire:click="promptUpdate" class="btn-primary btn-size-sm" data-update-now>{{ __('Update Now') }}</button>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            @if (! $updateInfo['latest_version'] && ! $updateJob)
+                <div class="mt-6 rounded-ui border border-line bg-panel p-4 text-sm text-muted">
+                    {{ __('No release information has been retrieved yet. Click "Check for updates" to query GitHub.') }}
+                </div>
+            @endif
+        </div>
+    @endif
+
+    @if ($tab === 'system')
+        <div class="rounded-ui border border-line bg-surface p-6">
+            <h2 class="text-lg font-semibold text-ink">{{ __('Product information') }}</h2>
+            <p class="mt-2 max-w-2xl text-sm text-muted">{{ __('Current SyntekPro ERP version and product details.') }}</p>
+
+            <dl class="mt-6 grid gap-4 md:grid-cols-2">
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Product name') }}</dt>
+                    <dd class="mt-1 text-sm text-ink">{{ config('syntek.name') }}</dd>
+                </div>
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Version') }}</dt>
+                    <dd class="mt-1 text-sm font-semibold text-ink figure-mono" data-product-version>{{ config('syntek.version') }}</dd>
+                </div>
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Release channel') }}</dt>
+                    <dd class="mt-1 text-sm text-ink">{{ config('syntek.release_channel') }}</dd>
+                </div>
+                <div class="rounded-ui border border-line bg-panel p-4">
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">{{ __('Support') }}</dt>
+                    <dd class="mt-1 text-sm text-ink"><a href="mailto:{{ config('syntek.support_email') }}" class="text-link hover:underline">{{ config('syntek.support_email') }}</a></dd>
+                </div>
+            </dl>
+        </div>
     @endif
 </section>

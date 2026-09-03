@@ -12,6 +12,21 @@
     $brandWebsite = $footerBranding['website'];
     $showPoweredBy = $footerBranding['show_powered_by'];
     $poweredByLogo = $brandingService->smallLogoUrl();
+    $productVersion = config('syntek.version');
+
+    $updateNotification = null;
+    if ($currentUser?->hasPermission('settings.manage')) {
+        $updateManager = app(\App\Services\Updates\UpdateManager::class);
+        $latestUpdate = $updateManager->latest();
+        if ($updateManager->isUpdateAvailable($latestUpdate)) {
+            $updateNotification = [
+                'id' => 'erp-update-available',
+                'title' => __('ERP update available'),
+                'message' => __('SyntekPro ERP :version is available. Visit Settings → Updates for details.', ['version' => $latestUpdate?->version]),
+                'tone' => 'warning',
+            ];
+        }
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $activeLocale) }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}" data-theme="{{ $themePreference }}" data-theme-preference="{{ $themePreference }}">
@@ -197,6 +212,7 @@
                 :visible-sections="$visibleSections"
                 :collapsed-sections="$collapsedSections"
                 :is-active="$isActive"
+                :version="$productVersion"
             />
 
             <section class="shell-content">
@@ -209,6 +225,7 @@
                     :header-brand-subtext="$headerBranding['subtext']"
                     :quick-menu-items="$quickMenuItems"
                     :quick-menu-sections="$quickMenuSections"
+                    :update-notification="$updateNotification"
                 />
 
                 <button type="button" class="quick-action-fab" aria-label="{{ __('Create new') }}">

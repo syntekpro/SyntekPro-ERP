@@ -7,6 +7,7 @@
     'visibleSections' => [],
     'collapsedSections' => [],
     'isActive',
+    'version' => null,
 ])
 
 <aside class="shell-drawer border-e border-black/10 bg-surface/95 backdrop-blur" data-shell-drawer>
@@ -79,6 +80,12 @@
                 @endif
                 <span class="drawer-copy text-center text-xs font-semibold uppercase tracking-[0.24em]">{{ $poweredByLabel }}</span>
             </a>
+        @endif
+
+        @if ($version)
+            <div class="mt-3 text-center text-[0.65rem] text-subtle/70 figure-mono" data-product-version>
+                {{ $applicationName }} {{ $version }}
+            </div>
         @endif
     </div>
 </aside>

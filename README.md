@@ -175,6 +175,63 @@ docker compose exec app php artisan test --filter='(StockSchemaTest|PurchaseOrde
 
 ---
 
+## 🏷️ Releasing a New ERP Version
+
+SyntekPro ERP versions are published as GitHub Releases and versioned Docker images on GitHub Container Registry (GHCR).
+
+### 1. Prepare the release
+
+Ensure `config/syntek.php` contains the target version string, or export it via `.env`:
+
+```bash
+SYNTEK_VERSION=1.0.1
+```
+
+### 2. Tag the release
+
+Use semantic versioning with a `v` prefix:
+
+```bash
+git checkout main
+git pull origin main
+git tag -a v1.0.1 -m "Release SyntekPro ERP v1.0.1"
+git push origin v1.0.1
+```
+
+Only tags matching `v[0-9]+.[0-9]+.[0-9]+*` trigger the release workflow.
+
+### 3. Create a GitHub Release (optional but recommended)
+
+- Open the repository on GitHub.
+- Go to **Releases → Draft a new release**.
+- Choose the tag you just pushed, e.g. `v1.0.1`.
+- Fill in the release title and notes, then **Publish release**.
+
+Publishing a release also creates the tag, so either pushing the tag or publishing the release starts the workflow.
+
+### 4. Verify the Docker image
+
+The [Release Docker Image](.github/workflows/release.yml) workflow builds and pushes:
+
+```
+ghcr.io/syntekpro/syntekpro-erp:1.0.1
+ghcr.io/syntekpro/syntekpro-erp:latest
+```
+
+You can inspect the published image with:
+
+```bash
+docker pull ghcr.io/syntekpro/syntekpro-erp:1.0.1
+docker image inspect ghcr.io/syntekpro/syntekpro-erp:1.0.1 \
+  --format '{{ index .Config.Labels "org.opencontainers.image.version" }}'
+```
+
+### Required GitHub settings
+
+- **Actions permissions**: Allow GitHub Actions to create and approve pull requests is not required.
+- **Packages permissions**: The workflow uses `GITHUB_TOKEN`, which is granted `packages: write` automatically for workflows in this repository. No personal access token is needed.
+- **Workflow permissions**: Ensure the default `GITHUB_TOKEN` has at least **Read and write permissions** enabled under **Settings → Actions → General → Workflow permissions**.
+
 ## 📜 License
 
 SyntekPro ERP is proprietary software. All rights reserved.

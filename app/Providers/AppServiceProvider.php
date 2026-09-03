@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\CheckForUpdates;
 use App\Console\Commands\ResetDemoEnvironment;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,6 +15,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->commands([
             ResetDemoEnvironment::class,
+            CheckForUpdates::class,
         ]);
     }
 

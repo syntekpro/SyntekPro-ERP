@@ -175,6 +175,18 @@ class Phase11SettingsAndPermissionsTest extends TestCase
         ]);
     }
 
+    public function test_settings_system_tab_displays_product_version(): void
+    {
+        $admin = User::factory()->create(['role' => UserRole::SuperAdmin]);
+
+        Livewire::actingAs($admin)
+            ->test(SettingsPage::class)
+            ->set('tab', 'system')
+            ->assertSee(config('syntek.version'))
+            ->assertSee(config('syntek.name'))
+            ->assertSee(config('syntek.release_channel'));
+    }
+
     protected function policyFixtures(): array
     {
         $ownedShop = Shop::query()->create(['name' => 'Owned', 'slug' => 'owned', 'is_active' => true]);

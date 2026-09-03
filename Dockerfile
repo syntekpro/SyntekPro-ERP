@@ -28,6 +28,17 @@ RUN npm run build
 
 FROM php:8.2-fpm-alpine AS runtime
 
+ARG APP_VERSION=unknown
+ENV SYNTEK_VERSION=${APP_VERSION}
+
+LABEL org.opencontainers.image.title="SyntekPro ERP"
+LABEL org.opencontainers.image.description="SyntekPro ERP - Multi-tenant ERP and Point of Sale platform"
+LABEL org.opencontainers.image.version="${APP_VERSION}"
+LABEL org.opencontainers.image.source="https://github.com/syntekpro/SyntekPro-ERP"
+LABEL org.opencontainers.image.url="https://github.com/syntekpro/SyntekPro-ERP"
+LABEL org.opencontainers.image.vendor="SyntekPro"
+LABEL org.opencontainers.image.licenses="MIT"
+
 WORKDIR /var/www/html
 
 RUN apk add --no-cache \
@@ -67,6 +78,7 @@ COPY --from=frontend_build /app/public/build ./public/build
 RUN cp .env.example .env \
     && php artisan key:generate --force \
     && php artisan storage:link || true \
+    && mkdir -p storage/app storage/framework/cache storage/framework/sessions storage/framework/testing storage/framework/views storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 9000

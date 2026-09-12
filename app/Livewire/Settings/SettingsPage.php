@@ -112,6 +112,7 @@ class SettingsPage extends Component
         $this->updateResult = null;
         $this->updateError = null;
         $this->dismissedUpdateJobId = null;
+        $updateStarted = false;
 
         try {
             $response = $manager->requestUpdate($version);
@@ -125,6 +126,7 @@ class SettingsPage extends Component
             $data = $response['data'] ?? [];
 
             if (($response['status'] ?? 0) >= 200 && ($response['status'] ?? 0) < 300 && ($data['ok'] ?? false)) {
+                $updateStarted = true;
                 $this->syncUpdateJob(is_array($data['job'] ?? null) ? $data['job'] : null);
             } else {
                 $message = $this->sanitizeError($data['error'] ?? $data['rollback_error'] ?? __('The update failed.'));
@@ -138,7 +140,9 @@ class SettingsPage extends Component
         } catch (\Throwable $exception) {
             $this->updateError = $this->sanitizeError($exception->getMessage());
         } finally {
-            $this->updateInProgress = false;
+            if (! $updateStarted) {
+                $this->updateInProgress = false;
+            }
             $this->loadUpdateInfo();
         }
     }

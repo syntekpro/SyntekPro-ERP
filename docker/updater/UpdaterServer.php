@@ -77,12 +77,14 @@ final class UpdaterServer
     {
         $job = $this->status->currentJob() ?? [
             'id' => $jobId,
+            'target_version' => $version,
             'requested_version' => $version,
             'dry_run' => $this->dryRun,
             'started_at' => gmdate(DATE_ATOM),
         ];
 
         $job['status'] = 'running';
+        $job['current_step'] = 'starting';
         $job['message'] = $this->dryRun
             ? "Dry run update to {$version} is running in the background."
             : "Updating SyntekPro ERP to {$version} in the background.";
@@ -96,7 +98,10 @@ final class UpdaterServer
                     'dry_run' => true,
                     'message' => "Dry run: would update SyntekPro ERP to {$version}.",
                 ]
-                : $this->engine->update($version);
+                : $this->engine->update($version, function (string $step) use (&$job): void {
+                    $job['current_step'] = $step;
+                    $this->status->saveJob($job);
+                });
         } catch (\Throwable $exception) {
             $result = [
                 'ok' => false,
@@ -115,7 +120,9 @@ final class UpdaterServer
         $job['previous_version'] = $result['previous_version'] ?? null;
         $job['previous_image_tag'] = $result['previous_image_tag'] ?? null;
         $job['db_backup'] = $result['db_backup'] ?? null;
+        $job['rollback_occurred'] = (bool) ($result['rollback_occurred'] ?? false);
         $job['dry_run'] = (bool) ($result['dry_run'] ?? $this->dryRun);
+        $job['current_step'] = ($result['ok'] ?? false) ? 'completed' : 'failed';
         $job['finished_at'] = gmdate(DATE_ATOM);
         $this->status->saveJob($job);
 
@@ -154,6 +161,7 @@ final class UpdaterServer
 
         $job = [
             'id' => bin2hex(random_bytes(16)),
+            'target_version' => $version,
             'requested_version' => $version,
             'status' => 'pending',
             'message' => $this->dryRun
@@ -161,6 +169,9 @@ final class UpdaterServer
                 : "Update to {$version} has been queued.",
             'started_at' => gmdate(DATE_ATOM),
             'finished_at' => null,
+            'current_step' => 'queued',
+            'previous_version' => null,
+            'rollback_occurred' => false,
             'dry_run' => $this->dryRun,
         ];
         $this->status->saveJob($job);

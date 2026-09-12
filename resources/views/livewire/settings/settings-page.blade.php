@@ -214,6 +214,9 @@
                                 <p class="font-semibold">{{ __('Background update in progress') }}</p>
                             </div>
                             <p class="mt-2">{{ $updateJob['message'] ?? __('SyntekPro ERP is being updated to :version.', ['version' => $updateTargetVersion]) }}</p>
+                            @if (! empty($updateJob['current_step']))
+                                <p class="mt-1 text-muted">{{ __('Current step: :step', ['step' => str($updateJob['current_step'])->replace('_', ' ')->title()]) }}</p>
+                            @endif
                             <p class="mt-1 text-muted">{{ __('You can leave this page and return later. This screen will reconnect and continue polling the update job status.') }}</p>
                         </div>
                     @elseif ($this->updateCompleted)

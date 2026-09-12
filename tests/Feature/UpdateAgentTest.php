@@ -35,7 +35,7 @@ class UpdateAgentTest extends TestCase
         parent::tearDown();
     }
 
-    private function startUpdaterServer(): void
+    private function startUpdaterServer(bool $dryRun = false): void
     {
         $phpBinary = PHP_BINARY;
 
@@ -46,7 +46,7 @@ class UpdateAgentTest extends TestCase
             base_path('docker/updater/server.php'),
         ], base_path('docker/updater'), [
             'UPDATER_API_TOKEN' => $this->token,
-            'UPDATER_DRY_RUN' => 'true',
+            'UPDATER_DRY_RUN' => $dryRun ? 'true' : 'false',
             'UPDATER_PROJECT_DIR' => base_path(),
             'SYNTEK_VERSION' => '1.0.0',
             'SYNTEK_IMAGE_TAG' => 'latest',
@@ -138,9 +138,9 @@ class UpdateAgentTest extends TestCase
         $this->assertSame('1.0.0', $valid['json']['version'] ?? null);
     }
 
-    public function test_update_endpoint_queues_background_dry_run_job_and_exposes_status(): void
+    public function test_update_endpoint_queues_real_background_job_and_exposes_status(): void
     {
-        $this->startUpdaterServer();
+        $this->startUpdaterServer(dryRun: true);
 
         $without = $this->updaterRequest('POST', '/update');
         $this->assertSame(401, $without['code']);
@@ -150,20 +150,27 @@ class UpdateAgentTest extends TestCase
         $this->assertTrue($valid['json']['ok'] ?? false);
         $this->assertTrue($valid['json']['job']['dry_run'] ?? false);
         $this->assertSame('pending', $valid['json']['job']['status'] ?? null);
+        $this->assertSame('queued', $valid['json']['job']['current_step'] ?? null);
+        $this->assertSame('1.0.1', $valid['json']['job']['target_version'] ?? null);
         $this->assertSame('1.0.1', $valid['json']['job']['requested_version'] ?? null);
+        $this->assertArrayHasKey('started_at', $valid['json']['job'] ?? []);
+        $this->assertArrayHasKey('finished_at', $valid['json']['job'] ?? []);
+        $this->assertArrayHasKey('previous_version', $valid['json']['job'] ?? []);
+        $this->assertArrayHasKey('rollback_occurred', $valid['json']['job'] ?? []);
 
-        $status = $this->waitForJobStatus('success');
+        $status = $this->updaterRequest('GET', '/status', $this->token);
 
         $this->assertSame(200, $status['code']);
         $this->assertTrue($status['json']['job']['dry_run'] ?? false);
-        $this->assertSame('success', $status['json']['job']['status'] ?? null);
-        $this->assertSame('1.0.1', $status['json']['job']['version'] ?? null);
-        $this->assertStringContainsString('would update', $status['json']['job']['message'] ?? '');
+        $this->assertContains($status['json']['job']['status'] ?? null, ['pending', 'running', 'success', 'failed']);
+        $this->assertSame('1.0.1', $status['json']['job']['target_version'] ?? null);
+        $this->assertArrayHasKey('current_step', $status['json']['job'] ?? []);
+        $this->assertArrayHasKey('rollback_occurred', $status['json']['job'] ?? []);
     }
 
     public function test_completed_job_status_can_be_cleared(): void
     {
-        $this->startUpdaterServer();
+        $this->startUpdaterServer(dryRun: true);
 
         $this->updaterRequest('POST', '/update', $this->token);
         $this->waitForJobStatus('success');

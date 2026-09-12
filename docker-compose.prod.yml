@@ -1,5 +1,19 @@
 name: ${COMPOSE_PROJECT_NAME:-erp}
 
+# ------------------------------------------------------------------
+# PRODUCTION STACK — do not run `docker compose` commands against this
+# file by hand (up/down/recreate) outside of the Update Now flow or an
+# incident you are deliberately debugging. Manual recreation bypasses
+# the updater's image checks, database backup, and health-check/rollback
+# safety net in docker/updater/UpdateEngine.php, and can tear down
+# containers with no verified replacement image.
+#
+# Volume names below (erp-db, erp-redis) are load-bearing: renaming a
+# volume key here does NOT migrate data, it silently starts a fresh
+# empty volume under the new name while the old data sits orphaned.
+# Never rename these without an explicit data-migration step.
+# ------------------------------------------------------------------
+
 services:
   app:
     image: ghcr.io/syntekpro/syntekpro-erp:${SYNTEK_IMAGE_TAG:-latest}
@@ -14,6 +28,7 @@ services:
       - redis
     networks:
       - internal
+    restart: unless-stopped
 
   web:
     image: nginx:1.27-alpine
@@ -27,6 +42,7 @@ services:
     networks:
       - internal
       - erp-net
+    restart: unless-stopped
 
   db:
     image: mariadb:11.4
@@ -39,6 +55,7 @@ services:
       - erp-db:/var/lib/mysql
     networks:
       - internal
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
@@ -46,6 +63,7 @@ services:
       - erp-redis:/data
     networks:
       - internal
+    restart: unless-stopped
 
   updater:
     build:

@@ -50,6 +50,20 @@ final class ComposeManager
         }
     }
 
+    /**
+     * Checks the LOCAL image cache, not the remote registry. Used before
+     * any destructive step to confirm we can actually roll back to what
+     * is currently running — a remote manifest existing is not enough,
+     * the daemon on this host needs the image bytes too.
+     */
+    public function localImageExists(string $tag): bool
+    {
+        $image = $this->imageName($tag);
+        $result = $this->runner->run("docker image inspect {$image}");
+
+        return $result['exit_code'] === 0;
+    }
+
     public function recreateApp(): void
     {
         $this->runner->mustRun('docker compose -f docker-compose.prod.yml up -d app');

@@ -61,7 +61,9 @@ class UpdateManager
 
     public function lastCheckAt(): ?\DateTimeInterface
     {
-        return $this->latestPersistedRelease()?->checked_at;
+        $checkedAt = SystemUpdate::query()->max('checked_at');
+
+        return $checkedAt === null ? null : \Illuminate\Support\Carbon::parse($checkedAt);
     }
 
     public function agentStatus(): ?array

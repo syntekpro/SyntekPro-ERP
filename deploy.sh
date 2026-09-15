@@ -28,13 +28,13 @@ cd "${ROOT_DIR}"
 require_cmd git
 require_cmd docker
 
-step "1/7" "Pull latest code"
+step "1/8" "Pull latest code"
 run_cmd git pull --ff-only
 
-step "2/7" "Install PHP dependencies (safe to rerun)"
+step "2/8" "Install PHP dependencies (safe to rerun)"
 run_cmd docker compose -f "${BUILD_COMPOSE_FILE}" run --rm composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
-step "3/7" "Install frontend dependencies and build assets"
+step "3/8" "Install frontend dependencies and build assets"
 run_cmd docker compose -f "${BUILD_COMPOSE_FILE}" run --rm node ci
 run_cmd docker compose -f "${BUILD_COMPOSE_FILE}" run --rm node run build
 
@@ -49,16 +49,23 @@ if [ -z "${APP_CONTAINER_ID}" ]; then
   exit 1
 fi
 
-step "4/7" "Run database migrations"
+step "4/8" "Run database migrations"
 run_cmd docker compose -f "${COMPOSE_FILE}" exec -T "${APP_SERVICE}" php artisan migrate --force
 
-step "5/7" "Rebuild config cache"
+step "5/8" "Ensure public storage symlink exists (web serves ./public directly; app's internal symlink is not visible to it)"
+if [ ! -L public/storage ] && [ ! -e public/storage ]; then
+  run_cmd ln -s ../storage/app/public public/storage
+else
+  printf '  -> public/storage already present, skipping\n'
+fi
+
+step "6/8" "Rebuild config cache"
 run_cmd docker compose -f "${COMPOSE_FILE}" exec -T "${APP_SERVICE}" php artisan config:cache
 
-step "6/7" "Rebuild view cache"
+step "7/8" "Rebuild view cache"
 run_cmd docker compose -f "${COMPOSE_FILE}" exec -T "${APP_SERVICE}" php artisan view:cache
 
-step "7/7" "Reload PHP-FPM in running app container"
+step "8/8" "Reload PHP-FPM in running app container"
 run_cmd docker compose -f "${COMPOSE_FILE}" exec -T "${APP_SERVICE}" sh -lc 'kill -USR2 1'
 
 step "DONE" "Deployment completed successfully"

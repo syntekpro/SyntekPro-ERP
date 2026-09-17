@@ -22,7 +22,7 @@ final class UpdaterServer
         $backup = new BackupManager($commands, $env, $logger, "{$this->projectDir}/storage/backups");
         $this->status = new UpdateStatusStore("{$this->projectDir}/storage/framework/updater-status.json");
 
-        $health = new HealthChecker($logger, "http://web:80/login");
+        $health = new HealthChecker($logger, "http://web:80/up");
 
         $this->engine = new UpdateEngine(
             $this->projectDir,

@@ -74,9 +74,10 @@ services:
     environment:
       UPDATER_API_TOKEN: ${UPDATER_API_TOKEN}
       SYNTEK_VERSION: ${SYNTEK_VERSION:-unknown}
+      UPDATER_PROJECT_DIR: ${UPDATER_PROJECT_DIR}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./:/project:rw
+      - ${UPDATER_PROJECT_DIR}:${UPDATER_PROJECT_DIR}:rw
     networks:
       - internal
     restart: unless-stopped

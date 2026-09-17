@@ -856,6 +856,10 @@
         transform: translateX(0);
     }
 
+    :root[dir='rtl'] body.shell-drawer-open .shell-drawer {
+        transform: translateX(0);
+    }
+
     body.shell-drawer-open .shell-overlay {
         opacity: 1;
     }

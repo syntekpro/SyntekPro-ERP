@@ -1114,6 +1114,10 @@
             overflow: hidden;
         }
 
+        :root[dir='rtl'] .shell-drawer {
+            transform: none;
+        }
+
         body.shell-drawer-collapsed .shell-layout {
             grid-template-columns: 4.75rem minmax(0, 1fr);
         }

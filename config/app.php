@@ -58,6 +58,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Installed SyntekPro ERP Version
+    |--------------------------------------------------------------------------
+    |
+    | Alias of config('syntek.version') kept here for tooling (such as the
+    | scheduled update check) that reads config('app.syntek_version').
+    |
+    */
+
+    'syntek_version' => env('SYNTEK_VERSION', '1.0.0'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

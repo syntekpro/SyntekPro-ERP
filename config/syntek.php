@@ -55,6 +55,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Update Check GitHub Token
+    |--------------------------------------------------------------------------
+    |
+    | The GitHub releases API can be read anonymously for public repos, but
+    | SyntekPro-ERP is private, so the unauthenticated releases/latest lookup
+    | will 404. When that happens, the update checker falls back to the tags
+    | API using this token. If the token is empty, the fallback is skipped
+    | gracefully and a warning is logged instead of throwing.
+    |
+    */
+
+    'update_check_token' => env('UPDATE_CHECK_GITHUB_TOKEN'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Update Agent
     |--------------------------------------------------------------------------
     |

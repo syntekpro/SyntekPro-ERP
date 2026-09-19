@@ -45,7 +45,11 @@ class UpdateManager
             return null;
         }
 
-        return $this->persistRelease($release);
+        $update = $this->persistRelease($release);
+
+        $this->writeStatusFile($update);
+
+        return $update;
     }
 
     public function isUpdateAvailable(?SystemUpdate $latest = null): bool
@@ -122,6 +126,22 @@ class UpdateManager
         }
     }
 
+    /**
+     * Mirror the check result to storage/framework/update-check-status.json
+     * so tooling outside the web/DB context (e.g. the scheduler) can read it.
+     */
+    protected function writeStatusFile(SystemUpdate $update): void
+    {
+        try {
+            (new UpdateStatusStore(storage_path('framework/update-check-status.json')))
+                ->record($update->version, $this->installedVersion());
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to write the Syntek update status file.', [
+                'message' => $exception->getMessage(),
+            ]);
+        }
+    }
+
     protected function persistRelease(array $release): SystemUpdate
     {
         $version = ltrim((string) $release['tag_name'], 'v');
@@ -163,6 +183,10 @@ class UpdateManager
     {
         $response = $this->githubRequest()->get($this->githubApiUrl('/releases/latest'));
 
+        if ($response->status() === 404) {
+            return $this->fetchLatestReleaseFromTags();
+        }
+
         if (! $response->successful()) {
             Log::warning('Syntek update check returned a non-successful response.', [
                 'status' => $response->status(),
@@ -180,6 +204,10 @@ class UpdateManager
         $response = $this->githubRequest()->get($this->githubApiUrl('/releases'), [
             'per_page' => 20,
         ]);
+
+        if ($response->status() === 404) {
+            return $this->fetchLatestReleaseFromTags();
+        }
 
         if (! $response->successful()) {
             Log::warning('Syntek beta update check returned a non-successful response.', [
@@ -205,6 +233,53 @@ class UpdateManager
         }
 
         return null;
+    }
+
+    /**
+     * The releases API 404s for an unauthenticated caller when the repository
+     * is private. Fall back to the tags API using UPDATE_CHECK_GITHUB_TOKEN.
+     * If no token is configured, skip the check gracefully instead of failing.
+     */
+    protected function fetchLatestReleaseFromTags(): ?array
+    {
+        $token = (string) config('syntek.update_check_token');
+
+        if ($token === '') {
+            Log::warning('Syntek update check skipped: the releases API is inaccessible (private repository) and no UPDATE_CHECK_GITHUB_TOKEN is configured.');
+
+            return null;
+        }
+
+        $response = Http::timeout(10)
+            ->withToken($token)
+            ->withHeaders([
+                'Accept' => 'application/vnd.github+json',
+                'X-GitHub-Api-Version' => '2022-11-28',
+            ])
+            ->get($this->githubApiUrl('/tags'), ['per_page' => 1]);
+
+        if (! $response->successful()) {
+            Log::warning('Syntek update check via the tags API returned a non-successful response.', [
+                'status' => $response->status(),
+            ]);
+
+            return null;
+        }
+
+        $tags = $response->json();
+
+        if (! is_array($tags) || empty($tags[0]['name']) || ! is_string($tags[0]['name'])) {
+            return null;
+        }
+
+        return [
+            'tag_name' => $tags[0]['name'],
+            'name' => null,
+            'body' => null,
+            'published_at' => null,
+            'prerelease' => false,
+            'draft' => false,
+        ];
     }
 
     protected function normalizeReleasePayload(mixed $payload, bool $allowPrerelease): ?array

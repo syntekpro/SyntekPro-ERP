@@ -5,52 +5,52 @@
         </x-icon-tile>
         <div>
             <p class="text-xs font-medium text-ledger">Back office module</p>
-            <h1 class="mt-1 text-3xl font-semibold text-ink">{{ $bankAccount ? 'Edit Bank Account' : 'Add Bank Account' }}</h1>
-            <p class="mt-2 max-w-2xl text-sm text-muted">Link this bank account to a GL asset account so reconciliation can compare statement lines against journal entries.</p>
+            <h1 class="mt-1 text-3xl font-semibold text-ink">{{ $bankAccount ? __('Edit Bank Account') : __('Add Bank Account') }}</h1>
+            <p class="mt-2 max-w-2xl text-sm text-muted">{{ __('Link this bank account to a GL asset account so reconciliation can compare statement lines against journal entries.') }}</p>
         </div>
     </div>
 
     <x-card surface="surface">
         <form wire:submit="save" class="space-y-5">
             <div>
-                <label class="mb-2 block text-sm font-medium text-muted">GL Account <span class="text-danger">*</span></label>
+                <label class="mb-2 block text-sm font-medium text-muted">{{ __('GL Account') }} <span class="text-danger">*</span></label>
                 <x-select wire:model="account_id">
-                    <option value="">Select an asset account</option>
+                    <option value="">{{ __('Select an asset account') }}</option>
                     @foreach ($assetAccounts as $account)
                         <option value="{{ $account->id }}">{{ $account->code }} &mdash; {{ $account->name }}</option>
                     @endforeach
                 </x-select>
                 @error('account_id') <p class="mt-1 text-xs text-danger">{{ $message }}</p> @enderror
                 @if ($assetAccounts->isEmpty())
-                    <p class="mt-1 text-xs text-warning">No asset accounts exist yet. Create one under Accounting &rarr; Accounts first.</p>
+                    <p class="mt-1 text-xs text-warning">{{ __('No asset accounts exist yet. Create one under Accounting → Accounts first.') }}</p>
                 @endif
             </div>
 
             <div>
-                <label class="mb-2 block text-sm font-medium text-muted">Bank Name <span class="text-danger">*</span></label>
-                <x-input wire:model="bank_name" placeholder="e.g. Al Rajhi Bank" />
+                <label class="mb-2 block text-sm font-medium text-muted">{{ __('Bank Name') }} <span class="text-danger">*</span></label>
+                <x-input wire:model="bank_name" placeholder="{{ __('e.g. Al Rajhi Bank') }}" />
                 @error('bank_name') <p class="mt-1 text-xs text-danger">{{ $message }}</p> @enderror
             </div>
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Account Holder Name</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Account Holder Name') }}</label>
                     <x-input wire:model="account_holder_name" />
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Account Number (last 4)</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Account Number (last 4)') }}</label>
                     <x-input wire:model="account_number_last4" maxlength="10" placeholder="****4821" />
                 </div>
             </div>
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">IBAN</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('IBAN') }}</label>
                     <x-input wire:model="iban" placeholder="SA00 0000 0000 0000 0000 0000" />
                     @error('iban') <p class="mt-1 text-xs text-danger">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Currency</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Currency') }}</label>
                     <x-input wire:model="currency_code" maxlength="3" class="uppercase" />
                     @error('currency_code') <p class="mt-1 text-xs text-danger">{{ $message }}</p> @enderror
                 </div>
@@ -58,23 +58,23 @@
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Opening Balance</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Opening Balance') }}</label>
                     <x-input type="number" step="0.01" wire:model="opening_balance" />
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Opening Balance Date</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Opening Balance Date') }}</label>
                     <x-input type="date" wire:model="opening_balance_date" />
                 </div>
             </div>
 
             <label class="flex items-center gap-2 text-sm text-ink">
                 <input type="checkbox" wire:model="is_active" class="rounded border-line" />
-                Active
+                {{ __('Active') }}
             </label>
 
             <div class="flex items-center gap-3 pt-2">
-                <button type="submit" class="btn-primary">{{ $bankAccount ? 'Save changes' : 'Create bank account' }}</button>
-                <a href="{{ route('bank-accounts.index') }}" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">{{ $bankAccount ? __('Save changes') : __('Create bank account') }}</button>
+                <a href="{{ route('bank-accounts.index') }}" class="btn-secondary">{{ __('Cancel') }}</a>
             </div>
         </form>
     </x-card>

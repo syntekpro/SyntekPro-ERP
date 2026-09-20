@@ -34,6 +34,7 @@ class SettingsPage extends Component
 
     public array $updateInfo = [];
     public bool $updateCheckInProgress = false;
+    public bool $updateAvailable = false;
 
     public bool $confirmingUpdate = false;
     public bool $updateInProgress = false;
@@ -461,6 +462,8 @@ class SettingsPage extends Component
             'is_available' => $manager->isUpdateAvailable($latest),
             'agent_reachable' => $agentStatus !== null && ($agentStatus['status'] ?? 0) >= 200 && ($agentStatus['status'] ?? 0) < 300,
         ];
+
+        $this->updateAvailable = (bool) ($this->updateInfo['is_available'] ?? false);
     }
 
     protected function syncUpdateJob(?array $job): void

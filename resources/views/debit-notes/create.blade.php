@@ -5,23 +5,23 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Purchase Returns</p>
-            <h1 class="mt-3 text-4xl font-semibold text-ink">Create debit note</h1>
-            <p class="mt-3 max-w-3xl text-sm text-muted">Choose a supplier bill, then enter only the quantities being returned to the supplier. Warehouse stock is reduced under lock, but product average cost is intentionally left untouched.</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">{{ __('Purchase Returns') }}</p>
+            <h1 class="mt-3 text-4xl font-semibold text-ink">{{ __('Create debit note') }}</h1>
+            <p class="mt-3 max-w-3xl text-sm text-muted">{{ __('Choose a supplier bill, then enter only the quantities being returned to the supplier. Warehouse stock is reduced under lock, but product average cost is intentionally left untouched.') }}</p>
         </div>
 
         <form method="GET" action="{{ route('debit-notes.create') }}" class="rounded-ui border border-line bg-surface p-6">
-            <label for="supplier_bill_id" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">Supplier bill</label>
+            <label for="supplier_bill_id" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ __('Supplier bill') }}</label>
             <div class="flex flex-col gap-3 lg:flex-row">
                 <select id="supplier_bill_id" name="supplier_bill_id" class="ui-select w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none">
-                    <option value="">Select a supplier bill</option>
+                    <option value="">{{ __('Select a supplier bill') }}</option>
                     @foreach ($supplierBills as $bill)
                         <option value="{{ $bill->id }}" @selected(($selectedBill?->id ?? old('supplier_bill_id')) == $bill->id)>
                             {{ $bill->bill_number }} · {{ $bill->supplier?->name }} · SAR {{ number_format((float) $bill->total, 2) }}
                         </option>
                     @endforeach
                 </select>
-                <button type="submit" class="btn-secondary">Load items</button>
+                <button type="submit" class="btn-secondary">{{ __('Load items') }}</button>
             </div>
         </form>
 
@@ -32,17 +32,17 @@
 
                 <div class="grid gap-4 lg:grid-cols-3">
                     <div class="rounded-ui border border-line bg-panel p-4 text-sm text-muted">
-                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">Bill</p>
+                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">{{ __('Bill') }}</p>
                         <p class="mt-2 figure-mono font-semibold text-ink">{{ $selectedBill->bill_number }}</p>
-                        <p class="mt-1">Outstanding: SAR {{ number_format((float) $selectedBill->outstanding_balance, 2) }}</p>
+                        <p class="mt-1">{{ __('Outstanding') }}: SAR {{ number_format((float) $selectedBill->outstanding_balance, 2) }}</p>
                     </div>
                     <div class="rounded-ui border border-line bg-panel p-4 text-sm text-muted">
-                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">Supplier</p>
+                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">{{ __('Supplier') }}</p>
                         <p class="mt-2 font-semibold text-ink">{{ $selectedBill->supplier?->name }}</p>
-                        <p class="mt-1">Warehouse: {{ $selectedBill->warehouse?->name }}</p>
+                        <p class="mt-1">{{ __('Warehouse') }}: {{ $selectedBill->warehouse?->name }}</p>
                     </div>
                     <div class="rounded-ui border border-line bg-panel p-4 text-sm text-muted">
-                        <label for="note_date" class="text-xs font-semibold uppercase tracking-[0.24em] text-subtle">Debit note date</label>
+                        <label for="note_date" class="text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ __('Debit note date') }}</label>
                         <input id="note_date" name="note_date" type="date" value="{{ old('note_date', now()->toDateString()) }}" class="ui-input mt-2 w-full rounded-ui border border-line bg-surface px-4 py-2.5 text-sm text-ink outline-none" />
                     </div>
                 </div>
@@ -52,18 +52,18 @@
                 @enderror
 
                 <div class="mt-4 rounded-ui border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
-                    If the total return exceeds this bill's current outstanding balance, the extra amount will be flagged for manual handling instead of pushing the bill negative.
+                    {{ __("If the total return exceeds this bill's current outstanding balance, the extra amount will be flagged for manual handling instead of pushing the bill negative.") }}
                 </div>
 
                 <div class="mt-6 overflow-hidden rounded-ui border border-line table-baseline">
                     <table class="min-w-full text-start text-sm ui-table">
                         <thead>
                             <tr>
-                                <th class="px-4 py-3">Item</th>
-                                <th class="px-4 py-3">Received</th>
-                                <th class="px-4 py-3">Available to return</th>
-                                <th class="px-4 py-3">Return qty</th>
-                                <th class="px-4 py-3">Unit cost</th>
+                                <th class="px-4 py-3">{{ __('Item') }}</th>
+                                <th class="px-4 py-3">{{ __('Received') }}</th>
+                                <th class="px-4 py-3">{{ __('Available to return') }}</th>
+                                <th class="px-4 py-3">{{ __('Return qty') }}</th>
+                                <th class="px-4 py-3">{{ __('Unit cost') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line text-ink">
@@ -87,12 +87,12 @@
                 </div>
 
                 <div class="mt-6">
-                    <label for="notes" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">Notes</label>
+                    <label for="notes" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ __('Notes') }}</label>
                     <textarea id="notes" name="notes" rows="4" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none">{{ old('notes') }}</textarea>
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <button type="submit" class="btn-primary">Post debit note</button>
+                    <button type="submit" class="btn-primary">{{ __('Post debit note') }}</button>
                 </div>
             </form>
         @endif

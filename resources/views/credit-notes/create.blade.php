@@ -5,23 +5,23 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Sales Returns</p>
-            <h1 class="mt-3 text-4xl font-semibold text-ink">Create credit note</h1>
-            <p class="mt-3 max-w-3xl text-sm text-muted">Choose a sale, then enter only the quantities being returned. Sellable lines restock the original shop. Damaged lines stay out of stock and flow to the write-off account.</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">{{ __('Sales Returns') }}</p>
+            <h1 class="mt-3 text-4xl font-semibold text-ink">{{ __('Create credit note') }}</h1>
+            <p class="mt-3 max-w-3xl text-sm text-muted">{{ __('Choose a sale, then enter only the quantities being returned. Sellable lines restock the original shop. Damaged lines stay out of stock and flow to the write-off account.') }}</p>
         </div>
 
         <form method="GET" action="{{ route('credit-notes.create') }}" class="rounded-ui border border-line bg-surface p-6">
-            <label for="sale_id" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">Original sale</label>
+            <label for="sale_id" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ __('Original sale') }}</label>
             <div class="flex flex-col gap-3 lg:flex-row">
                 <select id="sale_id" name="sale_id" class="ui-select w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none">
-                    <option value="">Select a sale</option>
+                    <option value="">{{ __('Select a sale') }}</option>
                     @foreach ($sales as $sale)
                         <option value="{{ $sale->id }}" @selected(($selectedSale?->id ?? old('sale_id')) == $sale->id)>
-                            {{ $sale->invoice_number ?? ('Sale #'.$sale->id) }} · {{ $sale->shop?->name }} · SAR {{ number_format((float) $sale->total, 2) }}
+                            {{ $sale->invoice_number ?? (__('Sale #').$sale->id) }} · {{ $sale->shop?->name }} · SAR {{ number_format((float) $sale->total, 2) }}
                         </option>
                     @endforeach
                 </select>
-                <button type="submit" class="btn-secondary">Load items</button>
+                <button type="submit" class="btn-secondary">{{ __('Load items') }}</button>
             </div>
         </form>
 
@@ -32,17 +32,17 @@
 
                 <div class="grid gap-4 lg:grid-cols-3">
                     <div class="rounded-ui border border-line bg-panel p-4 text-sm text-muted">
-                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">Sale</p>
-                        <p class="mt-2 figure-mono font-semibold text-ink">{{ $selectedSale->invoice_number ?? ('Sale #'.$selectedSale->id) }}</p>
+                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">{{ __('Sale') }}</p>
+                        <p class="mt-2 figure-mono font-semibold text-ink">{{ $selectedSale->invoice_number ?? (__('Sale #').$selectedSale->id) }}</p>
                         <p class="mt-1">{{ $selectedSale->shop?->name }}</p>
                     </div>
                     <div class="rounded-ui border border-line bg-panel p-4 text-sm text-muted">
-                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">Customer</p>
-                        <p class="mt-2 font-semibold text-ink">{{ $selectedSale->customer?->name ?? 'Walk-in customer' }}</p>
-                        <p class="mt-1">Payment method: {{ str($selectedSale->payment_method->value)->replace('_', ' ')->title() }}</p>
+                        <p class="text-xs uppercase tracking-[0.24em] text-subtle">{{ __('Customer') }}</p>
+                        <p class="mt-2 font-semibold text-ink">{{ $selectedSale->customer?->name ?? __('Walk-in customer') }}</p>
+                        <p class="mt-1">{{ __('Payment method') }}: {{ str($selectedSale->payment_method->value)->replace('_', ' ')->title() }}</p>
                     </div>
                     <div class="rounded-ui border border-line bg-panel p-4 text-sm text-muted">
-                        <label for="note_date" class="text-xs font-semibold uppercase tracking-[0.24em] text-subtle">Credit note date</label>
+                        <label for="note_date" class="text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ __('Credit note date') }}</label>
                         <input id="note_date" name="note_date" type="date" value="{{ old('note_date', now()->toDateString()) }}" class="ui-input mt-2 w-full rounded-ui border border-line bg-surface px-4 py-2.5 text-sm text-ink outline-none" />
                     </div>
                 </div>
@@ -55,12 +55,12 @@
                     <table class="min-w-full text-start text-sm ui-table">
                         <thead>
                             <tr>
-                                <th class="px-4 py-3">Item</th>
-                                <th class="px-4 py-3">Sold</th>
-                                <th class="px-4 py-3">Available to return</th>
-                                <th class="px-4 py-3">Return qty</th>
-                                <th class="px-4 py-3">Condition</th>
-                                <th class="px-4 py-3">Frozen unit cost</th>
+                                <th class="px-4 py-3">{{ __('Item') }}</th>
+                                <th class="px-4 py-3">{{ __('Sold') }}</th>
+                                <th class="px-4 py-3">{{ __('Available to return') }}</th>
+                                <th class="px-4 py-3">{{ __('Return qty') }}</th>
+                                <th class="px-4 py-3">{{ __('Condition') }}</th>
+                                <th class="px-4 py-3">{{ __('Frozen unit cost') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line text-ink">
@@ -79,8 +79,8 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         <select name="items[{{ $index }}][condition]" class="ui-select w-40 rounded-ui border border-line bg-panel px-3 py-2 text-sm text-ink outline-none">
-                                            <option value="sellable" @selected(old('items.'.$index.'.condition', 'sellable') === 'sellable')>Sellable</option>
-                                            <option value="damaged" @selected(old('items.'.$index.'.condition') === 'damaged')>Damaged</option>
+                                            <option value="sellable" @selected(old('items.'.$index.'.condition', 'sellable') === 'sellable')>{{ __('Sellable') }}</option>
+                                            <option value="damaged" @selected(old('items.'.$index.'.condition') === 'damaged')>{{ __('Damaged') }}</option>
                                         </select>
                                     </td>
                                     <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $item->unit_cost, 2) }}</td>
@@ -91,12 +91,12 @@
                 </div>
 
                 <div class="mt-6">
-                    <label for="notes" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">Notes</label>
+                    <label for="notes" class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-subtle">{{ __('Notes') }}</label>
                     <textarea id="notes" name="notes" rows="4" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none">{{ old('notes') }}</textarea>
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <button type="submit" class="btn-primary">Post credit note</button>
+                    <button type="submit" class="btn-primary">{{ __('Post credit note') }}</button>
                 </div>
             </form>
         @endif

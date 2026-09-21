@@ -6,52 +6,52 @@
     <section class="space-y-6">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Accounting</p>
-                <h1 class="mt-3 text-4xl font-semibold text-ink">Cheques Register</h1>
-                <p class="mt-3 max-w-2xl text-sm text-muted">Track incoming and outgoing post-dated cheques, then mark them cleared or bounced when bank outcomes are known.</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">{{ __('Accounting') }}</p>
+                <h1 class="mt-3 text-4xl font-semibold text-ink">{{ __('Cheques Register') }}</h1>
+                <p class="mt-3 max-w-2xl text-sm text-muted">{{ __('Track incoming and outgoing post-dated cheques, then mark them cleared or bounced when bank outcomes are known.') }}</p>
             </div>
         </div>
 
         <form method="GET" action="{{ route('cheques.index') }}" class="rounded-ui border border-line bg-surface p-6">
             <div class="grid gap-4 md:grid-cols-5">
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Direction</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Direction') }}</label>
                     <select name="direction" class="ui-select w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none">
-                        <option value="">All</option>
-                        <option value="incoming" @selected($filters['direction'] === 'incoming')>Incoming</option>
-                        <option value="outgoing" @selected($filters['direction'] === 'outgoing')>Outgoing</option>
+                        <option value="">{{ __('All') }}</option>
+                        <option value="incoming" @selected($filters['direction'] === 'incoming')>{{ __('Incoming') }}</option>
+                        <option value="outgoing" @selected($filters['direction'] === 'outgoing')>{{ __('Outgoing') }}</option>
                     </select>
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Status</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Status') }}</label>
                     <select name="status" class="ui-select w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none">
-                        <option value="">All</option>
-                        <option value="pending" @selected($filters['status'] === 'pending')>Pending</option>
-                        <option value="cleared" @selected($filters['status'] === 'cleared')>Cleared</option>
-                        <option value="bounced" @selected($filters['status'] === 'bounced')>Bounced</option>
-                        <option value="cancelled" @selected($filters['status'] === 'cancelled')>Cancelled</option>
+                        <option value="">{{ __('All') }}</option>
+                        <option value="pending" @selected($filters['status'] === 'pending')>{{ __('Pending') }}</option>
+                        <option value="cleared" @selected($filters['status'] === 'cleared')>{{ __('Cleared') }}</option>
+                        <option value="bounced" @selected($filters['status'] === 'bounced')>{{ __('Bounced') }}</option>
+                        <option value="cancelled" @selected($filters['status'] === 'cancelled')>{{ __('Cancelled') }}</option>
                     </select>
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">From date</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('From date') }}</label>
                     <input type="date" name="from_date" value="{{ $filters['from_date'] }}" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none" />
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">To date</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('To date') }}</label>
                     <input type="date" name="to_date" value="{{ $filters['to_date'] }}" class="ui-input w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none" />
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-muted">Cheque date sort</label>
+                    <label class="mb-2 block text-sm font-medium text-muted">{{ __('Cheque date sort') }}</label>
                     <select name="sort" class="ui-select w-full rounded-ui border border-line bg-panel px-4 py-2.5 text-sm text-ink outline-none">
-                        <option value="asc" @selected($filters['sort'] === 'asc')>Earliest first</option>
-                        <option value="desc" @selected($filters['sort'] === 'desc')>Latest first</option>
+                        <option value="asc" @selected($filters['sort'] === 'asc')>{{ __('Earliest first') }}</option>
+                        <option value="desc" @selected($filters['sort'] === 'desc')>{{ __('Latest first') }}</option>
                     </select>
                 </div>
             </div>
 
             <div class="mt-5 flex gap-3">
-                <button type="submit" class="btn-primary">Apply filters</button>
-                <a href="{{ route('cheques.index') }}" class="btn-secondary">Reset</a>
+                <button type="submit" class="btn-primary">{{ __('Apply filters') }}</button>
+                <a href="{{ route('cheques.index') }}" class="btn-secondary">{{ __('Reset') }}</a>
             </div>
         </form>
 
@@ -59,14 +59,14 @@
             <table class="min-w-full text-start text-sm ui-table">
                 <thead>
                     <tr>
-                        <th class="px-4 py-3">Date</th>
-                        <th class="px-4 py-3">Direction</th>
-                        <th class="px-4 py-3">Cheque #</th>
-                        <th class="px-4 py-3">Bank</th>
-                        <th class="px-4 py-3">Settlement</th>
-                        <th class="px-4 py-3">Amount</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3 text-end">Actions</th>
+                        <th class="px-4 py-3">{{ __('Date') }}</th>
+                        <th class="px-4 py-3">{{ __('Direction') }}</th>
+                        <th class="px-4 py-3">{{ __('Cheque #') }}</th>
+                        <th class="px-4 py-3">{{ __('Bank') }}</th>
+                        <th class="px-4 py-3">{{ __('Settlement') }}</th>
+                        <th class="px-4 py-3">{{ __('Amount') }}</th>
+                        <th class="px-4 py-3">{{ __('Status') }}</th>
+                        <th class="px-4 py-3 text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line text-ink">
@@ -78,8 +78,8 @@
                                 default => 'neutral',
                             };
                             $settlementLabel = $cheque->direction->value === 'incoming'
-                                ? ($cheque->sale?->invoice_number ?? ('Sale #'.$cheque->sale_id))
-                                : ($cheque->supplierBill?->bill_number ?? ('Bill #'.$cheque->supplier_bill_id));
+                                ? ($cheque->sale?->invoice_number ?? (__('Sale #').$cheque->sale_id))
+                                : ($cheque->supplierBill?->bill_number ?? (__('Bill #').$cheque->supplier_bill_id));
                         @endphp
                         <tr>
                             <td class="px-4 py-3 figure-mono">{{ $cheque->cheque_date?->toDateString() }}</td>
@@ -95,24 +95,24 @@
                                         @can('clear', $cheque)
                                             <form method="POST" action="{{ route('cheques.clear', $cheque) }}">
                                                 @csrf
-                                                <button type="submit" class="btn-success btn-size-sm">Clear</button>
+                                                <button type="submit" class="btn-success btn-size-sm">{{ __('Clear') }}</button>
                                             </form>
                                         @endcan
                                         @can('bounce', $cheque)
                                             <form method="POST" action="{{ route('cheques.bounce', $cheque) }}">
                                                 @csrf
-                                                <button type="submit" class="btn-danger btn-size-sm">Bounce</button>
+                                                <button type="submit" class="btn-danger btn-size-sm">{{ __('Bounce') }}</button>
                                             </form>
                                         @endcan
                                     </div>
                                 @else
-                                    <span class="text-xs uppercase tracking-[0.2em] text-subtle">Finalized</span>
+                                    <span class="text-xs uppercase tracking-[0.2em] text-subtle">{{ __('Finalized') }}</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-10 text-center text-muted">No cheques found for the selected filters.</td>
+                            <td colspan="8" class="px-4 py-10 text-center text-muted">{{ __('No cheques found for the selected filters.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

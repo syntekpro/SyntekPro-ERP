@@ -5,9 +5,9 @@
 @section('content')
     <section class="space-y-6">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">Payables</p>
-            <h1 class="mt-3 text-4xl font-semibold text-ink">Accounts Payable Aging</h1>
-            <p class="mt-3 max-w-2xl text-sm text-muted">Outstanding supplier balances bucketed by days overdue as of {{ $today->toDateString() }}.</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brass">{{ __('Payables') }}</p>
+            <h1 class="mt-3 text-4xl font-semibold text-ink">{{ __('Accounts Payable Aging') }}</h1>
+            <p class="mt-3 max-w-2xl text-sm text-muted">{{ __('Outstanding supplier balances bucketed by days overdue as of') }} {{ $today->toDateString() }}.</p>
         </div>
 
         <div class="rounded-ui border border-line bg-surface p-6">
@@ -15,13 +15,13 @@
                 <table class="min-w-full text-start text-sm ui-table">
                     <thead>
                         <tr>
-                            <th class="px-4 py-3">Supplier</th>
-                            <th class="px-4 py-3">Current</th>
-                            <th class="px-4 py-3">1-30</th>
-                            <th class="px-4 py-3">31-60</th>
-                            <th class="px-4 py-3">61-90</th>
-                            <th class="px-4 py-3">90+</th>
-                            <th class="px-4 py-3">Total</th>
+                            <th class="px-4 py-3">{{ __('Supplier') }}</th>
+                            <th class="px-4 py-3">{{ __('Current') }}</th>
+                            <th class="px-4 py-3">{{ __('1-30') }}</th>
+                            <th class="px-4 py-3">{{ __('31-60') }}</th>
+                            <th class="px-4 py-3">{{ __('61-90') }}</th>
+                            <th class="px-4 py-3">{{ __('90+') }}</th>
+                            <th class="px-4 py-3">{{ __('Total') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-line text-ink">
@@ -36,7 +36,7 @@
                                 <td class="px-4 py-3 figure-mono">SAR {{ number_format((float) $row['total'], 2) }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="px-4 py-10 text-center text-muted">No outstanding supplier balances.</td></tr>
+                            <tr><td colspan="7" class="px-4 py-10 text-center text-muted">{{ __('No outstanding supplier balances.') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>

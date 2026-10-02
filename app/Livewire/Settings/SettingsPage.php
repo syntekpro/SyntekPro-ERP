@@ -246,7 +246,7 @@ class SettingsPage extends Component
         ]);
 
         BusinessSetting::query()->firstOrCreate(['singleton_key' => 1])->update($this->emptyStringsToNull($validated['settings']));
-        session()->flash('status', 'Business settings updated.');
+        session()->flash('status', __('Business settings updated.'));
     }
 
     public function saveNumbering(): void
@@ -264,7 +264,7 @@ class SettingsPage extends Component
             ]);
         }
 
-        session()->flash('status', 'Document numbering formats updated.');
+        session()->flash('status', __('Document numbering formats updated.'));
         $this->loadFormats();
     }
 
@@ -283,7 +283,7 @@ class SettingsPage extends Component
             }
         });
 
-        session()->flash('status', 'Role permissions updated.');
+        session()->flash('status', __('Role permissions updated.'));
     }
 
     public function updatedSelectedUserId(): void
@@ -310,7 +310,7 @@ class SettingsPage extends Component
             }
         }
 
-        session()->flash('status', 'User permission overrides updated.');
+        session()->flash('status', __('User permission overrides updated.'));
     }
 
     public function saveBranding(BusinessSettingsService $settingsService): void
@@ -363,7 +363,7 @@ class SettingsPage extends Component
         $this->logoUpload = null;
         $this->faviconUpload = null;
         $this->touchIconUpload = null;
-        session()->flash('status', 'Branding settings updated.');
+        session()->flash('status', __('Branding settings updated.'));
     }
 
     public function getPermissionsProperty()

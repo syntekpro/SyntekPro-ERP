@@ -45,7 +45,7 @@ class IndexPage extends Component
             'submitted_at' => now(),
         ]);
 
-        session()->flash('status', 'Purchase order submitted.');
+        session()->flash('status', __('Purchase order submitted.'));
     }
 
     public function receive(int $purchaseOrderId, PurchaseOrderReceivingService $receivingService): void
@@ -66,7 +66,7 @@ class IndexPage extends Component
         $receivingService->receive($purchaseOrder, $inputLines, Auth::id());
 
         unset($this->receiveLines[$purchaseOrderId]);
-        session()->flash('status', 'PO receipt posted: warehouse stock updated and supplier bill created.');
+        session()->flash('status', __('PO receipt posted: warehouse stock updated and supplier bill created.'));
     }
 
     public function close(int $purchaseOrderId): void
@@ -80,7 +80,7 @@ class IndexPage extends Component
             'closed_at' => now(),
         ]);
 
-        session()->flash('status', 'Purchase order closed.');
+        session()->flash('status', __('Purchase order closed.'));
     }
 
     public function render()

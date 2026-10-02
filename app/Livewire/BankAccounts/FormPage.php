@@ -71,10 +71,10 @@ class FormPage extends Component
 
         if ($this->bankAccount) {
             $this->bankAccount->update($validated);
-            session()->flash('status', 'Bank account updated.');
+            session()->flash('status', __('Bank account updated.'));
         } else {
             BankAccount::create($validated);
-            session()->flash('status', 'Bank account created.');
+            session()->flash('status', __('Bank account created.'));
         }
 
         return redirect()->route('bank-accounts.index');

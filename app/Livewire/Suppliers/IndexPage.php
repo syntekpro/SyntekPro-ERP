@@ -32,7 +32,7 @@ class IndexPage extends Component
 
         $supplier->update(['is_active' => $isActive]);
 
-        session()->flash('status', $isActive ? 'Supplier activated.' : 'Supplier deactivated.');
+        session()->flash('status', $isActive ? __('Supplier activated.') : __('Supplier deactivated.'));
     }
 
     public function delete(int $supplierId): void

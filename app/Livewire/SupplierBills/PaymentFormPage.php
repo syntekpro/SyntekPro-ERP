@@ -56,7 +56,7 @@ class PaymentFormPage extends Component
             return null;
         }
 
-        session()->flash('status', 'Supplier payment recorded and posted to ledger.');
+        session()->flash('status', __('Supplier payment recorded and posted to ledger.'));
 
         return redirect()->route('supplier-bills.index');
     }

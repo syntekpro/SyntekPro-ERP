@@ -147,7 +147,7 @@ class FormPage extends Component
 
             $this->purchaseOrder->items()->delete();
             $purchaseOrder = $this->purchaseOrder;
-            session()->flash('status', 'Purchase order updated.');
+            session()->flash('status', __('Purchase order updated.'));
         } else {
             $purchaseOrder = DB::transaction(function () use ($validated, $documentNumberService): PurchaseOrder {
                 return PurchaseOrder::query()->create([
@@ -159,7 +159,7 @@ class FormPage extends Component
                 ]);
             });
 
-            session()->flash('status', 'Purchase order created.');
+            session()->flash('status', __('Purchase order created.'));
         }
 
         foreach ($validated['items'] as $item) {

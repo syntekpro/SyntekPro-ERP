@@ -32,7 +32,7 @@ class IndexPage extends Component
 
         $bankAccount->update(['is_active' => $isActive]);
 
-        session()->flash('status', $isActive ? 'Bank account activated.' : 'Bank account deactivated.');
+        session()->flash('status', $isActive ? __('Bank account activated.') : __('Bank account deactivated.'));
     }
 
     public function render()

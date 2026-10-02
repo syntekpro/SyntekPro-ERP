@@ -124,7 +124,7 @@ class WorkspacePage extends Component
             return;
         }
 
-        session()->flash('status', "Imported {$import->imported_count} transaction(s), skipped {$import->skipped_count}.");
+        session()->flash('status', __('Imported :imported transaction(s), skipped :skipped.', ['imported' => $import->imported_count, 'skipped' => $import->skipped_count]));
 
         $this->reset(['csvFile', 'previewHeaderRow', 'dateCol', 'descCol', 'amountCol', 'debitCol', 'creditCol', 'refCol', 'balanceCol']);
     }
@@ -143,7 +143,7 @@ class WorkspacePage extends Component
 
         $matcher->confirmMatch($statementLine, $journalEntryLine, auth()->id());
 
-        session()->flash('status', 'Match confirmed.');
+        session()->flash('status', __('Match confirmed.'));
         $this->manualMatchStatementLineId = null;
     }
 
@@ -157,7 +157,7 @@ class WorkspacePage extends Component
 
         $matcher->ignore($statementLine);
 
-        session()->flash('status', 'Line marked as ignored.');
+        session()->flash('status', __('Line marked as ignored.'));
     }
 
     public function openManualMatch(int $statementLineId): void

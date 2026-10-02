@@ -72,10 +72,10 @@ class FormPage extends Component
 
         if ($this->supplier) {
             $this->supplier->update($validated);
-            session()->flash('status', 'Supplier updated.');
+            session()->flash('status', __('Supplier updated.'));
         } else {
             Supplier::query()->create($validated);
-            session()->flash('status', 'Supplier created.');
+            session()->flash('status', __('Supplier created.'));
         }
 
         return redirect()->route('suppliers.index');

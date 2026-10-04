@@ -190,6 +190,9 @@ final class UpdateEngine
 
         $this->logger->info('Syncing public assets');
         $this->compose->copyFromApp('/var/www/html/public', "{$this->projectDir}/public");
+
+        $this->logger->info('Recreating web container to pick up refreshed public assets');
+        $this->compose->recreateWeb();
     }
 
     private function runPostDeploySteps(): void
@@ -211,12 +214,20 @@ final class UpdateEngine
 
         if ($publicBackup !== null && is_dir($publicBackup)) {
             $this->logger->info('Restoring public directory backup', ['path' => $publicBackup]);
+            // In-place sync: clear the directory's CONTENTS (not the
+            // directory itself), then copy the backup back in. This keeps
+            // the directory's inode stable, so any container's existing
+            // bind mount into this path stays valid instead of being
+            // orphaned.
             $this->compose->runner->mustRun(sprintf(
-                'rm -rf %s && cp -a %s %s',
+                'find %s -mindepth 1 -delete && cp -a %s %s',
                 escapeshellarg("{$this->projectDir}/public"),
-                escapeshellarg($publicBackup),
-                escapeshellarg("{$this->projectDir}/public")
+                escapeshellarg("{$publicBackup}/."),
+                escapeshellarg("{$this->projectDir}/public/")
             ));
+
+            $this->logger->info('Recreating web container after restoring public assets');
+            $this->compose->recreateWeb();
         }
 
         $this->compose->setImageTag($tag);

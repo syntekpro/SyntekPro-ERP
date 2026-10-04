@@ -69,6 +69,11 @@ final class ComposeManager
         $this->runner->mustRun('docker compose -f docker-compose.prod.yml up -d app');
     }
 
+    public function recreateWeb(): void
+    {
+        $this->runner->mustRun('docker compose -f docker-compose.prod.yml up -d --force-recreate web');
+    }
+
     public function runInApp(string $command): void
     {
         $this->runner->mustRun("docker compose -f docker-compose.prod.yml exec -T app {$command}");
@@ -76,7 +81,13 @@ final class ComposeManager
 
     public function copyFromApp(string $containerPath, string $hostPath): void
     {
-        $this->runner->mustRun("docker compose -f docker-compose.prod.yml cp app:{$containerPath} {$hostPath}");
+        // Trailing "/." tells `docker compose cp` to copy the SOURCE
+        // directory's contents into the destination, rather than nesting
+        // the source directory inside it when the destination already
+        // exists (this previously left stale assets live while writing
+        // the new build into a public/public/ subfolder instead).
+        $source = rtrim($containerPath, '/') . '/.';
+        $this->runner->mustRun("docker compose -f docker-compose.prod.yml cp app:{$source} {$hostPath}");
     }
 
     public function imageName(string $version): string
